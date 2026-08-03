@@ -5,12 +5,25 @@ const CONFIG = {
   maxYear: 2026,
   wikidataMinZoom: 3,
   wikidataMaxWidth: 85,
-  wikidataMaxHeight: 60
+  wikidataMaxHeight: 60,
+  worldView: { center: [-82, 21], zoom: 0.15, bearing: 0, pitch: 0 }
 };
 
 const data = window.WORLDLINE_DATA;
 const dom = {
   map: document.querySelector('#map'),
+  searchShell: document.querySelector('#searchShell'),
+  sheetHandle: document.querySelector('#sheetHandle'),
+  sheetClose: document.querySelector('#sheetClose'),
+  historySearch: document.querySelector('#historySearch'),
+  searchSubmit: document.querySelector('#searchSubmit'),
+  searchFeedback: document.querySelector('#searchFeedback'),
+  searchContextButton: document.querySelector('#searchContextButton'),
+  searchContextYear: document.querySelector('#searchContextYear'),
+  brandButton: document.querySelector('#brandButton'),
+  yearButton: document.querySelector('#yearButton'),
+  globeButton: document.querySelector('#globeButton'),
+  northButton: document.querySelector('#northButton'),
   sourceStatus: document.querySelector('#sourceStatus'),
   yearLabel: document.querySelector('#yearLabel'),
   timelineDate: document.querySelector('#timelineDate'),
@@ -99,17 +112,17 @@ function styleSettlementLayer(layer) {
   if (clone.type === 'symbol') {
     clone.paint = {
       ...(clone.paint || {}),
-      'text-color': '#f4f7f2',
-      'text-halo-color': 'rgba(4, 11, 14, 0.94)',
-      'text-halo-width': 1.5,
-      'text-halo-blur': 0.4
+      'text-color': '#f7f7fa',
+      'text-halo-color': 'rgba(3, 6, 8, 0.94)',
+      'text-halo-width': 1.65,
+      'text-halo-blur': 0.45
     };
   }
   if (clone.type === 'circle') {
     clone.paint = {
       ...(clone.paint || {}),
-      'circle-color': '#dfff70',
-      'circle-stroke-color': '#071014',
+      'circle-color': '#a8e95d',
+      'circle-stroke-color': '#05080a',
       'circle-stroke-width': 1.4
     };
   }
@@ -123,7 +136,7 @@ function styleBuildingLayer(layer) {
   if (clone.type === 'fill') {
     clone.paint = {
       ...(clone.paint || {}),
-      'fill-color': '#ffb96b',
+      'fill-color': '#ffb35c',
       'fill-opacity': 0.24,
       'fill-outline-color': '#ffe0b5'
     };
@@ -138,22 +151,53 @@ function styleBuildingLayer(layer) {
   return clone;
 }
 
+function globeStyleShell() {
+  return {
+    projection: { type: 'globe' },
+    sky: {
+      'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, 1, 5, 1, 7, 0]
+    },
+    light: {
+      anchor: 'map',
+      position: [1.5, 90, 80]
+    }
+  };
+}
+
+function satelliteSource() {
+  return {
+    type: 'raster',
+    tiles: CONFIG.satelliteTiles,
+    tileSize: 256,
+    maxzoom: 16,
+    attribution: 'Sentinel-2 cloudless by EOX IT Services GmbH - Contains modified Copernicus Sentinel data'
+  };
+}
+
+function baseLayers() {
+  return [
+    { id: 'background', type: 'background', paint: { 'background-color': '#000000' } },
+    {
+      id: 'satellite-imagery',
+      type: 'raster',
+      source: 'satellite',
+      paint: {
+        'raster-opacity': 1,
+        'raster-saturation': -0.04,
+        'raster-contrast': 0.1,
+        'raster-brightness-min': 0.02,
+        'raster-brightness-max': 0.98
+      }
+    }
+  ];
+}
+
 function fallbackStyle() {
   return {
     version: 8,
-    sources: {
-      satellite: {
-        type: 'raster',
-        tiles: CONFIG.satelliteTiles,
-        tileSize: 256,
-        maxzoom: 16,
-        attribution: 'Sentinel-2 cloudless 2024 by EOX IT Services GmbH - Contains modified Copernicus Sentinel data 2024'
-      }
-    },
-    layers: [
-      { id: 'background', type: 'background', paint: { 'background-color': '#071014' } },
-      { id: 'satellite-imagery', type: 'raster', source: 'satellite', paint: { 'raster-opacity': 0.96, 'raster-saturation': -0.08, 'raster-contrast': 0.08 } }
-    ]
+    ...globeStyleShell(),
+    sources: { satellite: satelliteSource() },
+    layers: baseLayers()
   };
 }
 
@@ -178,25 +222,12 @@ async function prepareStyle() {
 
     return {
       version: 8,
-      name: 'Worldline satellite settlement style',
+      name: 'Worldline satellite settlement globe',
+      ...globeStyleShell(),
       glyphs: ohmStyle.glyphs,
       sprite: ohmStyle.sprite,
-      sources: {
-        satellite: {
-          type: 'raster',
-          tiles: CONFIG.satelliteTiles,
-          tileSize: 256,
-          maxzoom: 16,
-          attribution: 'Sentinel-2 cloudless 2024 by EOX IT Services GmbH - Contains modified Copernicus Sentinel data 2024'
-        },
-        ...selectedSources
-      },
-      layers: [
-        { id: 'background', type: 'background', paint: { 'background-color': '#071014' } },
-        { id: 'satellite-imagery', type: 'raster', source: 'satellite', paint: { 'raster-opacity': 0.96, 'raster-saturation': -0.08, 'raster-contrast': 0.08 } },
-        ...buildings,
-        ...settlements
-      ]
+      sources: { satellite: satelliteSource(), ...selectedSources },
+      layers: [...baseLayers(), ...buildings, ...settlements]
     };
   } catch (error) {
     console.warn('OpenHistoricalMap style unavailable:', error);

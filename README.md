@@ -1,34 +1,57 @@
 # Worldline Atlas
 
-A satellite-first, uncertainty-aware map of known human settlements through time.
+A satellite-first, uncertainty-aware globe of known human settlements through time.
 
 ## Current version
 
-The atlas overlays historical settlement evidence on a modern Sentinel-2 satellite surface. The selected year changes the settlement layer, not the imagery itself.
+Worldline Atlas uses MapLibre's globe projection to present historical settlement evidence on a modern Sentinel-2 satellite surface. The selected year changes the historical evidence layer, not the imagery itself.
+
+The interface is intentionally map-first:
+
+- Full-screen interactive Earth
+- Black space and atmospheric globe rendering
+- Minimal floating map controls
+- A compact bottom search bar
+- Historical controls hidden inside an expandable bottom sheet
+- Mobile safe-area support
+
+The interface is inspired by the clarity and restraint of modern native map apps, but it does not use or redistribute Apple Maps imagery, tiles, branding, or private APIs.
 
 ### Data and services
 
-- **Map rendering:** MapLibre GL JS
-- **Satellite surface:** EOX Sentinel-2 cloudless 2024 WMTS
+- **Map rendering and globe projection:** MapLibre GL JS
+- **Satellite surface:** EOX Sentinel-2 cloudless WMTS
 - **Historical map records:** OpenHistoricalMap vector tiles and published MapLibre style
 - **Supplementary catalog:** Wikidata Query Service through a cached Netlify Function
 - **Early archaeological sites:** A small reviewed GeoJSON-style seed set in `data.js`
 - **Hosting:** Netlify
 - **Source control:** GitHub
 
-The app has no paid dependency and does not require API keys. EOX imagery is free for non-commercial use with attribution. Review its current license before any commercial launch.
+The app has no paid dependency and does not require API keys. Review each upstream service's current license and usage limits before a commercial launch.
 
-## What the interface does
+## Search behavior
+
+The bottom search bar is the future natural-language entry point. The current interface already supports:
+
+- Reviewed settlement names contained in `data.js`
+- Explicit dates such as `117 CE` and `7000 BCE`
+- Combined searches such as `Rome 117 CE`
+- Camera movement to matched reviewed sites
+- Clear handling of unmatched prompts
+
+The next search phase will connect unmatched prompts to a research and review queue rather than silently fabricating a reconstruction.
+
+## Historical controls
 
 - Continuous year control from 15,000 BCE to 2026 CE
 - Exact numeric year entry and quick period jumps
-- Modern cloudless satellite imagery at up to 10-meter source resolution
+- Timeline playback with period-sensitive increments
 - Dated settlement labels from OpenHistoricalMap
-- Live viewport queries for Wikidata cities, towns, villages, human settlements, ancient cities, and archaeological sites
+- Live viewport queries for Wikidata settlements and archaeological sites
 - Optional historical building footprints where OpenHistoricalMap contains them
 - Strict, balanced, and broad evidence thresholds
 - Clickable source records and confidence notes
-- Mobile-first controls and clustered live catalog points
+- Clustered live catalog points
 
 ## Accuracy model
 
@@ -66,9 +89,9 @@ Every merge to `main` triggers a redeploy.
 
 ## Next milestones
 
-1. Add World Historical Gazetteer, Pleiades, and regional archaeological datasets through normalized adapters.
-2. Store source disagreements and occupation phases as first-class records.
-3. Add paleocoastline, river, climate, and vegetation reconstructions with explicit uncertainty.
-4. Build a review queue for proposed settlement records and inferred locations.
+1. Add a reviewed natural-language request queue and editorial workflow.
+2. Add World Historical Gazetteer, Pleiades, and regional archaeological datasets through normalized adapters.
+3. Store source disagreements and occupation phases as first-class records.
+4. Add paleocoastline, river, climate, and vegetation reconstructions with explicit uncertainty.
 5. Add population ranges and settlement footprint estimates where defensible.
 6. Replace the curated seed file with versioned, cited datasets maintained through pull requests.

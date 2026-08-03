@@ -3,6 +3,7 @@ function updateEraUi() {
   const date = formatYear(selectedYear);
   dom.yearLabel.textContent = date;
   dom.timelineDate.textContent = date;
+  dom.searchContextYear.textContent = date;
   dom.eraLabel.textContent = era.label;
   dom.eraSummary.textContent = era.summary;
   dom.evidenceLabel.textContent = currentMode().label;
@@ -23,6 +24,18 @@ function setYear(year, { fromSlider = false } = {}) {
   updateCuratedLayer();
   scheduleWikidataLoad();
   requestAnimationFrame(updateRenderedOhmCount);
+}
+
+function setSheetOpen(open, { focus = false } = {}) {
+  dom.searchShell.classList.toggle('is-open', open);
+  dom.sheetHandle.setAttribute('aria-expanded', String(open));
+  dom.sheetHandle.setAttribute('aria-label', open ? 'Collapse map controls' : 'Expand map controls');
+  if (focus) requestAnimationFrame(() => dom.historySearch.focus());
+}
+
+function showSearchFeedback(message) {
+  dom.searchFeedback.textContent = message;
+  dom.searchFeedback.classList.toggle('has-message', Boolean(message));
 }
 
 function playbackStep(year) {
@@ -54,6 +67,77 @@ function togglePlayback() {
     const next = selectedYear + playbackStep(selectedYear);
     setYear(next > CONFIG.maxYear ? CONFIG.minYear : next);
   }, 720);
+}
+
+function extractYearFromQuery(query) {
+  const eraMatch = query.match(/(-?\d{1,5})\s*(BCE|BC|CE|AD)\b/i);
+  if (eraMatch) {
+    const magnitude = Math.abs(Number(eraMatch[1]));
+    return /BCE|BC/i.test(eraMatch[2]) ? -magnitude : magnitude;
+  }
+  const signedMatch = query.match(/(?:^|\s)(-\d{1,5})(?:\s|$)/);
+  return signedMatch ? Number(signedMatch[1]) : null;
+}
+
+function placeTermFromQuery(query) {
+  return query
+    .replace(/-?\d{1,5}\s*(BCE|BC|CE|AD)\b/ig, ' ')
+    .replace(/(?:^|\s)-\d{1,5}(?:\s|$)/g, ' ')
+    .replace(/\b(show|take|bring|find|search|tell|what|was|were|did|does|look|like|me|to|in|during|around|at|the|a|an|map|year|history|historical|of)\b/ig, ' ')
+    .replace(/[^\p{L}\p{N}\s.'-]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function findReviewedSettlement(term) {
+  if (!term) return null;
+  const candidates = data.settlements.map((site) => ({ site, name: site.name.toLowerCase() }));
+  return candidates.find(({ name }) => name === term)?.site
+    || candidates.find(({ name }) => name.startsWith(term) || term.startsWith(name))?.site
+    || candidates.find(({ name }) => name.includes(term) || term.includes(name))?.site
+    || null;
+}
+
+function runHistorySearch() {
+  const query = dom.historySearch.value.trim();
+  setSheetOpen(true);
+  if (!query) {
+    showSearchFeedback('Try “Rome 117 CE”, “Çatalhöyük 7000 BCE”, or enter a year.');
+    return;
+  }
+
+  const requestedYear = extractYearFromQuery(query);
+  const placeTerm = placeTermFromQuery(query);
+  const site = findReviewedSettlement(placeTerm);
+
+  if (requestedYear !== null) setYear(requestedYear);
+
+  if (site) {
+    if (requestedYear === null && (selectedYear < site.start || selectedYear > site.end)) {
+      const representativeYear = Math.max(CONFIG.minYear, Math.min(CONFIG.maxYear, site.start));
+      setYear(representativeYear);
+    }
+    if (mapReady) {
+      map.flyTo({
+        center: site.coordinates,
+        zoom: Math.max(5.6, Math.min(8, map.getZoom() + 3.5)),
+        bearing: 0,
+        pitch: 28,
+        duration: 1700,
+        essential: true
+      });
+    }
+    showSearchFeedback(`Showing ${site.name} in ${formatYear(selectedYear)}. This search currently matches reviewed atlas records.`);
+    return;
+  }
+
+  if (requestedYear !== null) {
+    showSearchFeedback(`Timeline set to ${formatYear(selectedYear)}. Place and natural-language research search is the next system layer.`);
+    return;
+  }
+
+  showSearchFeedback('No reviewed place matched yet. In the next phase, unmatched prompts will become research requests instead of dead ends.');
 }
 
 function popupForCustomFeature(feature, coordinates) {
@@ -129,19 +213,27 @@ function bindMapInteractions() {
 }
 
 async function boot() {
-  setStatus('Loading historical sources');
+  setStatus('Loading sources');
   const style = await prepareStyle();
   map = new maplibregl.Map({
     container: 'map',
     style,
-    center: [16, 24],
-    zoom: 1.65,
-    minZoom: 1,
+    center: CONFIG.worldView.center,
+    zoom: CONFIG.worldView.zoom,
+    bearing: CONFIG.worldView.bearing,
+    pitch: CONFIG.worldView.pitch,
+    minZoom: 0,
     maxZoom: 16,
-    attributionControl: true,
-    renderWorldCopies: false
+    maxPitch: 70,
+    attributionControl: false,
+    renderWorldCopies: false,
+    canvasContextAttributes: { antialias: true, alpha: true }
   });
-  map.addControl(new maplibregl.NavigationControl({ showCompass: true }), 'bottom-right');
+  map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-left');
+
+  map.on('style.load', () => {
+    try { map.setProjection({ type: 'globe' }); } catch (error) { console.warn('Globe projection unavailable:', error); }
+  });
 
   map.on('load', () => {
     mapReady = true;
@@ -154,10 +246,10 @@ async function boot() {
     dom.map.classList.add('ready');
     dom.ohmToggle.disabled = !ohmAvailable;
     if (ohmAvailable) {
-      setStatus('Live historical tiles connected', 'ready');
+      setStatus('Historical tiles connected', 'ready');
     } else {
-      setStatus('Historical tiles unavailable - fallback active', 'warn');
-      dom.coverageMessage.textContent = 'OpenHistoricalMap could not load. Curated and Wikidata records remain available.';
+      setStatus('Fallback sources active', 'warn');
+      dom.coverageMessage.textContent = 'OpenHistoricalMap could not load. Reviewed and Wikidata records remain available.';
     }
   });
 
@@ -212,10 +304,45 @@ dom.wikidataToggle.addEventListener('change', () => {
   scheduleWikidataLoad(0);
 });
 
+dom.sheetHandle.addEventListener('click', () => setSheetOpen(!dom.searchShell.classList.contains('is-open')));
+dom.sheetClose.addEventListener('click', () => setSheetOpen(false));
+dom.brandButton.addEventListener('click', () => setSheetOpen(true));
+dom.yearButton.addEventListener('click', () => {
+  setSheetOpen(true);
+  requestAnimationFrame(() => document.querySelector('#timelineControls')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
+});
+dom.searchContextButton.addEventListener('click', () => {
+  setSheetOpen(true);
+  requestAnimationFrame(() => document.querySelector('#timelineControls')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
+});
+dom.historySearch.addEventListener('focus', () => setSheetOpen(true));
+dom.historySearch.addEventListener('input', () => showSearchFeedback(''));
+dom.historySearch.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    runHistorySearch();
+  }
+});
+dom.searchSubmit.addEventListener('click', runHistorySearch);
+
+dom.globeButton.addEventListener('click', () => {
+  if (!mapReady) return;
+  setSheetOpen(false);
+  map.easeTo({ ...CONFIG.worldView, duration: 1200, essential: true });
+});
+dom.northButton.addEventListener('click', () => {
+  if (!mapReady) return;
+  map.easeTo({ bearing: 0, pitch: 0, duration: 700, essential: true });
+});
+
 document.querySelector('#aboutButton').addEventListener('click', () => dom.aboutDialog.showModal());
 document.querySelector('#closeDialog').addEventListener('click', () => dom.aboutDialog.close());
 dom.aboutDialog.addEventListener('click', (event) => {
   if (event.target === dom.aboutDialog) dom.aboutDialog.close();
 });
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && !dom.aboutDialog.open) setSheetOpen(false);
+});
 
+updateEraUi();
 boot();
