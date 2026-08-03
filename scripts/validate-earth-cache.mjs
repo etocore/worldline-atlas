@@ -1,6 +1,6 @@
 import { access, readFile } from 'node:fs/promises';
 
-const CURRENT_BUILD = '2026-08-03-globe-r14';
+const CURRENT_BUILD = '2026-08-03-globe-r15';
 const LIFE_BUILD = '2026-08-03-globe-r12';
 const requiredFiles = [
   'earth-cache.js','life-evidence.js','life-regions-r12.css','r12-ui.js','apple-timeline-r11.css','apple-timeline-r11.js','scripts/cache-earth-data.mjs','.github/workflows/cache-earth-data.yml','data/earth/cache/manifest.json','data/earth/cache/life-66.json','data/earth/cache/life-100.json','data/earth/cache/life-250.json'
