@@ -153,6 +153,7 @@ async function cacheCoastline(ageMa) {
   const raw = await fetchJson(endpoint);
   const tolerance = ageMa <= 100 ? 0.08 : ageMa <= 540 ? 0.12 : 0.18;
   const collection = compactCollection(raw, tolerance);
+  if (!collection.features.length) throw new Error(`No coastline features returned for ${ageMa} Ma`);
   const file = await writeJson(`data/earth/cache/coastlines-${fileToken(ageMa)}.json`, collection);
   return {
     ageMa,
@@ -214,7 +215,7 @@ function normalizeOccurrence(record, category) {
     collection: String(value(record, 'collection_name', 'formation', 'geology') || ''),
     country: String(value(record, 'cc', 'country') || ''),
     sourceUrl: occurrenceId
-      ? `https://paleobiodb.org/classic/basicCollectionSearch?occurrence_no=${encodeURIComponent(occurrenceId)}`
+      ? `https://paleobiodb.org/data1.2/occs/single.json?id=${encodeURIComponent(occurrenceId)}`
       : 'https://paleobiodb.org/'
   };
 }
@@ -234,6 +235,34 @@ async function fetchOccurrences(ageMa, baseName, category) {
     .filter(Boolean);
 }
 
+function coordinateFromPoint(item) {
+  if (item === null || item === undefined) return null;
+  if (Array.isArray(item)) {
+    if (item.length >= 2 && Number.isFinite(Number(item[0])) && Number.isFinite(Number(item[1]))) {
+      return [Number(item[0]), Number(item[1])];
+    }
+    if (item.length === 1) return coordinateFromPoint(item[0]);
+  }
+  const coordinates = item?.geometry?.coordinates || item?.coordinates;
+  if (Array.isArray(coordinates) && coordinates.length >= 2) {
+    return [Number(coordinates[0]), Number(coordinates[1])];
+  }
+  const longitude = Number(item?.lon ?? item?.lng ?? item?.longitude);
+  const latitude = Number(item?.lat ?? item?.latitude);
+  return Number.isFinite(longitude) && Number.isFinite(latitude) ? [longitude, latitude] : null;
+}
+
+function coordinatesFromPointPayload(payload) {
+  if (payload?.type === 'FeatureCollection' && Array.isArray(payload.features)) {
+    return payload.features.map(coordinateFromPoint);
+  }
+  if (Array.isArray(payload)) return payload.map(coordinateFromPoint);
+  for (const key of ['reconstructed_points', 'points', 'data', 'records']) {
+    if (Array.isArray(payload?.[key])) return payload[key].map(coordinateFromPoint);
+  }
+  return [];
+}
+
 async function reconstructBatch(records, ageMa) {
   if (!records.length) return [];
   const endpoint = new URL('https://gws.gplates.org/reconstruct/reconstruct_points/');
@@ -246,12 +275,13 @@ async function reconstructBatch(records, ageMa) {
 
   try {
     const payload = await fetchJson(endpoint, { timeout: 120000 });
-    const features = payload?.type === 'FeatureCollection' ? payload.features : [];
+    const coordinatesByIndex = coordinatesFromPointPayload(payload);
     return records.map((record, index) => {
-      const coordinates = features[index]?.geometry?.coordinates;
+      const coordinates = coordinatesByIndex[index];
       return {
         ...record,
         paleoCoordinates: Array.isArray(coordinates) && coordinates.length >= 2
+          && Number.isFinite(coordinates[0]) && Number.isFinite(coordinates[1])
           ? [roundNumber(coordinates[0], 3), roundNumber(coordinates[1], 3)]
           : null
       };
@@ -278,6 +308,7 @@ async function cacheLife(ageMa) {
     fetchOccurrences(ageMa, 'Plantae', 'flora')
   ]);
   const sampled = deterministicSample([...fauna, ...flora], 900);
+  if (!sampled.length) throw new Error(`No PBDB occurrences returned for ${ageMa} Ma`);
   const reconstructed = [];
   for (let start = 0; start < sampled.length; start += 75) {
     reconstructed.push(...await reconstructBatch(sampled.slice(start, start + 75), ageMa));
@@ -302,10 +333,12 @@ async function cacheLife(ageMa) {
         country: record.country,
         sourceUrl: record.sourceUrl,
         evidence: 'Paleobiology Database fossil occurrence',
-        positionModel: MODEL
+        positionModel: MODEL,
+        license: 'PBDB occurrence data - verify record terms at source'
       }
     }));
 
+  if (!features.length) throw new Error(`No reconstructable fossil coordinates returned for ${ageMa} Ma`);
   const collection = { type: 'FeatureCollection', features };
   const file = await writeJson(`data/earth/cache/life-${fileToken(ageMa)}.json`, collection);
   return {
