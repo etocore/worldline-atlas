@@ -165,3 +165,78 @@ function bindReconstructionPackageInteractions() {
     map.on('mouseleave', layerId, () => { map.getCanvas().style.cursor = ''; });
   });
 }
+
+let reconstructionLayersInstalled = false;
+let reconstructionYearHookInstalled = false;
+
+function installReconstructionRuntime() {
+  if (!reconstructionYearHookInstalled && typeof setYear === 'function') {
+    const baseSetYear = setYear;
+    setYear = function setYearWithReconstructionVisibility(year, options) {
+      const result = baseSetYear(year, options);
+      updateReconstructionPackageVisibility();
+      return result;
+    };
+    reconstructionYearHookInstalled = true;
+  }
+
+  if (
+    !reconstructionLayersInstalled
+    && typeof mapReady !== 'undefined'
+    && mapReady
+    && typeof setLayerGroupVisibility === 'function'
+    && typeof escapeHtml === 'function'
+  ) {
+    addReconstructionPackageLayers();
+    bindReconstructionPackageInteractions();
+    updateReconstructionPackageVisibility();
+    reconstructionLayersInstalled = true;
+  }
+
+  return reconstructionLayersInstalled && reconstructionYearHookInstalled;
+}
+
+function reconstructionPackageFromSearchInput() {
+  if (
+    typeof extractYearFromQuery !== 'function'
+    || typeof placeTermFromQuery !== 'function'
+  ) return null;
+
+  const input = document.querySelector('#historySearch');
+  const query = input?.value.trim() || '';
+  if (!query) return null;
+
+  const requestedYear = extractYearFromQuery(query);
+  const placeTerm = placeTermFromQuery(query);
+  const packageDef = findReconstructionPackage(placeTerm, requestedYear);
+  return packageDef ? { packageDef, requestedYear } : null;
+}
+
+function interceptReconstructionSearch(event) {
+  const isSubmitClick = event.type === 'click' && event.target.closest?.('#searchSubmit');
+  const isSearchEnter = event.type === 'keydown'
+    && event.key === 'Enter'
+    && event.target.matches?.('#historySearch');
+  if (!isSubmitClick && !isSearchEnter) return;
+
+  const match = reconstructionPackageFromSearchInput();
+  if (!match) return;
+
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  installReconstructionRuntime();
+  activateReconstructionPackage(match.packageDef, match.requestedYear);
+  if (typeof setSheetOpen === 'function') setSheetOpen(true);
+  if (typeof showSearchFeedback === 'function') {
+    showSearchFeedback(
+      `Opened ${match.packageDef.title}. The outlined rectangle is only a research extent. Streets, buildings, terrain, and vegetation remain empty until reviewed evidence is added.`
+    );
+  }
+}
+
+document.addEventListener('click', interceptReconstructionSearch, true);
+document.addEventListener('keydown', interceptReconstructionSearch, true);
+
+const reconstructionInstallTimer = setInterval(() => {
+  if (installReconstructionRuntime()) clearInterval(reconstructionInstallTimer);
+}, 100);
