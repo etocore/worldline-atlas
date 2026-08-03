@@ -32,7 +32,7 @@ requireText(timeRuntime,'million years ago','The compact time control does not e
 requireText(timeRuntime,'classifySearch','Search results do not infer Earth versus Human History');
 requireText(timeRuntime,"setMode(target, { source: 'search-result' })",'Search does not switch timeline modes');
 requireText(timeStyle,'.time-chip-icon','The timeline control lacks an explicit clock icon');
-requireText(timeStyle,'Earth timeline','The timeline control hierarchy is not defined');
+requireText(timeRuntime,'Earth timeline','The timeline control hierarchy is not defined');
 requireText(netlify,'Cache-Control = "public, max-age=0, must-revalidate"','Static assets are not configured to revalidate');
 let parsedVersion; try { parsedVersion = JSON.parse(version); } catch { errors.push('version.json is not valid JSON'); }
 if(parsedVersion?.build!==BUILD) errors.push(`version.json build should be ${BUILD}, found ${parsedVersion?.build}`);
