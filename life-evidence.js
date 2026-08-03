@@ -78,8 +78,7 @@
       filter: ['has', 'point_count'],
       layout: {
         'text-field': ['get', 'point_count_abbreviated'],
-        'text-size': 10.5,
-        'text-font': ['Open Sans Semibold']
+        'text-size': 10.5
       },
       paint: { 'text-color': '#ffffff' }
     });
@@ -138,6 +137,10 @@
         ? `${late.toFixed(late < 10 ? 2 : 1)}-${early.toFixed(early < 10 ? 2 : 1)} Ma`
         : earthRuntime()?.formatEarthAge?.(activeAge) || 'Geological age';
       const group = [props.phylum, props.className, props.orderName, props.family].filter(Boolean).join(' · ');
+      const positionModel = String(props.positionModel || 'CAO2024 reconstructed coordinate');
+      const positionNote = /published/i.test(positionModel)
+        ? `The map uses the paleocoordinate published with this Paleobiology Database collection (${positionModel}).`
+        : `The discovery coordinate was reconstructed to this paleoposition with ${positionModel}.`;
       globalThis.openPlaceCard({
         name: props.name || 'Fossil occurrence',
         eyebrow: props.category === 'flora' ? 'Fossil flora evidence' : 'Fossil fauna evidence',
@@ -145,7 +148,7 @@
         range,
         confidence: 'Documented fossil occurrence',
         evidence: 'Occurrence point, not a complete species range',
-        note: `This marker represents a Paleobiology Database fossil record. Its present-day discovery coordinate was reconstructed to this paleoposition with CAO2024. It does not claim the organism lived only at this point.`,
+        note: `This marker represents a Paleobiology Database fossil record. ${positionNote} It does not claim the organism lived only at this point or define its full geographic range.`,
         sourceUrl: props.sourceUrl || 'https://paleobiodb.org/',
         wikiTitle: props.name || '',
         coordinates: feature.geometry.coordinates
