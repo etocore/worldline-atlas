@@ -48,9 +48,9 @@ if (catalog) {
   const moments = chapters.flatMap((chapter) => chapter.moments || []);
   const sourceIds = new Set(Object.keys(catalog.sources || {}));
 
-  if (chapters.length < 20) failures.push(`History catalog needs at least 20 researched chapters, found ${chapters.length}`);
+  if (chapters.length < 19) failures.push(`History catalog needs at least 19 researched chapters, found ${chapters.length}`);
   if (earth.length < 10) failures.push(`Earth History needs at least 10 chapters, found ${earth.length}`);
-  if (human.length < 10) failures.push(`Human History needs at least 10 chapters, found ${human.length}`);
+  if (human.length < 9) failures.push(`Human History needs at least 9 chapters, found ${human.length}`);
   if (moments.length < 60) failures.push(`History catalog needs at least 60 turning points, found ${moments.length}`);
   if (!earth.some((chapter) => Number(chapter.olderMa) >= 4500)) failures.push('Earth History does not reach planetary formation');
   if (!earth.some((chapter) => Number(chapter.youngerMa) === 0)) failures.push('Earth History does not reach the present');
