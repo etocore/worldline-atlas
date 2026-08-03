@@ -28,7 +28,9 @@ jobs:
           node --check reconstruction-packages.js
           node --check bootstrap.js
           node --check mobile-polish.js
+          node --check interaction-system.js
           node --check netlify/functions/settlements.js
+          node --check netlify/functions/place-summary.js
           node --check scripts/validate-reconstructions.mjs
       - name: Validate reconstruction packages
         run: node scripts/validate-reconstructions.mjs
