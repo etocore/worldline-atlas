@@ -11,6 +11,7 @@
   <link rel="preconnect" href="https://vtiles.openhistoricalmap.org" />
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css" />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="reconstruction.css" />
 </head>
 <body>
   <main class="map-app">
@@ -24,6 +25,7 @@
           <span id="eraLabel">Classical urban systems</span>
           <strong id="yearLabel">117 CE</strong>
         </button>
+        <span id="surfaceBadge" class="surface-badge">Modern surface</span>
       </div>
 
       <div class="map-tool-stack" aria-label="Map view controls">
@@ -70,6 +72,7 @@
             <div><span>Visible records</span><strong id="visibleCount">0</strong></div>
             <div><span>Evidence mode</span><strong id="evidenceLabel">Balanced</strong></div>
             <div><span>Live catalog</span><strong id="catalogCount">0</strong></div>
+            <div><span>Surface</span><strong id="surfaceModeLabel">Modern satellite</strong></div>
           </div>
           <p id="coverageMessage" class="coverage-message">Zoom into a region to load additional catalogued settlements.</p>
 
@@ -99,6 +102,20 @@
             <button type="button" data-year="2026">Present</button>
           </div>
 
+          <section class="surface-control" aria-labelledby="surfaceControlLabel">
+            <div class="surface-control-copy">
+              <div>
+                <span id="surfaceControlLabel">Earth surface</span>
+                <strong id="surfaceDetailLabel">Modern satellite</strong>
+              </div>
+              <p id="surfaceExplanation">Current Sentinel-2 imagery with historical settlement evidence placed above it.</p>
+            </div>
+            <div class="surface-segment" role="group" aria-label="Earth surface mode">
+              <button id="modernSurfaceButton" class="active" type="button" aria-pressed="true">Modern</button>
+              <button id="reconstructedSurfaceButton" type="button" aria-pressed="false">Reconstructed</button>
+            </div>
+          </section>
+
           <div class="control-grid">
             <div class="control-block">
               <label for="evidenceSlider"><span>Reconstruction tolerance</span><strong id="evidenceValue">Balanced</strong></label>
@@ -111,7 +128,7 @@
               <label><input id="ohmToggle" type="checkbox" checked /> Dated map records</label>
               <label><input id="curatedToggle" type="checkbox" checked /> Reviewed sites</label>
               <label><input id="wikidataToggle" type="checkbox" checked /> Live catalog</label>
-              <label><input id="buildingToggle" type="checkbox" /> Footprints</label>
+              <label><input id="buildingToggle" type="checkbox" /> Dated 3D buildings</label>
             </fieldset>
           </div>
 
@@ -121,7 +138,7 @@
             <span><i class="swatch catalog"></i>Wikidata catalog</span>
             <span><i class="swatch uncertain"></i>Lower confidence</span>
           </div>
-          <p class="imagery-note">The satellite surface is modern Sentinel-2 imagery. Historical evidence changes with the selected year.</p>
+          <p class="imagery-note">Reconstructed mode currently uses dated vector evidence over muted modern terrain. It does not yet claim to be historical satellite imagery.</p>
         </div>
       </section>
     </section>
@@ -130,9 +147,10 @@
   <dialog id="aboutDialog">
     <button id="closeDialog" class="dialog-close" type="button" aria-label="Close">×</button>
     <p class="panel-kicker">How to read the atlas</p>
-    <h2>The land image is modern. The settlement layer changes through time.</h2>
-    <p>The satellite surface is a Sentinel-2 cloudless mosaic. It provides recognizable terrain, not a reconstruction of historical vegetation, coastlines, rivers, roads, or buildings.</p>
-    <p>Historical settlement records come from OpenHistoricalMap vector tiles, a live Wikidata query for the visible map area, and a reviewed seed set of archaeological sites. Features are shown only when their available dates overlap the selected year.</p>
+    <h2>Worldline separates observed imagery from historical reconstruction.</h2>
+    <p>Modern mode uses a Sentinel-2 cloudless mosaic. Reconstructed mode progressively removes modern surface detail as you zoom in and replaces available structures with date-filtered OpenHistoricalMap footprints.</p>
+    <p>Historical footprints are extruded using recorded height or level information when present. Missing heights use a clearly identified estimated fallback. This first reconstruction surface is therefore a dated vector model, not a photograph of the past.</p>
+    <p>The long-term pipeline will add reviewed historical land-cover rasters and locally rendered orthophoto tiles built from cited geometry, materials, vegetation, and competing scholarly interpretations.</p>
     <p>Coverage is uneven. A blank area means no compatible record was returned, not that nobody lived there.</p>
     <div class="source-list">
       <a href="https://www.openhistoricalmap.org" target="_blank" rel="noreferrer">OpenHistoricalMap</a>
@@ -146,6 +164,7 @@
   <script src="data.js"></script>
   <script src="map-core.js"></script>
   <script src="map-layers.js"></script>
+  <script src="reconstruction.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
