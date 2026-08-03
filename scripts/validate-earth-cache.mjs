@@ -60,7 +60,7 @@ requireText(bootstrap, "loadStyle('apple-timeline-r11.css')", 'The r11 timeline 
 requireText(bootstrap, "loadScript('life-evidence.js')", 'The fossil evidence runtime is not loaded');
 
 requireText(cacheRuntime, "url.pathname === '/api/paleocoastlines'", 'The cache does not intercept paleocoastline requests');
-requireText(cacheRuntime, "caches.open(RUNTIME_CACHE)", 'The browser Cache API fallback is missing');
+requireText(cacheRuntime, 'caches.open(RUNTIME_CACHE)', 'The browser Cache API fallback is missing');
 requireText(cacheRuntime, 'github-snapshot', 'The static snapshot response is not identified');
 requireText(cacheRuntime, 'refineInBackground', 'Background live-model refinement is missing');
 requireText(cacheRuntime, 'nearestLife', 'The cache does not expose life snapshots');
@@ -79,8 +79,8 @@ requireText(timelineRuntime, '--timeline-thumb-position', 'The value bubble does
 requireText(builder, "const MODEL = 'CAO2024'", 'The snapshot builder does not pin CAO2024');
 requireText(builder, 'compactCollection', 'The builder does not simplify coastlines');
 requireText(builder, 'coordinatesFromPointPayload', 'The fossil paleoposition parser is missing');
-requireText(builder, "base_name', 'Animalia'", 'The builder does not request fauna evidence');
-requireText(builder, "base_name', 'Plantae'", 'The builder does not request flora evidence');
+requireText(builder, "fetchOccurrences(ageMa, 'Animalia'", 'The builder does not request fauna evidence');
+requireText(builder, "fetchOccurrences(ageMa, 'Plantae'", 'The builder does not request flora evidence');
 requireText(workflow, 'contents: write', 'The cache workflow cannot commit generated files');
 requireText(workflow, 'node scripts/cache-earth-data.mjs', 'The cache workflow does not run the builder');
 
