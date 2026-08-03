@@ -1,5 +1,9 @@
 [build]
   publish = "."
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
 
 [[headers]]
   for = "/*"
@@ -8,6 +12,11 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "geolocation=(), camera=(), microphone=()"
+
+[[redirects]]
+  from = "/api/settlements"
+  to = "/.netlify/functions/settlements"
+  status = 200
 
 [[redirects]]
   from = "/*"

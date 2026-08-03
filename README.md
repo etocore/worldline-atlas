@@ -1,72 +1,74 @@
 # Worldline Atlas
 
-An interactive, uncertainty-aware map of the world through time.
+A satellite-first, uncertainty-aware map of known human settlements through time.
 
-## MVP
+## Current version
 
-The first release demonstrates the core product idea:
+The atlas overlays historical settlement evidence on a modern Sentinel-2 satellite surface. The selected year changes the settlement layer, not the imagery itself.
 
-- A global MapLibre map
-- A timeline from 10,000 BCE to 2026 CE
-- Era-specific regions, settlements, and routes
-- An Evidence to Reconstruction slider
-- Confidence labels and evidence classifications
-- Responsive desktop and mobile layouts
-- Zero-build Netlify deployment
+### Data and services
 
-## Important data note
+- **Map rendering:** MapLibre GL JS
+- **Satellite surface:** EOX Sentinel-2 cloudless 2024 WMTS
+- **Historical map records:** OpenHistoricalMap vector tiles and published MapLibre style
+- **Supplementary catalog:** Wikidata Query Service through a cached Netlify Function
+- **Early archaeological sites:** A small reviewed GeoJSON-style seed set in `data.js`
+- **Hosting:** Netlify
+- **Source control:** GitHub
 
-The geometries included in `data.js` are deliberately simplified product-demo shapes. They prove the interface and data model, but they are not publication-grade historical borders.
+The app has no paid dependency and does not require API keys. EOX imagery is free for non-commercial use with attribution. Review its current license before any commercial launch.
 
-Every future feature should include:
+## What the interface does
 
-```js
-{
-  name: "Feature name",
-  type: "region | city | route",
-  evidence: "attested | reconstruction | speculative",
-  confidence: 0.0,
-  geometry: {},
-  sources: [],
-  notes: ""
-}
-```
+- Continuous year control from 15,000 BCE to 2026 CE
+- Exact numeric year entry and quick period jumps
+- Modern cloudless satellite imagery at up to 10-meter source resolution
+- Dated settlement labels from OpenHistoricalMap
+- Live viewport queries for Wikidata cities, towns, villages, human settlements, ancient cities, and archaeological sites
+- Optional historical building footprints where OpenHistoricalMap contains them
+- Strict, balanced, and broad evidence thresholds
+- Clickable source records and confidence notes
+- Mobile-first controls and clustered live catalog points
 
-## Run locally
+## Accuracy model
 
-Because this is a static app, use any local web server:
+A visible point means that at least one source has a location and a date range compatible with the selected year. It does not prove continuous occupation, exact population, exact boundaries, political control, or a modern-style city.
+
+A blank region does not mean it was uninhabited. It means the current sources did not return a compatible record at the current map scale and date.
+
+The modern satellite layer should not be read as a reconstruction of historical coastlines, vegetation, rivers, roads, or buildings.
+
+## Local development
+
+The static interface can be served with any local web server:
 
 ```bash
 python3 -m http.server 8000
 ```
 
-Then open `http://localhost:8000`.
+The Wikidata endpoint is a Netlify Function, so live catalog queries require either Netlify Dev or a deployed Netlify site:
 
-## Deploy to Netlify
+```bash
+npx netlify dev
+```
 
-1. Sign in to Netlify.
-2. Select **Add new project** and **Import an existing project**.
-3. Choose GitHub and select `etocore/worldline-atlas`.
-4. Leave the build command empty.
-5. Set the publish directory to `.` if Netlify does not read `netlify.toml` automatically.
-6. Deploy.
+## Netlify deployment
 
-Every push to `main` will then trigger a new deployment.
+The repository includes `netlify.toml`. Import the repository into Netlify and use:
 
-## Free infrastructure
+- Branch: `main`
+- Base directory: empty
+- Build command: empty
+- Publish directory: `.`
+- Functions directory: `netlify/functions`
 
-- Map rendering: MapLibre GL JS
-- Basemap: OpenFreeMap
-- Hosting: Netlify
-- Source control and data review: GitHub
-- Optional future database: Supabase
+Every merge to `main` triggers a redeploy.
 
 ## Next milestones
 
-1. Replace demo polygons with sourced historical datasets.
-2. Add per-feature citations and disagreement notes.
-3. Add date ranges rather than fixed snapshots.
-4. Add smooth interpolation where evidence supports it.
-5. Add search, bookmarks, and shareable coordinates.
-6. Add a contributor review workflow through pull requests.
-7. Add paleoclimate, sea-level, language, migration, and ecology layers.
+1. Add World Historical Gazetteer, Pleiades, and regional archaeological datasets through normalized adapters.
+2. Store source disagreements and occupation phases as first-class records.
+3. Add paleocoastline, river, climate, and vegetation reconstructions with explicit uncertainty.
+4. Build a review queue for proposed settlement records and inferred locations.
+5. Add population ranges and settlement footprint estimates where defensible.
+6. Replace the curated seed file with versioned, cited datasets maintained through pull requests.

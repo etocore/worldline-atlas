@@ -1,266 +1,221 @@
-const eras = window.WORLDLINE_DATA.eras;
-const timeSlider = document.querySelector('#timeSlider');
-const evidenceSlider = document.querySelector('#evidenceSlider');
-const yearLabel = document.querySelector('#yearLabel');
-const timelineDate = document.querySelector('#timelineDate');
-const eraLabel = document.querySelector('#eraLabel');
-const eraSummary = document.querySelector('#eraSummary');
-const evidenceValue = document.querySelector('#evidenceValue');
-const confidenceLabel = document.querySelector('#confidenceLabel');
-const confidenceFill = document.querySelector('#confidenceFill');
-const playButton = document.querySelector('#playButton');
-const aboutDialog = document.querySelector('#aboutDialog');
-
-let currentEraIndex = Number(timeSlider.value);
-let playTimer = null;
-let mapReady = false;
-
-const map = new maplibregl.Map({
-  container: 'map',
-  style: 'https://tiles.openfreemap.org/styles/dark',
-  center: eras[currentEraIndex].camera.center,
-  zoom: eras[currentEraIndex].camera.zoom,
-  attributionControl: true
-});
-
-map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
-
-function formatYear(year) {
-  if (year < 0) return `${Math.abs(year).toLocaleString()} BCE`;
-  if (year === 0) return '1 BCE / 1 CE';
-  return `${year.toLocaleString()} CE`;
-}
-
-function evidenceThreshold() {
-  return Number(evidenceSlider.value) / 100;
-}
-
-function confidenceCopy(value) {
-  if (value < 0.3) return 'Documented only';
-  if (value < 0.65) return 'Balanced';
-  return 'Reconstructed';
-}
-
-function visibleByEvidence(feature) {
-  if (feature.evidence === 'attested') return true;
-  if (feature.evidence === 'reconstruction') return evidenceThreshold() >= 0.28;
-  return evidenceThreshold() >= 0.72;
-}
-
-function toCollection(type) {
-  const era = eras[currentEraIndex];
-  return {
-    type: 'FeatureCollection',
-    features: era.features
-      .filter((feature) => feature.type === type && visibleByEvidence(feature))
-      .map((feature, index) => ({
-        type: 'Feature',
-        id: `${currentEraIndex}-${type}-${index}`,
-        properties: {
-          name: feature.name,
-          evidence: feature.evidence,
-          confidence: feature.confidence
-        },
-        geometry: feature.geometry
-      }))
-  };
-}
-
-function sourceId(type) {
-  return `historical-${type}`;
-}
-
-function setSource(type) {
-  const source = map.getSource(sourceId(type));
-  if (source) source.setData(toCollection(type));
-}
-
-function addHistoricalLayers() {
-  ['region', 'route', 'city'].forEach((type) => {
-    map.addSource(sourceId(type), { type: 'geojson', data: toCollection(type) });
-  });
-
-  map.addLayer({
-    id: 'historical-regions-fill',
-    type: 'fill',
-    source: sourceId('region'),
-    paint: {
-      'fill-color': [
-        'match', ['get', 'evidence'],
-        'attested', '#d8ff61',
-        'reconstruction', '#d5a86e',
-        '#e8e8e8'
-      ],
-      'fill-opacity': [
-        'match', ['get', 'evidence'],
-        'attested', 0.27,
-        'reconstruction', 0.2,
-        0.1
-      ]
-    }
-  });
-
-  map.addLayer({
-    id: 'historical-regions-line',
-    type: 'line',
-    source: sourceId('region'),
-    paint: {
-      'line-color': [
-        'match', ['get', 'evidence'],
-        'attested', '#d8ff61',
-        'reconstruction', '#d5a86e',
-        '#eeeeee'
-      ],
-      'line-width': 1.5,
-      'line-dasharray': [2, 1]
-    }
-  });
-
-  map.addLayer({
-    id: 'historical-routes',
-    type: 'line',
-    source: sourceId('route'),
-    paint: {
-      'line-color': '#d8ff61',
-      'line-width': 2.2,
-      'line-opacity': 0.8,
-      'line-dasharray': [1.5, 1.2]
-    }
-  });
-
-  map.addLayer({
-    id: 'historical-cities',
-    type: 'circle',
-    source: sourceId('city'),
-    paint: {
-      'circle-radius': 6,
-      'circle-color': '#f3efe4',
-      'circle-stroke-color': '#0b0d0d',
-      'circle-stroke-width': 2
-    }
-  });
-
-  map.addLayer({
-    id: 'historical-city-labels',
-    type: 'symbol',
-    source: sourceId('city'),
-    layout: {
-      'text-field': ['get', 'name'],
-      'text-size': 12,
-      'text-offset': [0, 1.3],
-      'text-anchor': 'top'
-    },
-    paint: {
-      'text-color': '#f3efe4',
-      'text-halo-color': '#0b0d0d',
-      'text-halo-width': 1.2
-    }
-  });
-
-  ['historical-regions-fill', 'historical-routes', 'historical-cities'].forEach((layerId) => {
-    map.on('click', layerId, (event) => {
-      const feature = event.features?.[0];
-      if (!feature) return;
-      const coordinates = event.lngLat;
-      const confidence = Math.round(Number(feature.properties.confidence) * 100);
-      new maplibregl.Popup({ closeButton: true, maxWidth: '300px' })
-        .setLngLat(coordinates)
-        .setHTML(`<strong>${feature.properties.name}</strong><br><span>${feature.properties.evidence} · ${confidence}% confidence</span>`)
-        .addTo(map);
-    });
-    map.on('mouseenter', layerId, () => { map.getCanvas().style.cursor = 'pointer'; });
-    map.on('mouseleave', layerId, () => { map.getCanvas().style.cursor = ''; });
+function updateEraUi() {
+  const era = currentEra();
+  const date = formatYear(selectedYear);
+  dom.yearLabel.textContent = date;
+  dom.timelineDate.textContent = date;
+  dom.eraLabel.textContent = era.label;
+  dom.eraSummary.textContent = era.summary;
+  dom.evidenceLabel.textContent = currentMode().label;
+  dom.evidenceValue.textContent = currentMode().label;
+  document.querySelectorAll('[data-year]').forEach((button) => {
+    button.classList.toggle('active', Number(button.dataset.year) === selectedYear);
   });
 }
 
-function updateMapData() {
-  if (!mapReady) return;
-  setSource('region');
-  setSource('route');
-  setSource('city');
+function setYear(year, { fromSlider = false } = {}) {
+  const parsed = Math.max(CONFIG.minYear, Math.min(CONFIG.maxYear, Math.trunc(Number(year))));
+  if (!Number.isFinite(parsed)) return;
+  selectedYear = parsed;
+  if (!fromSlider) dom.timeSlider.value = String(parsed);
+  dom.yearInput.value = String(parsed);
+  updateEraUi();
+  applyHistoricalDateFilter();
+  updateCuratedLayer();
+  scheduleWikidataLoad();
+  requestAnimationFrame(updateRenderedOhmCount);
 }
 
-function updateEra({ animate = true } = {}) {
-  currentEraIndex = Number(timeSlider.value);
-  const era = eras[currentEraIndex];
-  const date = formatYear(era.year);
-  yearLabel.textContent = date;
-  timelineDate.textContent = date;
-  eraLabel.textContent = era.label;
-  eraSummary.textContent = era.summary;
-  updateMapData();
-
-  if (mapReady) {
-    map[animate ? 'easeTo' : 'jumpTo']({
-      center: era.camera.center,
-      zoom: era.camera.zoom,
-      duration: animate ? 950 : 0
-    });
-  }
-}
-
-function updateEvidence() {
-  const value = evidenceThreshold();
-  const label = confidenceCopy(value);
-  evidenceValue.textContent = label;
-  confidenceLabel.textContent = label;
-  confidenceFill.style.width = `${Math.round(value * 100)}%`;
-  updateMapData();
+function playbackStep(year) {
+  if (year < -8000) return 250;
+  if (year < -3000) return 100;
+  if (year < 0) return 50;
+  if (year < 1500) return 25;
+  if (year < 1850) return 10;
+  if (year < 1950) return 5;
+  return 1;
 }
 
 function stopPlayback() {
-  if (!playTimer) return;
-  clearInterval(playTimer);
-  playTimer = null;
-  playButton.textContent = '▶';
-  playButton.setAttribute('aria-label', 'Play timeline');
+  if (!playbackTimer) return;
+  clearInterval(playbackTimer);
+  playbackTimer = null;
+  dom.playButton.textContent = '▶';
+  dom.playButton.setAttribute('aria-label', 'Play timeline');
 }
 
 function togglePlayback() {
-  if (playTimer) {
+  if (playbackTimer) {
     stopPlayback();
     return;
   }
-  playButton.textContent = 'Ⅱ';
-  playButton.setAttribute('aria-label', 'Pause timeline');
-  playTimer = setInterval(() => {
-    const next = (Number(timeSlider.value) + 1) % eras.length;
-    timeSlider.value = String(next);
-    updateEra();
-  }, 2200);
+  dom.playButton.textContent = 'Ⅱ';
+  dom.playButton.setAttribute('aria-label', 'Pause timeline');
+  playbackTimer = setInterval(() => {
+    const next = selectedYear + playbackStep(selectedYear);
+    setYear(next > CONFIG.maxYear ? CONFIG.minYear : next);
+  }, 720);
 }
 
-function setLayerVisibility(group, visible) {
-  const groups = {
-    regions: ['historical-regions-fill', 'historical-regions-line'],
-    cities: ['historical-cities', 'historical-city-labels'],
-    routes: ['historical-routes']
-  };
-  (groups[group] || []).forEach((layerId) => {
-    if (map.getLayer(layerId)) map.setLayoutProperty(layerId, 'visibility', visible ? 'visible' : 'none');
+function popupForCustomFeature(feature, coordinates) {
+  const props = feature.properties || {};
+  const range = props.start !== undefined
+    ? `${formatYear(Number(props.start))} to ${Number(props.end) >= CONFIG.maxYear ? 'present' : formatYear(Number(props.end))}`
+    : `${props.startLabel || 'Unknown start'} to ${props.endLabel || 'unknown end'}`;
+  const confidence = props.confidence ? `${Math.round(Number(props.confidence) * 100)}% confidence` : 'Catalogued record';
+  const sourceUrl = props.source || props.item;
+  const sourceLink = sourceUrl ? `<a class="popup-link" href="${escapeHtml(sourceUrl)}" target="_blank" rel="noreferrer">Open source record</a>` : '';
+  new maplibregl.Popup({ closeButton: true, maxWidth: '320px' })
+    .setLngLat(coordinates)
+    .setHTML(`
+      <strong class="popup-title">${escapeHtml(props.name || 'Settlement')}</strong>
+      <div class="popup-meta">${escapeHtml(props.kind || props.classLabel || 'Human settlement')}<br>${escapeHtml(range)}<br>${escapeHtml(confidence)}${props.note ? `<br>${escapeHtml(props.note)}` : ''}</div>
+      ${sourceLink}
+    `)
+    .addTo(map);
+}
+
+function popupForOhmFeature(feature, coordinates) {
+  const props = feature.properties || {};
+  const name = props.name || props.name_en || props.wikidata || 'Historical settlement';
+  const start = props.start_date || props.start_decdate;
+  const end = props.end_date || props.end_decdate;
+  const range = `${start ?? 'unknown start'} to ${end ?? 'present or unknown end'}`;
+  const source = props['source:url'] || props.source_url || (props.wikidata ? `https://www.wikidata.org/wiki/${props.wikidata}` : 'https://www.openhistoricalmap.org');
+  new maplibregl.Popup({ closeButton: true, maxWidth: '320px' })
+    .setLngLat(coordinates)
+    .setHTML(`
+      <strong class="popup-title">${escapeHtml(name)}</strong>
+      <div class="popup-meta">OpenHistoricalMap dated feature<br>${escapeHtml(range)}</div>
+      <a class="popup-link" href="${escapeHtml(source)}" target="_blank" rel="noreferrer">Open source record</a>
+    `)
+    .addTo(map);
+}
+
+function bindMapInteractions() {
+  map.on('click', 'curated-settlement-halo', (event) => {
+    const feature = event.features?.[0];
+    if (feature) popupForCustomFeature(feature, feature.geometry.coordinates.slice());
+  });
+  map.on('click', 'wikidata-points', (event) => {
+    const feature = event.features?.[0];
+    if (feature) popupForCustomFeature(feature, feature.geometry.coordinates.slice());
+  });
+  map.on('click', 'wikidata-clusters', async (event) => {
+    const feature = event.features?.[0];
+    if (!feature) return;
+    const clusterId = feature.properties.cluster_id;
+    const source = map.getSource('wikidata-settlements');
+    const zoom = await source.getClusterExpansionZoom(clusterId);
+    map.easeTo({ center: feature.geometry.coordinates, zoom });
+  });
+
+  ['curated-settlement-halo', 'wikidata-points', 'wikidata-clusters'].forEach((layerId) => {
+    map.on('mouseenter', layerId, () => { map.getCanvas().style.cursor = 'pointer'; });
+    map.on('mouseleave', layerId, () => { map.getCanvas().style.cursor = ''; });
+  });
+
+  map.on('click', (event) => {
+    if (!ohmAvailable || !dom.ohmToggle.checked) return;
+    const layers = settlementLayerIds.filter((layerId) => map.getLayer(layerId));
+    const features = map.queryRenderedFeatures(event.point, { layers });
+    if (features.length) popupForOhmFeature(features[0], event.lngLat);
+  });
+
+  map.on('moveend', () => {
+    scheduleWikidataLoad(250);
+    updateRenderedOhmCount();
+  });
+  map.on('idle', updateRenderedOhmCount);
+}
+
+async function boot() {
+  setStatus('Loading historical sources');
+  const style = await prepareStyle();
+  map = new maplibregl.Map({
+    container: 'map',
+    style,
+    center: [16, 24],
+    zoom: 1.65,
+    minZoom: 1,
+    maxZoom: 16,
+    attributionControl: true,
+    renderWorldCopies: false
+  });
+  map.addControl(new maplibregl.NavigationControl({ showCompass: true }), 'bottom-right');
+
+  map.on('load', () => {
+    mapReady = true;
+    addCustomSourcesAndLayers();
+    applyHistoricalDateFilter();
+    bindMapInteractions();
+    updateCuratedLayer();
+    updateEraUi();
+    scheduleWikidataLoad(250);
+    dom.map.classList.add('ready');
+    dom.ohmToggle.disabled = !ohmAvailable;
+    if (ohmAvailable) {
+      setStatus('Live historical tiles connected', 'ready');
+    } else {
+      setStatus('Historical tiles unavailable - fallback active', 'warn');
+      dom.coverageMessage.textContent = 'OpenHistoricalMap could not load. Curated and Wikidata records remain available.';
+    }
+  });
+
+  map.on('error', (event) => {
+    console.warn('Map resource error:', event.error || event);
   });
 }
 
-map.on('load', () => {
-  mapReady = true;
-  addHistoricalLayers();
-  updateEra({ animate: false });
-  updateEvidence();
-});
-
-timeSlider.addEventListener('input', () => {
+dom.timeSlider.addEventListener('input', () => {
   stopPlayback();
-  updateEra();
+  setYear(dom.timeSlider.value, { fromSlider: true });
 });
-evidenceSlider.addEventListener('input', updateEvidence);
-playButton.addEventListener('click', togglePlayback);
+dom.yearInput.addEventListener('change', () => {
+  stopPlayback();
+  setYear(dom.yearInput.value);
+});
+dom.yearInput.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    dom.yearInput.blur();
+    setYear(dom.yearInput.value);
+  }
+});
+dom.evidenceSlider.addEventListener('input', () => {
+  updateEraUi();
+  updateCuratedLayer();
+  scheduleWikidataLoad();
+});
+dom.playButton.addEventListener('click', togglePlayback);
 
-document.querySelectorAll('[data-layer]').forEach((checkbox) => {
-  checkbox.addEventListener('change', () => setLayerVisibility(checkbox.dataset.layer, checkbox.checked));
+document.querySelectorAll('[data-year]').forEach((button) => {
+  button.addEventListener('click', () => {
+    stopPlayback();
+    setYear(button.dataset.year);
+  });
 });
 
-document.querySelector('#aboutButton').addEventListener('click', () => aboutDialog.showModal());
-document.querySelector('#closeDialog').addEventListener('click', () => aboutDialog.close());
-aboutDialog.addEventListener('click', (event) => {
-  if (event.target === aboutDialog) aboutDialog.close();
+dom.ohmToggle.addEventListener('change', () => {
+  setLayerGroupVisibility(settlementLayerIds, dom.ohmToggle.checked);
+  updateRenderedOhmCount();
 });
+dom.buildingToggle.addEventListener('change', () => {
+  setLayerGroupVisibility(buildingLayerIds, dom.buildingToggle.checked);
+});
+dom.curatedToggle.addEventListener('change', () => {
+  setLayerGroupVisibility(['curated-settlement-halo', 'curated-settlement-label'], dom.curatedToggle.checked);
+  curatedCount = dom.curatedToggle.checked ? curatedFeatureCollection().features.length : 0;
+  updateMetrics();
+});
+dom.wikidataToggle.addEventListener('change', () => {
+  setLayerGroupVisibility(['wikidata-clusters', 'wikidata-cluster-count', 'wikidata-points', 'wikidata-labels'], dom.wikidataToggle.checked);
+  scheduleWikidataLoad(0);
+});
+
+document.querySelector('#aboutButton').addEventListener('click', () => dom.aboutDialog.showModal());
+document.querySelector('#closeDialog').addEventListener('click', () => dom.aboutDialog.close());
+dom.aboutDialog.addEventListener('click', (event) => {
+  if (event.target === dom.aboutDialog) dom.aboutDialog.close();
+});
+
+boot();

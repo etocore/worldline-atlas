@@ -2,73 +2,115 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Explore historical world reconstructions through time, evidence, and uncertainty." />
-  <title>Worldline Atlas</title>
-  <link rel="preconnect" href="https://tiles.openfreemap.org" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Explore known and reconstructed human settlements on a satellite map of Earth through time." />
+  <meta name="theme-color" content="#071014" />
+  <title>Worldline Atlas - Settlement Earth</title>
+  <link rel="preconnect" href="https://unpkg.com" />
+  <link rel="preconnect" href="https://tiles.maps.eox.at" />
+  <link rel="preconnect" href="https://vtiles.openhistoricalmap.org" />
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.12.0/dist/maplibre-gl.css" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar">
-      <div>
-        <p class="eyebrow">A probabilistic map of human history</p>
-        <h1>Worldline Atlas</h1>
+      <div class="brand-block">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <div>
+          <p class="eyebrow">Settlement Earth</p>
+          <h1>Worldline Atlas</h1>
+        </div>
       </div>
-      <button id="aboutButton" class="ghost-button" type="button">About the evidence</button>
+      <div class="topbar-actions">
+        <span id="sourceStatus" class="status-pill" aria-live="polite">Loading historical sources</span>
+        <button id="aboutButton" class="ghost-button" type="button">Sources and limits</button>
+      </div>
     </header>
 
-    <section class="map-stage" aria-label="Interactive historical map">
+    <section class="map-stage" aria-label="Satellite map with historical settlements">
       <div id="map"></div>
-      <div class="map-vignette" aria-hidden="true"></div>
+      <div class="map-shade" aria-hidden="true"></div>
 
-      <aside class="info-panel" aria-live="polite">
-        <p class="panel-kicker" id="eraLabel">Roman high empire</p>
-        <h2 id="yearLabel">117 CE</h2>
-        <p id="eraSummary">Trade, roads, cities, and imperial administration connected much of Europe, North Africa, and western Asia.</p>
-        <div class="confidence-row">
-          <span>Visible reconstruction confidence</span>
-          <strong id="confidenceLabel">Balanced</strong>
+      <aside class="era-panel" aria-live="polite">
+        <div class="era-heading">
+          <div>
+            <p id="eraLabel" class="panel-kicker">Classical urban systems</p>
+            <h2 id="yearLabel">117 CE</h2>
+          </div>
+          <span class="imagery-chip">2024 satellite surface</span>
         </div>
-        <div class="confidence-track"><span id="confidenceFill"></span></div>
+        <p id="eraSummary">Large urban networks connected the Mediterranean, Africa, western Asia, South Asia, and East Asia.</p>
+        <div class="metric-grid">
+          <div>
+            <span>Visible records</span>
+            <strong id="visibleCount">0</strong>
+          </div>
+          <div>
+            <span>Evidence mode</span>
+            <strong id="evidenceLabel">Balanced</strong>
+          </div>
+          <div>
+            <span>Live catalog</span>
+            <strong id="catalogCount">0</strong>
+          </div>
+        </div>
+        <p id="coverageMessage" class="coverage-message">Zoom into a region to load additional catalogued settlements.</p>
       </aside>
 
       <div class="legend" aria-label="Map legend">
-        <span><i class="swatch evidence"></i> Attested</span>
-        <span><i class="swatch reconstruction"></i> Reconstructed</span>
-        <span><i class="swatch speculative"></i> Speculative</span>
+        <span><i class="swatch ohm"></i> Dated map record</span>
+        <span><i class="swatch curated"></i> Curated site</span>
+        <span><i class="swatch catalog"></i> Wikidata catalog</span>
+        <span><i class="swatch uncertain"></i> Lower confidence</span>
       </div>
     </section>
 
-    <section class="controls" aria-label="Historical map controls">
-      <div class="timeline-header">
-        <div>
-          <span class="control-label">Time</span>
-          <strong id="timelineDate">117 CE</strong>
-        </div>
+    <section class="controls" aria-label="Historical settlement controls">
+      <div class="timeline-row">
         <button id="playButton" class="play-button" type="button" aria-label="Play timeline">▶</button>
+        <div class="timeline-main">
+          <div class="timeline-header">
+            <label for="timeSlider" class="control-label">Year</label>
+            <strong id="timelineDate">117 CE</strong>
+          </div>
+          <input id="timeSlider" type="range" min="-15000" max="2026" step="1" value="117" aria-label="Historical year" />
+          <div class="range-ends" aria-hidden="true"><span>15,000 BCE</span><span>Present</span></div>
+        </div>
+        <label class="year-entry" for="yearInput">
+          <span>Exact year</span>
+          <input id="yearInput" type="number" min="-15000" max="2026" step="1" value="117" inputmode="numeric" />
+          <small>Negative = BCE</small>
+        </label>
       </div>
-      <input id="timeSlider" type="range" min="0" max="10" step="1" value="4" aria-label="Historical date" />
-      <div class="tick-row" aria-hidden="true">
-        <span>10,000 BCE</span><span>3000 BCE</span><span>500 BCE</span><span>2026 CE</span>
+
+      <div class="quick-years" aria-label="Jump to a period">
+        <button type="button" data-year="-10000">10,000 BCE</button>
+        <button type="button" data-year="-3000">3000 BCE</button>
+        <button type="button" data-year="117">117 CE</button>
+        <button type="button" data-year="1000">1000 CE</button>
+        <button type="button" data-year="1500">1500 CE</button>
+        <button type="button" data-year="1800">1800 CE</button>
+        <button type="button" data-year="1945">1945 CE</button>
+        <button type="button" data-year="2026">Present</button>
       </div>
 
       <div class="control-grid">
         <div class="control-block">
           <label for="evidenceSlider">
-            <span class="control-label">Evidence blend</span>
+            <span class="control-label">Reconstruction tolerance</span>
             <strong id="evidenceValue">Balanced</strong>
           </label>
-          <input id="evidenceSlider" type="range" min="0" max="100" value="58" />
-          <div class="range-ends"><span>Only documented</span><span>Best reconstruction</span></div>
+          <input id="evidenceSlider" type="range" min="0" max="2" step="1" value="1" />
+          <div class="range-ends"><span>Strictly dated</span><span>Broader reconstruction</span></div>
         </div>
 
         <fieldset class="layer-block">
-          <legend class="control-label">Layers</legend>
-          <label><input type="checkbox" data-layer="regions" checked /> Regions</label>
-          <label><input type="checkbox" data-layer="cities" checked /> Settlements</label>
-          <label><input type="checkbox" data-layer="routes" checked /> Routes</label>
+          <legend class="control-label">Settlement layers</legend>
+          <label><input id="ohmToggle" type="checkbox" checked /> OpenHistoricalMap</label>
+          <label><input id="curatedToggle" type="checkbox" checked /> Early and key sites</label>
+          <label><input id="wikidataToggle" type="checkbox" checked /> Wikidata catalog</label>
+          <label><input id="buildingToggle" type="checkbox" /> Historical footprints</label>
         </fieldset>
       </div>
     </section>
@@ -76,14 +118,22 @@
 
   <dialog id="aboutDialog">
     <button id="closeDialog" class="dialog-close" type="button" aria-label="Close">×</button>
-    <p class="eyebrow">How to read this map</p>
-    <h2>History is not a single clean polygon.</h2>
-    <p>Worldline Atlas separates direct evidence from scholarly reconstruction and speculation. Every feature can carry a date range, confidence score, evidence class, source list, and notes about disagreement.</p>
-    <p>This first release is a product and data-model prototype. Its sample geometries are deliberately simplified and are not intended as publication-grade historical boundaries.</p>
+    <p class="eyebrow">How to read the atlas</p>
+    <h2>The land image is modern. The settlement layer changes through time.</h2>
+    <p>The satellite surface is a 2024 Sentinel-2 cloudless mosaic. It provides recognizable terrain, not a reconstruction of historical vegetation, coastlines, rivers, or buildings.</p>
+    <p>Historical settlement records come from OpenHistoricalMap vector tiles, a live Wikidata query for the visible map area, and a small curated set of early archaeological sites. Features are shown only when their available dates overlap the selected year.</p>
+    <p>Coverage is uneven. A blank area means no compatible record was returned, not that nobody lived there. Dates can represent occupation phases, founding traditions, administrative status, or archaeological estimates depending on the source.</p>
+    <div class="source-list">
+      <a href="https://www.openhistoricalmap.org" target="_blank" rel="noreferrer">OpenHistoricalMap</a>
+      <a href="https://www.wikidata.org" target="_blank" rel="noreferrer">Wikidata</a>
+      <a href="https://s2maps.eu" target="_blank" rel="noreferrer">Sentinel-2 cloudless by EOX</a>
+    </div>
   </dialog>
 
   <script src="https://unpkg.com/maplibre-gl@5.12.0/dist/maplibre-gl.js"></script>
   <script src="data.js"></script>
+  <script src="map-core.js"></script>
+  <script src="map-layers.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
