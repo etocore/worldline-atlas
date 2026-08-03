@@ -1,0 +1,195 @@
+/* Worldline r10 - Earth History first, with a separate Human History scale. */
+:root {
+  --earth-era-glow: #ffb35c;
+}
+
+.timeline-mode-control {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  min-height: 34px;
+  margin: 7px 0 5px;
+  padding: 2px;
+  border: .5px solid rgba(255, 255, 255, .09);
+  border-radius: 11px;
+  background: rgba(118, 118, 128, .22);
+}
+
+.timeline-mode-control button {
+  min-width: 0;
+  min-height: 30px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 9px;
+  color: rgba(235, 235, 245, .66);
+  background: transparent;
+  font: 600 .76rem/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  letter-spacing: -.005em;
+  transition: color .16s ease, background .2s ease, box-shadow .2s ease, transform .12s ease;
+}
+
+.timeline-mode-control button[aria-selected="true"] {
+  color: #fff;
+  background: rgba(99, 99, 102, .78);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .35), inset 0 .5px rgba(255, 255, 255, .14);
+}
+
+.timeline-mode-control button:active { transform: scale(.98); }
+
+.timeline-slider-wrap { isolation: isolate; }
+.timeline-milestones {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  pointer-events: none;
+}
+
+.timeline-milestone {
+  position: absolute;
+  top: 50%;
+  width: 32px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+}
+
+.timeline-milestone::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  border: 1px solid rgba(255, 255, 255, .75);
+  border-radius: 50%;
+  background: rgba(28, 28, 30, .96);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, .28);
+  transform: translate(-50%, -50%);
+  transition: width .14s ease, height .14s ease, background .14s ease, box-shadow .14s ease;
+}
+
+.timeline-milestone:hover::after,
+.timeline-milestone:focus-visible::after {
+  width: 9px;
+  height: 9px;
+  background: var(--earth-era-glow);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--earth-era-glow) 22%, transparent);
+}
+
+.timeline-primary-slider { position: relative; z-index: 3; }
+
+.timeline-era-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 74px;
+  margin-top: 8px;
+  padding: 11px 11px 11px 13px;
+  border: .5px solid rgba(255, 255, 255, .11);
+  border-radius: 17px;
+  background: linear-gradient(145deg, rgba(118, 118, 128, .17), rgba(58, 58, 60, .12));
+  box-shadow: inset 0 .5px rgba(255, 255, 255, .06);
+}
+
+.timeline-era-card-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.timeline-era-meta {
+  margin: 0;
+  overflow: hidden;
+  color: rgba(235, 235, 245, .52);
+  font: 600 .61rem/1.2 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  letter-spacing: .01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timeline-era-card strong {
+  overflow: hidden;
+  color: rgba(255, 255, 255, .96);
+  font: 650 .93rem/1.15 -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  letter-spacing: -.015em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timeline-era-card-copy > span {
+  display: -webkit-box;
+  overflow: hidden;
+  color: rgba(235, 235, 245, .63);
+  font: 500 .7rem/1.32 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.timeline-era-card button {
+  min-width: 66px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 18px;
+  color: #fff;
+  background: rgba(10, 132, 255, .92);
+  font: 600 .73rem/1 -apple-system, BlinkMacSystemFont, sans-serif;
+  box-shadow: inset 0 .5px rgba(255, 255, 255, .2);
+}
+
+.timeline-era-card button:active { transform: scale(.97); }
+.timeline-era-card[data-confidence="schematic"] { border-color: rgba(255, 123, 84, .28); }
+.timeline-era-card[data-confidence="model"] { border-color: rgba(255, 179, 92, .24); }
+.timeline-era-card[data-confidence="observed"] { border-color: rgba(100, 210, 255, .24); }
+
+/* Reconstruction is the product surface. The former binary switch is no longer a user decision. */
+.surface-control { display: none !important; }
+.surface-badge { max-width: 170px; }
+body[data-timeline-mode="earth"] .surface-badge.reconstructed { color: rgba(255, 255, 255, .88); }
+
+body[data-timeline-mode="earth"] .legend,
+body[data-timeline-mode="earth"] .imagery-note,
+body[data-timeline-mode="earth"] .metric-grid,
+body[data-timeline-mode="earth"] .control-grid {
+  opacity: .42;
+}
+
+body[data-earth-confidence="schematic"] .map-vignette {
+  background:
+    radial-gradient(circle at 48% 40%, rgba(255, 117, 72, .12), transparent 42%),
+    radial-gradient(circle at 50% 48%, transparent 45%, rgba(0, 0, 0, .24) 82%, rgba(0, 0, 0, .5) 100%);
+}
+
+body[data-earth-confidence="model"] .map-vignette {
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, .12), transparent 24%, transparent 72%, rgba(0, 0, 0, .2)),
+    radial-gradient(circle at 50% 44%, transparent 48%, rgba(0, 0, 0, .12) 78%, rgba(0, 0, 0, .38) 100%);
+}
+
+@media (max-width: 720px) {
+  .timeline-hud {
+    top: max(58px, calc(env(safe-area-inset-top) + 50px));
+    padding: 12px 13px 12px;
+  }
+
+  .timeline-mode-control { margin-top: 5px; }
+  .timeline-era-card { min-height: 70px; padding: 10px 10px 10px 12px; }
+  .timeline-era-card-copy > span { -webkit-line-clamp: 2; }
+  .timeline-era-card button { min-width: 62px; padding-inline: 10px; }
+  .timeline-milestone { width: 28px; }
+}
+
+@media (max-height: 690px) and (max-width: 720px) {
+  .timeline-era-card-copy > span { display: none; }
+  .timeline-era-card { min-height: 54px; }
+  .timeline-hud-footer { margin-top: 8px; padding-top: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timeline-mode-control button,
+  .timeline-milestone::after { transition: none; }
+}
