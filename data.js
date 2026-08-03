@@ -1,125 +1,55 @@
 window.WORLDLINE_DATA = {
   eras: [
-    {
-      year: -10000,
-      label: "Late glacial world",
-      summary: "Human communities adapted to warming climates as ice sheets retreated and coastlines approached their later form.",
-      camera: { center: [25, 28], zoom: 1.4 },
-      features: [
-        { name: "Fertile Crescent communities", type: "region", evidence: "reconstruction", confidence: 0.48, geometry: { type: "Polygon", coordinates: [[[30,29],[48,29],[46,38],[34,39],[30,29]]] } },
-        { name: "Levantine settlement zone", type: "city", evidence: "attested", confidence: 0.68, geometry: { type: "Point", coordinates: [35.2,31.8] } },
-        { name: "Post-glacial dispersal", type: "route", evidence: "speculative", confidence: 0.31, geometry: { type: "LineString", coordinates: [[33,31],[40,36],[48,40],[58,44]] } }
-      ]
-    },
-    {
-      year: -3000,
-      label: "First urban networks",
-      summary: "Dense settlements, writing systems, irrigation, and long-distance exchange emerged in several independent centers.",
-      camera: { center: [45, 25], zoom: 1.8 },
-      features: [
-        { name: "Mesopotamian city-states", type: "region", evidence: "reconstruction", confidence: 0.78, geometry: { type: "Polygon", coordinates: [[[42,29],[49,29],[48,36],[43,36],[42,29]]] } },
-        { name: "Uruk", type: "city", evidence: "attested", confidence: 0.95, geometry: { type: "Point", coordinates: [45.64,31.32] } },
-        { name: "Persian Gulf exchange", type: "route", evidence: "reconstruction", confidence: 0.62, geometry: { type: "LineString", coordinates: [[45.6,31.3],[49,27],[54,25],[58,23]] } }
-      ]
-    },
-    {
-      year: -500,
-      label: "Interconnected ancient worlds",
-      summary: "Large states and maritime networks linked the Mediterranean, western Asia, South Asia, and eastern Asia.",
-      camera: { center: [45, 30], zoom: 1.35 },
-      features: [
-        { name: "Achaemenid sphere", type: "region", evidence: "reconstruction", confidence: 0.77, geometry: { type: "Polygon", coordinates: [[[25,24],[67,23],[72,37],[55,45],[30,41],[25,24]]] } },
-        { name: "Athens", type: "city", evidence: "attested", confidence: 0.98, geometry: { type: "Point", coordinates: [23.73,37.98] } },
-        { name: "Royal Road corridor", type: "route", evidence: "reconstruction", confidence: 0.73, geometry: { type: "LineString", coordinates: [[28,39],[34,38],[40,36],[45,33],[49,32]] } }
-      ]
-    },
-    {
-      year: 1,
-      label: "Continental empires",
-      summary: "Imperial systems in Rome, Parthia, Kushan territories, and Han China organized enormous populations and trade corridors.",
-      camera: { center: [55, 30], zoom: 1.15 },
-      features: [
-        { name: "Roman sphere", type: "region", evidence: "reconstruction", confidence: 0.82, geometry: { type: "Polygon", coordinates: [[[-9,31],[35,30],[40,45],[20,54],[-5,48],[-9,31]]] } },
-        { name: "Rome", type: "city", evidence: "attested", confidence: 0.99, geometry: { type: "Point", coordinates: [12.49,41.9] } },
-        { name: "Silk Road corridors", type: "route", evidence: "reconstruction", confidence: 0.61, geometry: { type: "LineString", coordinates: [[30,38],[48,36],[65,40],[82,42],[103,38],[116,35]] } }
-      ]
-    },
-    {
-      year: 117,
-      label: "Roman high empire",
-      summary: "Trade, roads, cities, and imperial administration connected much of Europe, North Africa, and western Asia.",
-      camera: { center: [18, 38], zoom: 2.15 },
-      features: [
-        { name: "Roman imperial extent", type: "region", evidence: "reconstruction", confidence: 0.88, geometry: { type: "Polygon", coordinates: [[[-10,30],[35,22],[43,36],[30,49],[10,56],[-7,51],[-10,30]]] } },
-        { name: "Rome", type: "city", evidence: "attested", confidence: 0.99, geometry: { type: "Point", coordinates: [12.49,41.9] } },
-        { name: "Imperial road network", type: "route", evidence: "reconstruction", confidence: 0.71, geometry: { type: "LineString", coordinates: [[-1,51],[2,48],[12.5,41.9],[23,38],[30,41],[36,37]] } }
-      ]
-    },
-    {
-      year: 500,
-      label: "Post-imperial transition",
-      summary: "Political authority fragmented in western Europe while eastern Rome and other regional powers maintained complex states.",
-      camera: { center: [25, 40], zoom: 1.8 },
-      features: [
-        { name: "Eastern Roman sphere", type: "region", evidence: "reconstruction", confidence: 0.74, geometry: { type: "Polygon", coordinates: [[[18,30],[40,30],[43,43],[27,47],[18,30]]] } },
-        { name: "Constantinople", type: "city", evidence: "attested", confidence: 0.99, geometry: { type: "Point", coordinates: [28.98,41.01] } },
-        { name: "Mediterranean exchange", type: "route", evidence: "reconstruction", confidence: 0.55, geometry: { type: "LineString", coordinates: [[-5,36],[8,39],[18,38],[29,40],[35,35]] } }
-      ]
-    },
-    {
-      year: 1000,
-      label: "Medieval exchange systems",
-      summary: "Trade, pilgrimage, scholarship, and conquest connected societies across Africa, Eurasia, and the Indian Ocean.",
-      camera: { center: [48, 27], zoom: 1.25 },
-      features: [
-        { name: "Fatimid sphere", type: "region", evidence: "reconstruction", confidence: 0.7, geometry: { type: "Polygon", coordinates: [[[-8,22],[42,20],[38,35],[12,37],[-8,31],[-8,22]]] } },
-        { name: "Cairo", type: "city", evidence: "attested", confidence: 0.96, geometry: { type: "Point", coordinates: [31.24,30.04] } },
-        { name: "Indian Ocean routes", type: "route", evidence: "reconstruction", confidence: 0.67, geometry: { type: "LineString", coordinates: [[32,29],[43,13],[58,20],[72,19],[80,9],[103,2]] } }
-      ]
-    },
-    {
-      year: 1500,
-      label: "Oceanic convergence",
-      summary: "Older regional systems collided with rapidly expanding transoceanic routes, producing profound ecological and political change.",
-      camera: { center: [-15, 22], zoom: 1.05 },
-      features: [
-        { name: "Atlantic contact zone", type: "region", evidence: "reconstruction", confidence: 0.64, geometry: { type: "Polygon", coordinates: [[[-85,5],[-10,5],[-10,50],[-75,50],[-85,5]]] } },
-        { name: "Tenochtitlan", type: "city", evidence: "attested", confidence: 0.98, geometry: { type: "Point", coordinates: [-99.13,19.43] } },
-        { name: "Atlantic crossings", type: "route", evidence: "attested", confidence: 0.83, geometry: { type: "LineString", coordinates: [[-9,38],[-28,31],[-53,20],[-72,19]] } }
-      ]
-    },
-    {
-      year: 1800,
-      label: "Industrial and imperial acceleration",
-      summary: "Industrial production, colonial systems, and faster transport began reshaping landscapes and political power at planetary scale.",
-      camera: { center: [5, 15], zoom: 0.95 },
-      features: [
-        { name: "British imperial network", type: "region", evidence: "reconstruction", confidence: 0.83, geometry: { type: "Polygon", coordinates: [[[-12,49],[3,49],[3,59],[-12,59],[-12,49]]] } },
-        { name: "London", type: "city", evidence: "attested", confidence: 0.99, geometry: { type: "Point", coordinates: [-0.13,51.51] } },
-        { name: "Global shipping corridors", type: "route", evidence: "attested", confidence: 0.79, geometry: { type: "LineString", coordinates: [[-1,51],[-18,31],[-44,-8],[18,-34],[58,-20],[80,7],[103,1]] } }
-      ]
-    },
-    {
-      year: 1945,
-      label: "A reorganized world",
-      summary: "The end of the Second World War accelerated decolonization, new international institutions, and a bipolar political order.",
-      camera: { center: [15, 24], zoom: 0.85 },
-      features: [
-        { name: "Postwar transition zones", type: "region", evidence: "reconstruction", confidence: 0.86, geometry: { type: "Polygon", coordinates: [[[-15,-35],[50,-35],[50,35],[-15,35],[-15,-35]]] } },
-        { name: "San Francisco", type: "city", evidence: "attested", confidence: 0.99, geometry: { type: "Point", coordinates: [-122.42,37.77] } },
-        { name: "Postwar diplomatic network", type: "route", evidence: "attested", confidence: 0.9, geometry: { type: "LineString", coordinates: [[-122,38],[-74,41],[-1,52],[16,48],[37,56],[140,36]] } }
-      ]
-    },
-    {
-      year: 2026,
-      label: "The observed present",
-      summary: "Satellite imagery, sensors, public records, and digital cartography make the present far more observable than any previous era.",
-      camera: { center: [0, 18], zoom: 0.8 },
-      features: [
-        { name: "Modern observation layer", type: "region", evidence: "attested", confidence: 0.99, geometry: { type: "Polygon", coordinates: [[[-179,-70],[179,-70],[179,75],[-179,75],[-179,-70]]] } },
-        { name: "Global urban systems", type: "city", evidence: "attested", confidence: 0.99, geometry: { type: "Point", coordinates: [0,20] } },
-        { name: "Global connectivity", type: "route", evidence: "attested", confidence: 0.98, geometry: { type: "LineString", coordinates: [[-122,38],[-74,41],[-1,52],[31,30],[77,28],[103,1],[139,36]] } }
-      ]
-    }
+    { min: -15000, max: -10001, label: "Late Ice Age occupation", summary: "The map is dominated by archaeological occupation sites and seasonal or semi-permanent communities. Coverage is extremely incomplete." },
+    { min: -10000, max: -6501, label: "Early sedentism", summary: "Some communities became increasingly permanent as food storage, cultivation, and regional exchange intensified." },
+    { min: -6500, max: -3501, label: "Village worlds", summary: "Farming and herding supported denser village networks across several independent regions." },
+    { min: -3500, max: -1201, label: "First cities and states", summary: "Urban settlements, irrigation systems, writing, and territorial states developed in multiple centers." },
+    { min: -1200, max: 499, label: "Classical urban systems", summary: "Large urban networks connected the Mediterranean, Africa, western Asia, South Asia, and East Asia." },
+    { min: 500, max: 1099, label: "Post-classical settlement networks", summary: "Cities, fortified centers, monasteries, ports, and court capitals linked regional economies across the world." },
+    { min: 1100, max: 1499, label: "Medieval and pre-contact worlds", summary: "Dense settlement systems expanded across Africa, Eurasia, Oceania, and the Americas before sustained Atlantic contact." },
+    { min: 1500, max: 1749, label: "Early modern convergence", summary: "Long-established settlement systems were reshaped by conquest, disease, forced migration, and oceanic exchange." },
+    { min: 1750, max: 1899, label: "Industrial urban acceleration", summary: "Industrialization, colonial expansion, and new transportation systems rapidly changed the scale and density of cities." },
+    { min: 1900, max: 2026, label: "Observed urban world", summary: "Modern records and remote sensing make recent settlements far more visible than earlier occupation." }
+  ],
+  settlements: [
+    { name: "Monte Verde", coordinates: [-73.20, -41.50], start: -14500, end: -11000, confidence: 0.74, evidence: "reconstruction", kind: "archaeological occupation", note: "Occupation date range is approximate and debated.", source: "https://en.wikipedia.org/wiki/Monte_Verde" },
+    { name: "Abu Hureyra", coordinates: [38.43, 35.87], start: -11100, end: -5000, confidence: 0.86, evidence: "attested", kind: "settlement mound", note: "Multiple occupation phases span foraging and farming communities.", source: "https://en.wikipedia.org/wiki/Tell_Abu_Hureyra" },
+    { name: "Lepenski Vir", coordinates: [22.03, 44.55], start: -9500, end: -6000, confidence: 0.84, evidence: "attested", kind: "river settlement", note: "Occupation phases and chronology vary by source.", source: "https://en.wikipedia.org/wiki/Lepenski_Vir" },
+    { name: "Göbekli Tepe", coordinates: [38.92, 37.22], start: -9600, end: -8200, confidence: 0.95, evidence: "attested", kind: "ritual and occupation complex", note: "Not a conventional city, but a major fixed gathering complex.", source: "https://en.wikipedia.org/wiki/G%C3%B6bekli_Tepe" },
+    { name: "Jericho", coordinates: [35.44, 31.87], start: -9000, end: 2026, confidence: 0.84, evidence: "reconstruction", kind: "long-lived settlement", note: "Continuous occupation across the full range should not be assumed.", source: "https://en.wikipedia.org/wiki/Jericho" },
+    { name: "Nabta Playa", coordinates: [30.73, 22.51], start: -7500, end: -3500, confidence: 0.76, evidence: "reconstruction", kind: "seasonal settlement complex", note: "Occupation intensity changed with Saharan climate cycles.", source: "https://en.wikipedia.org/wiki/Nabta_Playa" },
+    { name: "Ain Ghazal", coordinates: [35.98, 31.99], start: -7250, end: -5000, confidence: 0.91, evidence: "attested", kind: "Neolithic village", note: "A large early farming settlement near modern Amman.", source: "https://en.wikipedia.org/wiki/%27Ain_Ghazal" },
+    { name: "Çatalhöyük", coordinates: [32.83, 37.67], start: -7100, end: -5700, confidence: 0.95, evidence: "attested", kind: "dense Neolithic settlement", note: "A large roof-access settlement with many occupation layers.", source: "https://en.wikipedia.org/wiki/%C3%87atalh%C3%B6y%C3%BCk" },
+    { name: "Mehrgarh", coordinates: [67.62, 29.40], start: -7000, end: -2600, confidence: 0.91, evidence: "attested", kind: "farming settlement", note: "A sequence of occupation phases in the Kachi Plain.", source: "https://en.wikipedia.org/wiki/Mehrgarh" },
+    { name: "Jiahu", coordinates: [113.68, 33.62], start: -7000, end: -5700, confidence: 0.9, evidence: "attested", kind: "Neolithic settlement", note: "Known for early agriculture, craft production, and burials.", source: "https://en.wikipedia.org/wiki/Jiahu" },
+    { name: "Sannai-Maruyama", coordinates: [140.70, 40.81], start: -3900, end: -2200, confidence: 0.9, evidence: "attested", kind: "Jōmon settlement", note: "A large, long-lived settlement with changing phases.", source: "https://en.wikipedia.org/wiki/Sannai-Maruyama_Site" },
+    { name: "Uruk", coordinates: [45.64, 31.32], start: -4000, end: 700, confidence: 0.96, evidence: "attested", kind: "city", note: "One of the earliest large urban centers, with many later phases.", source: "https://en.wikipedia.org/wiki/Uruk" },
+    { name: "Skara Brae", coordinates: [-3.34, 59.05], start: -3180, end: -2500, confidence: 0.93, evidence: "attested", kind: "stone-built village", note: "A preserved Neolithic settlement in Orkney.", source: "https://en.wikipedia.org/wiki/Skara_Brae" },
+    { name: "Caral", coordinates: [-77.52, -10.89], start: -3000, end: -1800, confidence: 0.9, evidence: "attested", kind: "urban ceremonial center", note: "A major settlement in the Norte Chico civilization.", source: "https://en.wikipedia.org/wiki/Caral" },
+    { name: "Dholavira", coordinates: [70.22, 23.89], start: -3000, end: -1500, confidence: 0.92, evidence: "attested", kind: "Indus city", note: "Dates summarize several urban phases.", source: "https://en.wikipedia.org/wiki/Dholavira" },
+    { name: "Mohenjo-daro", coordinates: [68.14, 27.33], start: -2600, end: -1900, confidence: 0.96, evidence: "attested", kind: "Indus city", note: "A major planned city of the Indus civilization.", source: "https://en.wikipedia.org/wiki/Mohenjo-daro" },
+    { name: "Anyang - Yinxu", coordinates: [114.33, 36.13], start: -1300, end: -1046, confidence: 0.93, evidence: "attested", kind: "royal capital", note: "Late Shang capital complex and surrounding settlement.", source: "https://en.wikipedia.org/wiki/Yinxu" },
+    { name: "Rome", coordinates: [12.49, 41.90], start: -753, end: 2026, confidence: 0.82, evidence: "reconstruction", kind: "city", note: "Traditional founding date is used as a convenient marker, not a precise archaeological start.", source: "https://en.wikipedia.org/wiki/Rome" },
+    { name: "Alexandria", coordinates: [29.92, 31.20], start: -331, end: 2026, confidence: 0.96, evidence: "attested", kind: "city", note: "Founded in the late fourth century BCE and continuously transformed thereafter.", source: "https://en.wikipedia.org/wiki/Alexandria" },
+    { name: "Jenne-jeno", coordinates: [-4.55, 13.90], start: -250, end: 1400, confidence: 0.86, evidence: "attested", kind: "urban settlement", note: "A major precolonial urban center in the Inland Niger Delta.", source: "https://en.wikipedia.org/wiki/Djenn%C3%A9-Djenno" },
+    { name: "Teotihuacan", coordinates: [-98.84, 19.69], start: -100, end: 550, confidence: 0.94, evidence: "attested", kind: "city", note: "Population and political control changed dramatically across its lifespan.", source: "https://en.wikipedia.org/wiki/Teotihuacan" },
+    { name: "Aksum", coordinates: [38.72, 14.13], start: -100, end: 940, confidence: 0.85, evidence: "reconstruction", kind: "capital city", note: "Dates broadly represent its major ancient and late antique phases.", source: "https://en.wikipedia.org/wiki/Axum" },
+    { name: "Constantinople", coordinates: [28.98, 41.01], start: 330, end: 2026, confidence: 0.97, evidence: "attested", kind: "city", note: "The site had earlier settlement phases before its refounding as Constantinople.", source: "https://en.wikipedia.org/wiki/Constantinople" },
+    { name: "Tiwanaku", coordinates: [-68.67, -16.55], start: 500, end: 1000, confidence: 0.88, evidence: "reconstruction", kind: "urban ceremonial center", note: "Chronology varies across the wider Tiwanaku polity and city core.", source: "https://en.wikipedia.org/wiki/Tiwanaku" },
+    { name: "Cahokia", coordinates: [-90.06, 38.66], start: 600, end: 1350, confidence: 0.9, evidence: "attested", kind: "Mississippian urban center", note: "Its peak population was concentrated in a shorter period within this range.", source: "https://en.wikipedia.org/wiki/Cahokia" },
+    { name: "Baghdad", coordinates: [44.36, 33.31], start: 762, end: 2026, confidence: 0.98, evidence: "attested", kind: "city", note: "Founded as the Abbasid capital near older settlements.", source: "https://en.wikipedia.org/wiki/Baghdad" },
+    { name: "Kyoto", coordinates: [135.77, 35.01], start: 794, end: 2026, confidence: 0.98, evidence: "attested", kind: "city", note: "Established as Heian-kyō in 794 CE.", source: "https://en.wikipedia.org/wiki/Kyoto" },
+    { name: "Angkor", coordinates: [103.87, 13.41], start: 802, end: 1431, confidence: 0.88, evidence: "reconstruction", kind: "low-density urban complex", note: "The metropolitan landscape expanded and contracted over many centuries.", source: "https://en.wikipedia.org/wiki/Angkor" },
+    { name: "Bagan", coordinates: [94.86, 21.17], start: 849, end: 1297, confidence: 0.84, evidence: "reconstruction", kind: "capital and temple city", note: "The urban and ritual landscape continued beyond the conventional dynastic range.", source: "https://en.wikipedia.org/wiki/Bagan" },
+    { name: "Chaco Canyon", coordinates: [-107.96, 36.06], start: 850, end: 1250, confidence: 0.87, evidence: "attested", kind: "regional settlement center", note: "A network of great houses and communities rather than one compact city.", source: "https://en.wikipedia.org/wiki/Chaco_Culture_National_Historical_Park" },
+    { name: "Kilwa Kisiwani", coordinates: [39.52, -8.96], start: 900, end: 1840, confidence: 0.86, evidence: "reconstruction", kind: "Swahili port city", note: "Importance and occupation varied across the period.", source: "https://en.wikipedia.org/wiki/Kilwa_Kisiwani" },
+    { name: "L'Anse aux Meadows", coordinates: [-55.53, 51.60], start: 1000, end: 1020, confidence: 0.93, evidence: "attested", kind: "Norse settlement", note: "A short-lived settlement with dating uncertainty of several years.", source: "https://en.wikipedia.org/wiki/L%27Anse_aux_Meadows" },
+    { name: "Mapungubwe", coordinates: [29.24, -22.19], start: 1075, end: 1220, confidence: 0.9, evidence: "attested", kind: "southern African capital", note: "A major center preceding Great Zimbabwe's peak.", source: "https://en.wikipedia.org/wiki/Mapungubwe" },
+    { name: "Timbuktu", coordinates: [-3.00, 16.77], start: 1100, end: 2026, confidence: 0.72, evidence: "reconstruction", kind: "city", note: "The commonly cited founding period is approximate.", source: "https://en.wikipedia.org/wiki/Timbuktu" },
+    { name: "Great Zimbabwe", coordinates: [30.93, -20.27], start: 1100, end: 1450, confidence: 0.91, evidence: "attested", kind: "stone-built capital", note: "Settlement phases extend outside the period of greatest monumental construction.", source: "https://en.wikipedia.org/wiki/Great_Zimbabwe" },
+    { name: "Nan Madol", coordinates: [158.33, 6.84], start: 1200, end: 1628, confidence: 0.82, evidence: "reconstruction", kind: "ceremonial and residential complex", note: "Construction and occupation chronology remains approximate.", source: "https://en.wikipedia.org/wiki/Nan_Madol" },
+    { name: "Cusco", coordinates: [-71.97, -13.52], start: 1200, end: 2026, confidence: 0.75, evidence: "reconstruction", kind: "city", note: "Early settlement and state formation dates are approximate.", source: "https://en.wikipedia.org/wiki/Cusco" },
+    { name: "Tenochtitlan", coordinates: [-99.13, 19.43], start: 1325, end: 1521, confidence: 0.96, evidence: "attested", kind: "island capital", note: "Its urban fabric was transformed into colonial Mexico City after 1521.", source: "https://en.wikipedia.org/wiki/Tenochtitlan" },
+    { name: "Machu Picchu", coordinates: [-72.55, -13.16], start: 1450, end: 1572, confidence: 0.82, evidence: "reconstruction", kind: "Inca estate and settlement", note: "Construction and abandonment dates are approximate.", source: "https://en.wikipedia.org/wiki/Machu_Picchu" }
   ]
 };
