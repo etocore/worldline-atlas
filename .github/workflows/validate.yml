@@ -36,6 +36,7 @@ jobs:
           node --check apple-controls-loader.js
           node --check apple-controls.js
           node --check earth-history.js
+          node --check earth-ui-sync.js
           node --check netlify/functions/settlements.js
           node --check netlify/functions/place-summary.js
           node --check netlify/functions/paleocoastlines.js
