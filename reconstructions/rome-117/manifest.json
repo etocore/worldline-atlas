@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "0.1.0",
+  "id": "rome-117",
+  "title": "Rome in 117 CE",
+  "place": {
+    "names": ["Rome", "Roma"],
+    "center": [12.4923, 41.8902],
+    "pleiadesId": "423025"
+  },
+  "targetYear": 117,
+  "validWindow": {
+    "start": 117,
+    "end": 117,
+    "note": "This package targets a single interpretive snapshot. Features must carry their own narrower or broader temporal ranges before publication."
+  },
+  "status": "foundation",
+  "camera": {
+    "center": [12.4923, 41.8902],
+    "zoom": 11.8,
+    "pitch": 52,
+    "bearing": -18
+  },
+  "layers": {
+    "studyArea": {
+      "status": "seed",
+      "path": "reconstructions/rome-117/study-area.geojson",
+      "note": "A working research viewport only. It is not an ancient administrative, defensive, or urban boundary."
+    },
+    "terrain": {
+      "status": "not-started",
+      "path": null,
+      "note": "Requires a reviewed elevation and land-cover reconstruction."
+    },
+    "water": {
+      "status": "not-started",
+      "path": null,
+      "note": "The Tiber channel, tributaries, marshes, and engineered water features require dated evidence."
+    },
+    "roads": {
+      "status": "not-started",
+      "path": null,
+      "note": "No street geometry is included until source provenance and date fit are reviewed."
+    },
+    "buildings": {
+      "status": "not-started",
+      "path": null,
+      "note": "No inferred building footprints are included in the foundation package."
+    },
+    "landmarks": {
+      "status": "not-started",
+      "path": null,
+      "note": "Landmarks will be added individually with construction state, evidence class, geometry provenance, and license status."
+    },
+    "vegetation": {
+      "status": "not-started",
+      "path": null,
+      "note": "Urban gardens, sacred groves, agriculture, and regional cover require separate evidence and uncertainty."
+    }
+  },
+  "sources": [
+    {
+      "id": "pleiades",
+      "title": "Pleiades: A Gazetteer of Past Places",
+      "url": "https://pleiades.stoa.org/places/423025",
+      "role": "Ancient place identity, names, coordinates, bibliography, and linked-place discovery",
+      "licenseStatus": "Pleiades published content is available under CC BY 3.0; attribution is required.",
+      "useStatus": "approved",
+      "temporalFit": "Broad ancient-place reference rather than a complete 117 CE city plan.",
+      "notes": "Use identifiers and cited spatial records, not unsupported extrapolation."
+    },
+    {
+      "id": "stanford-forma-urbis",
+      "title": "Stanford Digital Forma Urbis Romae Project",
+      "url": "https://formaurbis.stanford.edu/",
+      "role": "Architectural ground-plan evidence from surviving fragments of the Severan Marble Plan",
+      "licenseStatus": "Website text and images are copyright-protected; reuse requires explicit review or permission.",
+      "useStatus": "reference-only",
+      "temporalFit": "The Marble Plan dates to 203-211 CE, substantially later than the 117 CE target.",
+      "notes": "Useful for comparison and bibliography, but neither its date nor its copyright permits direct unreviewed import."
+    },
+    {
+      "id": "oh3d-pantheon",
+      "title": "Open Heritage 3D - Pantheon",
+      "url": "https://www.openheritage3d.org/project.php?id=t9sj-mf53",
+      "role": "High-resolution measured geometry for a surviving Roman monument",
+      "licenseStatus": "CC BY-NC-SA; commercial and derivative use implications require review.",
+      "useStatus": "requires-review",
+      "temporalFit": "The surviving Hadrianic Pantheon postdates 117 CE in its completed form.",
+      "notes": "Do not insert the present measured model as a 117 CE reconstruction without architectural and chronological review."
+    },
+    {
+      "id": "openhistoricalmap",
+      "title": "OpenHistoricalMap",
+      "url": "https://www.openhistoricalmap.org/",
+      "role": "Dated vector features and contributor-maintained historical geometry",
+      "licenseStatus": "Open database and tile terms must be reviewed for attribution and derived-data use.",
+      "useStatus": "requires-review",
+      "temporalFit": "Feature-specific. Every imported object must be checked for start and end dates.",
+      "notes": "Existing application layers remain exploratory until feature-level provenance is audited."
+    }
+  ],
+  "guardrails": [
+    "The study-area polygon is a working viewport and must never be presented as an ancient city boundary.",
+    "No source may be imported into distributable data until its license and attribution requirements are recorded.",
+    "A later source must not be silently treated as evidence for 117 CE without a documented continuity argument.",
+    "Generated geometry must remain visibly distinct from attested or measured geometry.",
+    "Every published feature must include temporal range, evidence class, confidence, source references, and reviewer status."
+  ]
+}

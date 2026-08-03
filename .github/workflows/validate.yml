@@ -25,6 +25,10 @@ jobs:
           node --check map-core.js
           node --check map-layers.js
           node --check reconstruction.js
+          node --check reconstruction-packages.js
           node --check bootstrap.js
           node --check mobile-polish.js
           node --check netlify/functions/settlements.js
+          node --check scripts/validate-reconstructions.mjs
+      - name: Validate reconstruction packages
+        run: node scripts/validate-reconstructions.mjs

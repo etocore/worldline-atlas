@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://worldlineatlas.netlify.app/reconstructions/schema/reconstruction-package.schema.json",
+  "title": "Worldline Atlas Reconstruction Package",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "id",
+    "title",
+    "place",
+    "targetYear",
+    "status",
+    "camera",
+    "layers",
+    "sources",
+    "guardrails"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "string" },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "title": { "type": "string" },
+    "place": {
+      "type": "object",
+      "required": ["names", "center"],
+      "properties": {
+        "names": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "center": {
+          "type": "array",
+          "prefixItems": [
+            { "type": "number", "minimum": -180, "maximum": 180 },
+            { "type": "number", "minimum": -90, "maximum": 90 }
+          ],
+          "items": false
+        },
+        "pleiadesId": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "targetYear": { "type": "integer" },
+    "validWindow": {
+      "type": "object",
+      "required": ["start", "end", "note"],
+      "properties": {
+        "start": { "type": "integer" },
+        "end": { "type": "integer" },
+        "note": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "status": {
+      "type": "string",
+      "enum": ["foundation", "research", "review", "published", "deprecated"]
+    },
+    "camera": {
+      "type": "object",
+      "required": ["center", "zoom", "pitch", "bearing"],
+      "properties": {
+        "center": {
+          "type": "array",
+          "prefixItems": [{ "type": "number" }, { "type": "number" }],
+          "items": false
+        },
+        "zoom": { "type": "number" },
+        "pitch": { "type": "number", "minimum": 0, "maximum": 85 },
+        "bearing": { "type": "number" }
+      },
+      "additionalProperties": false
+    },
+    "layers": {
+      "type": "object",
+      "required": ["studyArea", "terrain", "water", "roads", "buildings", "landmarks", "vegetation"],
+      "additionalProperties": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": { "type": "string", "enum": ["not-started", "seed", "research", "review", "published"] },
+          "path": { "type": ["string", "null"] },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "url", "role", "licenseStatus", "useStatus"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "url": { "type": "string", "format": "uri" },
+          "role": { "type": "string" },
+          "licenseStatus": { "type": "string" },
+          "useStatus": { "type": "string", "enum": ["approved", "reference-only", "requires-review", "rejected"] },
+          "temporalFit": { "type": "string" },
+          "notes": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "guardrails": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false
+}
