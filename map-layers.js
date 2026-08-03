@@ -132,13 +132,19 @@ function setLayerGroupVisibility(layerIds, visible) {
   });
 }
 
+function isEarthHistoryActive() {
+  return globalThis.WorldlineEarthHistory?.getMode?.() === 'earth';
+}
+
 function updateMetrics() {
+  if (isEarthHistoryActive()) return;
   const total = renderedOhmCount + curatedCount + catalogCount;
   dom.visibleCount.textContent = total.toLocaleString();
   dom.catalogCount.textContent = catalogCount.toLocaleString();
 }
 
 function updateRenderedOhmCount() {
+  if (isEarthHistoryActive()) return;
   if (!mapReady || !ohmAvailable || !dom.ohmToggle.checked) {
     renderedOhmCount = 0;
     updateMetrics();
@@ -170,6 +176,10 @@ function clearWikidata(message) {
 }
 
 async function loadWikidataSettlements() {
+  if (isEarthHistoryActive()) {
+    clearWikidata('Human settlement catalogs pause while Earth History is active.');
+    return;
+  }
   if (!mapReady || !dom.wikidataToggle.checked) {
     clearWikidata('Live catalog layer is turned off.');
     return;
