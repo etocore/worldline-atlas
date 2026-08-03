@@ -1,0 +1,27 @@
+name: Validate static app
+
+on:
+  push:
+    branches: [main, "agent/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check browser and function JavaScript
+        run: |
+          node --check app.js
+          node --check data.js
+          node --check map-core.js
+          node --check map-layers.js
+          node --check netlify/functions/settlements.js
