@@ -35,6 +35,7 @@ jobs:
           node --check search-index.js
           node --check history-catalog.js
           node --check history-engine.js
+          node --check history-presence-r14.js
           node --check apple-controls-loader.js
           node --check apple-controls.js
           node --check earth-history.js
@@ -64,5 +65,5 @@ jobs:
         run: node scripts/validate-earth-history.mjs
       - name: Validate cached Earth and regional life evidence
         run: node scripts/validate-earth-cache.mjs
-      - name: Validate researched chronology and chapter experience
+      - name: Validate researched chronology and first-load presence
         run: node scripts/validate-history-engine.mjs
