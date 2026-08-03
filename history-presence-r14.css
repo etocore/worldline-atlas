@@ -1,0 +1,93 @@
+.history-presence-card {
+  position: absolute;
+  z-index: 24;
+  top: calc(env(safe-area-inset-top, 0px) + 92px);
+  left: 20px;
+  width: min(340px, calc(100vw - 40px));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 22px;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 14px 14px 16px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 20px;
+  color: #fff;
+  text-align: left;
+  background: rgba(26,26,28,.78);
+  box-shadow: 0 12px 38px rgba(0,0,0,.28);
+  -webkit-backdrop-filter: blur(28px) saturate(150%);
+  backdrop-filter: blur(28px) saturate(150%);
+  transition: transform .24s cubic-bezier(.32,.72,0,1), opacity .2s ease, background .2s ease;
+}
+
+.history-presence-card:active {
+  transform: scale(.985);
+  background: rgba(38,38,40,.86);
+}
+
+.history-presence-card[hidden] { display: none; }
+
+.history-presence-copy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.history-presence-meta {
+  color: rgba(255,255,255,.58);
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+
+.history-presence-card strong {
+  overflow: hidden;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 680;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-presence-copy > span:last-child {
+  display: -webkit-box;
+  overflow: hidden;
+  color: rgba(255,255,255,.7);
+  font-size: 13px;
+  line-height: 1.3;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.history-presence-card > svg {
+  width: 18px;
+  fill: none;
+  stroke: rgba(255,255,255,.7);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+body.timeline-active .history-presence-card,
+body.search-active .history-presence-card,
+body.place-card-open .history-presence-card,
+body.control-sheet-expanded .history-presence-card {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px) scale(.98);
+}
+
+@media (max-width: 720px) {
+  .history-presence-card {
+    top: calc(env(safe-area-inset-top, 0px) + 88px);
+    left: 18px;
+    width: min(318px, calc(100vw - 96px));
+    padding: 13px 13px 13px 15px;
+    border-radius: 19px;
+  }
+
+  .history-presence-card strong { font-size: 16px; }
+  .history-presence-copy > span:last-child { font-size: 12.5px; }
+}
