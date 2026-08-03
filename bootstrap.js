@@ -27,4 +27,14 @@
   landmarkRuntime.src = 'landmark-visibility.js?v=20260803r7';
   landmarkRuntime.async = true;
   document.head.appendChild(landmarkRuntime);
+
+  const appleControlsStyle = document.createElement('link');
+  appleControlsStyle.rel = 'stylesheet';
+  appleControlsStyle.href = 'apple-controls.css?v=20260803r8';
+  document.head.appendChild(appleControlsStyle);
+
+  const appleControlsLoader = document.createElement('script');
+  appleControlsLoader.src = 'apple-controls-loader.js?v=20260803r8';
+  appleControlsLoader.async = true;
+  document.head.appendChild(appleControlsLoader);
 })();
