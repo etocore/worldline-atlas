@@ -13,10 +13,11 @@
   <link rel="preconnect" href="https://tiles.maps.eox.at" />
   <link rel="preconnect" href="https://vtiles.openhistoricalmap.org" />
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.18.0/dist/maplibre-gl.css" />
-  <link rel="stylesheet" href="styles.css?v=20260803r6" />
-  <link rel="stylesheet" href="reconstruction.css?v=20260803r6" />
-  <link rel="stylesheet" href="safari-fix.css?v=20260803r6" />
-  <link rel="stylesheet" href="mobile-polish.css?v=20260803r6" />
+  <link rel="stylesheet" href="styles.css?v=20260803r7" />
+  <link rel="stylesheet" href="reconstruction.css?v=20260803r7" />
+  <link rel="stylesheet" href="safari-fix.css?v=20260803r7" />
+  <link rel="stylesheet" href="mobile-polish.css?v=20260803r7" />
+  <link rel="stylesheet" href="interaction-system.css?v=20260803r7" />
 </head>
 <body>
   <main class="map-app">
@@ -44,7 +45,9 @@
         </button>
       </div>
 
-      <section id="searchShell" class="search-shell" aria-label="Worldline search and map controls">
+      <button id="sheetScrim" class="sheet-scrim" type="button" aria-label="Minimize open panel" tabindex="-1"></button>
+
+      <section id="searchShell" class="search-shell" data-detent="compact" aria-label="Worldline search and map controls">
         <button id="sheetHandle" class="sheet-handle" type="button" aria-expanded="false" aria-controls="controlPanel" aria-label="Expand map controls"><span></span></button>
 
         <div class="search-row">
@@ -147,6 +150,43 @@
           <p class="imagery-note">Reconstructed mode currently uses dated vector evidence over muted modern terrain. It does not yet claim to be historical satellite imagery.</p>
         </div>
       </section>
+
+      <section id="placeSheet" class="place-sheet" data-detent="closed" aria-hidden="true" role="dialog" aria-modal="false" aria-labelledby="placeTitle">
+        <button id="placeSheetHandle" class="place-sheet-handle" type="button" aria-label="Resize place details"><span></span></button>
+        <div class="place-sheet-scroll">
+          <header class="place-header">
+            <div>
+              <p id="placeEyebrow" class="place-eyebrow">Historical place</p>
+              <h2 id="placeTitle">Place details</h2>
+              <p id="placeSubtitle" class="place-subtitle"></p>
+            </div>
+            <button id="placeClose" class="place-close" type="button" aria-label="Close place details">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+            </button>
+          </header>
+
+          <figure id="placeHero" class="place-hero" hidden>
+            <img id="placeImage" alt="" />
+          </figure>
+
+          <div class="place-facts" aria-label="Place evidence summary">
+            <span id="placeFactRange" class="place-fact">Date range</span>
+            <span id="placeFactEvidence" class="place-fact">Evidence</span>
+            <span id="placeFactConfidence" class="place-fact">Confidence</span>
+          </div>
+
+          <p class="place-summary-label">Historical context</p>
+          <p id="placeSummary" class="place-summary">Select a place to load historical context.</p>
+          <p id="placeContextSource" class="place-context-source"></p>
+
+          <div id="placeEvidence" class="place-evidence">Evidence notes appear here.</div>
+
+          <div class="place-actions">
+            <a id="placeSource" class="place-action primary" target="_blank" rel="noreferrer">Open source</a>
+            <button id="placeExpand" class="place-action" type="button">More details</button>
+          </div>
+        </div>
+      </section>
     </section>
   </main>
 
@@ -164,17 +204,18 @@
       <a href="https://s2maps.eu" target="_blank" rel="noreferrer">Sentinel-2 cloudless by EOX</a>
       <a href="https://maplibre.org" target="_blank" rel="noreferrer">MapLibre</a>
     </div>
-    <p class="build-marker">Build 2026-08-03-globe-r6 · Rome 117 foundation</p>
+    <p class="build-marker">Build 2026-08-03-globe-r7 · Native place cards</p>
   </dialog>
 
   <script src="https://unpkg.com/maplibre-gl@5.18.0/dist/maplibre-gl.js"></script>
-  <script src="bootstrap.js?v=20260803r6"></script>
-  <script src="data.js?v=20260803r6"></script>
-  <script src="map-core.js?v=20260803r6"></script>
-  <script src="reconstruction-packages.js?v=20260803r6"></script>
-  <script src="map-layers.js?v=20260803r6"></script>
-  <script src="reconstruction.js?v=20260803r6"></script>
-  <script src="app.js?v=20260803r6"></script>
-  <script src="mobile-polish.js?v=20260803r6"></script>
+  <script src="bootstrap.js?v=20260803r7"></script>
+  <script src="data.js?v=20260803r7"></script>
+  <script src="map-core.js?v=20260803r7"></script>
+  <script src="reconstruction-packages.js?v=20260803r7"></script>
+  <script src="map-layers.js?v=20260803r7"></script>
+  <script src="reconstruction.js?v=20260803r7"></script>
+  <script src="app.js?v=20260803r7"></script>
+  <script src="mobile-polish.js?v=20260803r7"></script>
+  <script src="interaction-system.js?v=20260803r7"></script>
 </body>
 </html>
