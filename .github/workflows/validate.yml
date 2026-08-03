@@ -41,6 +41,7 @@ jobs:
           node --check earth-cache.js
           node --check life-evidence.js
           node --check apple-timeline-r11.js
+          node --check r12-ui.js
           node --check netlify/functions/settlements.js
           node --check netlify/functions/place-summary.js
           node --check netlify/functions/paleocoastlines.js
@@ -58,5 +59,5 @@ jobs:
         run: node scripts/validate-search.mjs
       - name: Validate Earth history
         run: node scripts/validate-earth-history.mjs
-      - name: Validate cached Earth and fossil evidence
+      - name: Validate cached Earth and regional life evidence
         run: node scripts/validate-earth-cache.mjs
