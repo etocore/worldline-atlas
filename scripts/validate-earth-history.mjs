@@ -1,6 +1,6 @@
 import { readFile, access } from 'node:fs/promises';
 
-const CURRENT_BUILD = '2026-08-03-globe-r12';
+const CURRENT_BUILD = '2026-08-03-globe-r13';
 const requiredFiles = [
   'earth-history.js',
   'earth-history.css',
@@ -74,4 +74,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Earth History foundation remains wired and scientifically bounded in r12.');
+console.log('Earth History foundation remains wired and scientifically bounded in r13.');
