@@ -135,21 +135,34 @@ function styleSettlementLayer(layer) {
   return clone;
 }
 
+function buildingLevelsExpression(fallbackLevels = 2) {
+  return [
+    'case',
+    ['has', 'building:levels'],
+    ['to-number', ['get', 'building:levels'], fallbackLevels],
+    ['has', 'levels'],
+    ['to-number', ['get', 'levels'], fallbackLevels],
+    fallbackLevels
+  ];
+}
+
+function buildingMinLevelsExpression() {
+  return [
+    'case',
+    ['has', 'building:min_level'],
+    ['to-number', ['get', 'building:min_level'], 0],
+    ['has', 'min_level'],
+    ['to-number', ['get', 'min_level'], 0],
+    0
+  ];
+}
+
 function documentedBuildingHeightExpression() {
   return [
     'case',
     ['>', ['to-number', ['get', 'height'], 0], 0],
     ['to-number', ['get', 'height'], 0],
-    [
-      '*',
-      [
-        'coalesce',
-        ['to-number', ['get', 'building:levels'], null],
-        ['to-number', ['get', 'levels'], null],
-        2
-      ],
-      3.1
-    ]
+    ['*', buildingLevelsExpression(2), 3.1]
   ];
 }
 
@@ -158,16 +171,7 @@ function documentedBuildingBaseExpression() {
     'case',
     ['>', ['to-number', ['get', 'min_height'], 0], 0],
     ['to-number', ['get', 'min_height'], 0],
-    [
-      '*',
-      [
-        'coalesce',
-        ['to-number', ['get', 'building:min_level'], null],
-        ['to-number', ['get', 'min_level'], null],
-        0
-      ],
-      3.1
-    ]
+    ['*', buildingMinLevelsExpression(), 3.1]
   ];
 }
 
