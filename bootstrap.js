@@ -1,5 +1,5 @@
 (() => {
-  const BUILD = '2026-08-03-globe-r11';
+  const BUILD = '2026-08-03-globe-r12';
   const nativeFetch = window.fetch.bind(window);
   window.fetch = (input, init = {}) => {
     const url = typeof input === 'string' ? input : input?.url || '';
@@ -47,11 +47,13 @@
   loadStyle('earth-history.css');
   loadStyle('earth-ui-sync.css');
   loadStyle('apple-timeline-r11.css');
+  loadStyle('life-regions-r12.css');
   loadScript('ui-adapters.js');
   loadScript('apple-controls-loader.js');
   loadScript('earth-history.js');
   loadScript('earth-era-context.js');
   loadScript('earth-ui-sync.js');
   loadScript('apple-timeline-r11.js');
+  loadScript('r12-ui.js');
   loadScript('life-evidence.js');
 })();
