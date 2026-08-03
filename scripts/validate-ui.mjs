@@ -14,6 +14,7 @@ const requiredFiles = [
   'r9-polish.css',
   'earth-history.css',
   'earth-history.js',
+  'earth-era-context.js',
   'earth-ui-sync.css',
   'earth-ui-sync.js',
   'netlify/functions/place-summary.js',
@@ -48,7 +49,7 @@ async function requireFile(path) {
 
 await Promise.all(requiredFiles.map(requireFile));
 
-const [html, bootstrap, netlify, version, appleControls, appleLoader, uiState, uiAdapters, searchIndex, earthHistory, earthSync] = await Promise.all([
+const [html, bootstrap, netlify, version, appleControls, appleLoader, uiState, uiAdapters, searchIndex, earthHistory, earthContext, earthSync] = await Promise.all([
   readFile('index.html', 'utf8'),
   readFile('bootstrap.js', 'utf8'),
   readFile('netlify.toml', 'utf8'),
@@ -59,6 +60,7 @@ const [html, bootstrap, netlify, version, appleControls, appleLoader, uiState, u
   readFile('ui-adapters.js', 'utf8'),
   readFile('search-index.js', 'utf8'),
   readFile('earth-history.js', 'utf8'),
+  readFile('earth-era-context.js', 'utf8'),
   readFile('earth-ui-sync.js', 'utf8')
 ]);
 
@@ -80,6 +82,7 @@ for (const asset of [
   'r9-polish.css',
   'earth-history.css',
   'earth-history.js',
+  'earth-era-context.js',
   'earth-ui-sync.css',
   'earth-ui-sync.js'
 ]) {
@@ -115,6 +118,10 @@ for (const capability of ['timelineModeControl', 'timelineMilestones', 'Worldlin
   if (!earthHistory.includes(capability)) errors.push(`earth-history.js is missing ${capability}`);
 }
 
+for (const capability of ['PANGEA_CONTEXT', 'earthInterval', 'nearMilestone', 'openActiveContext']) {
+  if (!earthContext.includes(capability)) errors.push(`earth-era-context.js is missing ${capability}`);
+}
+
 for (const capability of ['earthModelPanel', 'earthModelGeometry', 'earthModelConfidence', 'earthModelStep']) {
   if (!earthSync.includes(capability)) errors.push(`earth-ui-sync.js is missing ${capability}`);
 }
@@ -137,7 +144,7 @@ if (parsedVersion && parsedVersion.build !== BUILD) {
   errors.push(`version.json build should be ${BUILD}, found ${parsedVersion.build}`);
 }
 
-for (const source of [bootstrap, earthHistory, earthSync]) {
+for (const source of [bootstrap, earthHistory, earthContext, earthSync]) {
   if (!source.includes(BUILD)) errors.push(`An Earth history runtime does not contain the ${BUILD} marker`);
 }
 if (!html.includes('2026-08-03-globe-r10') || !html.includes('20260803r10')) {
