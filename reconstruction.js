@@ -1,19 +1,19 @@
 const surfaceModes = {
   modern: {
     key: 'modern',
-    shortLabel: 'Modern surface',
-    label: 'Modern satellite',
-    detail: 'Current Sentinel-2 imagery with historical settlement evidence placed above it.'
+    shortLabel: 'Observed reference',
+    label: 'Observed reference',
+    detail: 'Present-day Sentinel-2 imagery is retained only as a reference input.'
   },
   reconstructed: {
     key: 'reconstructed',
-    shortLabel: 'Vector reconstruction',
-    label: 'Reconstructed surface',
-    detail: 'Modern detail fades with zoom while dated building footprints and estimated 3D massing replace available structures.'
+    shortLabel: 'Reconstructed Earth',
+    label: 'Reconstructed Earth',
+    detail: 'The selected time determines the reconstructed surface and compatible evidence layers.'
   }
 };
 
-let surfaceMode = 'modern';
+let surfaceMode = 'reconstructed';
 
 function currentSurface() {
   return surfaceModes[surfaceMode];
@@ -55,12 +55,12 @@ function reconstructedSatellitePaint() {
   return {
     opacity: [
       'interpolate', ['linear'], ['zoom'],
-      0, 0.96,
-      3, 0.82,
-      6, 0.58,
-      9, 0.26,
-      12, 0.09,
-      16, 0.035
+      0, 0.94,
+      3, 0.78,
+      6, 0.52,
+      9, 0.22,
+      12, 0.07,
+      16, 0.025
     ],
     saturation: -0.72,
     contrast: -0.08,
@@ -94,15 +94,8 @@ function setSurfaceMode(mode) {
   const changed = surfaceMode !== mode;
   surfaceMode = mode;
 
-  if (changed && mode === 'reconstructed') {
-    setHistoricalBuildingVisibility(true);
-    showSearchFeedback('Reconstructed mode uses dated vector footprints and estimated 3D massing. Reviewed historical raster surfaces are the next pipeline layer.');
-  }
-  if (changed && mode === 'modern') {
-    setHistoricalBuildingVisibility(false);
-    showSearchFeedback('Modern Sentinel-2 surface restored. Historical settlements remain date-filtered above it.');
-  }
-
+  if (changed && mode === 'reconstructed') setHistoricalBuildingVisibility(true);
+  if (changed && mode === 'modern') setHistoricalBuildingVisibility(false);
   applySurfaceMode();
 }
 
@@ -117,10 +110,11 @@ const reconstructionBootTimer = setInterval(() => {
 
 updateSurfaceUi();
 
-/* Mobile Safari and slow-source boot guard. This executes before app.js. */
+/* Mobile Safari and slow-source boot guard. */
 (() => {
+  const BUILD = '2026-08-03-globe-r10';
   const state = document.querySelector('#globeLoadState');
-  window.__WORLDLINE_BUILD__ = '2026-08-03-globe-r5';
+  window.__WORLDLINE_BUILD__ = BUILD;
 
   function setLoadState(message, kind = 'loading') {
     if (!state) return;
@@ -129,8 +123,8 @@ updateSurfaceUi();
     state.classList.toggle('is-error', kind === 'error');
   }
 
-  setLoadState('Loading interactive globe…');
-  CONFIG.worldView = { center: [-76, 18], zoom: 0, bearing: 0, pitch: 0 };
+  setLoadState('Loading reconstructed Earth…');
+  CONFIG.worldView = { center: [8, 8], zoom: 0, bearing: 0, pitch: 0 };
 
   const originalPrepareStyle = prepareStyle;
   prepareStyle = async function guardedPrepareStyle() {
@@ -163,11 +157,6 @@ updateSurfaceUi();
       setLoadState('The globe library did not load. Refresh once or disable content blocking for this site.', 'error');
       return;
     }
-
-    const mobileScript = document.createElement('script');
-    mobileScript.src = 'mobile-polish.js?v=20260803r5';
-    mobileScript.defer = true;
-    document.body.appendChild(mobileScript);
 
     let attempts = 0;
     const readinessTimer = setInterval(() => {
