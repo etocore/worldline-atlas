@@ -33,8 +33,8 @@
   appleControlsStyle.href = 'apple-controls.css?v=20260803r8';
   document.head.appendChild(appleControlsStyle);
 
-  const appleControlsRuntime = document.createElement('script');
-  appleControlsRuntime.src = 'apple-controls.js?v=20260803r8';
-  appleControlsRuntime.async = true;
-  document.head.appendChild(appleControlsRuntime);
+  const appleControlsLoader = document.createElement('script');
+  appleControlsLoader.src = 'apple-controls-loader.js?v=20260803r8';
+  appleControlsLoader.async = true;
+  document.head.appendChild(appleControlsLoader);
 })();
