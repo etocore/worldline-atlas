@@ -22,4 +22,9 @@
       }
     };
   }
+
+  const landmarkRuntime = document.createElement('script');
+  landmarkRuntime.src = 'landmark-visibility.js?v=20260803r7';
+  landmarkRuntime.async = true;
+  document.head.appendChild(landmarkRuntime);
 })();
