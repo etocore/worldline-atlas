@@ -1,5 +1,5 @@
 (() => {
-  const BUILD = '2026-08-03-globe-r13';
+  const BUILD = '2026-08-03-globe-r14';
   const nativeFetch = window.fetch.bind(window);
   window.fetch = (input, init = {}) => {
     const url = typeof input === 'string' ? input : input?.url || '';
@@ -16,10 +16,7 @@
   if (NativeMap) {
     window.maplibregl.Map = class WorldlineMap extends NativeMap {
       constructor(options = {}) {
-        super({
-          ...options,
-          clickTolerance: options.clickTolerance ?? 12
-        });
+        super({ ...options, clickTolerance: options.clickTolerance ?? 12 });
       }
     };
   }
@@ -51,6 +48,7 @@
   loadStyle('apple-timeline-r11.css');
   loadStyle('life-regions-r12.css');
   loadStyle('history-engine.css');
+  loadStyle('history-presence-r14.css');
   loadScript('ui-adapters.js');
   loadScript('apple-controls-loader.js');
   loadScript('earth-history.js');
@@ -59,4 +57,5 @@
   loadScript('apple-timeline-r11.js');
   loadScript('r12-ui.js');
   loadScript('life-evidence.js');
+  loadScript('history-presence-r14.js');
 })();
