@@ -1,6 +1,6 @@
 import { readFile, access } from 'node:fs/promises';
 
-const CURRENT_BUILD = '2026-08-03-globe-r16';
+const CURRENT_BUILD = '2026-08-03-globe-r17';
 const requiredFiles = ['earth-history.js','earth-history.css','docs/EARTH_ENGINE.md','netlify/functions/paleocoastlines.js'];
 const failures = [];
 for (const path of requiredFiles) { try { await access(path); } catch { failures.push(`Missing Earth history file: ${path}`); } }
@@ -27,4 +27,4 @@ let parsedVersion; try { parsedVersion = JSON.parse(version); } catch { failures
 if(parsedVersion?.build!==CURRENT_BUILD) failures.push(`version.json should be ${CURRENT_BUILD}`);
 if(!bootstrap.includes(CURRENT_BUILD)) failures.push(`bootstrap.js is missing the ${CURRENT_BUILD} marker`);
 if(failures.length){ console.error('Earth history validation failed:'); failures.forEach((failure)=>console.error(`- ${failure}`)); process.exit(1); }
-console.log('Earth History foundation remains wired and scientifically bounded in r16.');
+console.log('Earth History foundation remains wired and scientifically bounded in r17.');
