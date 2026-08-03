@@ -1,5 +1,5 @@
 (() => {
-  const BUILD = '2026-08-03-globe-r5';
+  const BUILD = '2026-08-03-globe-r7';
   const loadState = document.querySelector('#globeLoadState');
 
   function setViewportHeight() {
