@@ -42,6 +42,12 @@ const dom = {
   curatedToggle: document.querySelector('#curatedToggle'),
   wikidataToggle: document.querySelector('#wikidataToggle'),
   buildingToggle: document.querySelector('#buildingToggle'),
+  surfaceBadge: document.querySelector('#surfaceBadge'),
+  surfaceModeLabel: document.querySelector('#surfaceModeLabel'),
+  surfaceDetailLabel: document.querySelector('#surfaceDetailLabel'),
+  surfaceExplanation: document.querySelector('#surfaceExplanation'),
+  modernSurfaceButton: document.querySelector('#modernSurfaceButton'),
+  reconstructedSurfaceButton: document.querySelector('#reconstructedSurfaceButton'),
   aboutDialog: document.querySelector('#aboutDialog')
 };
 
@@ -129,23 +135,80 @@ function styleSettlementLayer(layer) {
   return clone;
 }
 
+function documentedBuildingHeightExpression() {
+  return [
+    'case',
+    ['>', ['to-number', ['get', 'height'], 0], 0],
+    ['to-number', ['get', 'height'], 0],
+    [
+      '*',
+      [
+        'coalesce',
+        ['to-number', ['get', 'building:levels'], null],
+        ['to-number', ['get', 'levels'], null],
+        2
+      ],
+      3.1
+    ]
+  ];
+}
+
+function documentedBuildingBaseExpression() {
+  return [
+    'case',
+    ['>', ['to-number', ['get', 'min_height'], 0], 0],
+    ['to-number', ['get', 'min_height'], 0],
+    [
+      '*',
+      [
+        'coalesce',
+        ['to-number', ['get', 'building:min_level'], null],
+        ['to-number', ['get', 'min_level'], null],
+        0
+      ],
+      3.1
+    ]
+  ];
+}
+
+function historicalMaterialExpression() {
+  return [
+    'match',
+    ['downcase', ['to-string', ['coalesce', ['get', 'building:material'], ['get', 'material'], 'unknown']]],
+    'stone', '#b9aa91',
+    'brick', '#9e6650',
+    'mud', '#a98458',
+    'adobe', '#ad875c',
+    'wood', '#84674c',
+    'timber', '#84674c',
+    'marble', '#d3cec1',
+    '#b69469'
+  ];
+}
+
 function styleBuildingLayer(layer) {
   const clone = structuredClone(layer);
   clone.layout = { ...(clone.layout || {}), visibility: 'none' };
-  clone.metadata = { ...(clone.metadata || {}), worldlineKind: 'building' };
+  clone.metadata = {
+    ...(clone.metadata || {}),
+    worldlineKind: 'building',
+    worldlineHeightModel: 'documented-height-or-levels-with-estimated-two-level-fallback'
+  };
+
   if (clone.type === 'fill') {
+    clone.type = 'fill-extrusion';
     clone.paint = {
-      ...(clone.paint || {}),
-      'fill-color': '#ffb35c',
-      'fill-opacity': 0.24,
-      'fill-outline-color': '#ffe0b5'
+      'fill-extrusion-color': historicalMaterialExpression(),
+      'fill-extrusion-height': documentedBuildingHeightExpression(),
+      'fill-extrusion-base': documentedBuildingBaseExpression(),
+      'fill-extrusion-opacity': 0.88,
+      'fill-extrusion-vertical-gradient': true
     };
   } else {
     clone.paint = {
-      ...(clone.paint || {}),
-      'line-color': '#ffcf91',
-      'line-opacity': 0.55,
-      'line-width': 1
+      'line-color': '#d7bd92',
+      'line-opacity': 0.68,
+      'line-width': 1.1
     };
   }
   return clone;
@@ -186,7 +249,8 @@ function baseLayers() {
         'raster-saturation': -0.04,
         'raster-contrast': 0.1,
         'raster-brightness-min': 0.02,
-        'raster-brightness-max': 0.98
+        'raster-brightness-max': 0.98,
+        'raster-fade-duration': 420
       }
     }
   ];
