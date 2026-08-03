@@ -10,4 +10,16 @@
     return nativeFetch(input, { ...init, signal: controller.signal })
       .finally(() => clearTimeout(timer));
   };
+
+  const NativeMap = window.maplibregl?.Map;
+  if (NativeMap) {
+    window.maplibregl.Map = class WorldlineMap extends NativeMap {
+      constructor(options = {}) {
+        super({
+          ...options,
+          clickTolerance: options.clickTolerance ?? 12
+        });
+      }
+    };
+  }
 })();
