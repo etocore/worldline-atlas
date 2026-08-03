@@ -120,7 +120,7 @@ updateSurfaceUi();
 /* Mobile Safari and slow-source boot guard. This executes before app.js. */
 (() => {
   const state = document.querySelector('#globeLoadState');
-  window.__WORLDLINE_BUILD__ = '2026-08-03-globe-r4';
+  window.__WORLDLINE_BUILD__ = '2026-08-03-globe-r5';
 
   function setLoadState(message, kind = 'loading') {
     if (!state) return;
@@ -130,7 +130,7 @@ updateSurfaceUi();
   }
 
   setLoadState('Loading interactive globe…');
-  CONFIG.worldView = { center: [-82, 21], zoom: 0, bearing: 0, pitch: 0 };
+  CONFIG.worldView = { center: [-76, 18], zoom: 0, bearing: 0, pitch: 0 };
 
   const originalPrepareStyle = prepareStyle;
   prepareStyle = async function guardedPrepareStyle() {
@@ -139,7 +139,7 @@ updateSurfaceUi();
       return await Promise.race([
         originalPrepareStyle(),
         new Promise((_, reject) => {
-          timeoutId = setTimeout(() => reject(new Error('Historical overlay timed out')), 2800);
+          timeoutId = setTimeout(() => reject(new Error('Historical overlay timed out')), 2400);
         })
       ]);
     } catch (error) {
@@ -163,6 +163,11 @@ updateSurfaceUi();
       setLoadState('The globe library did not load. Refresh once or disable content blocking for this site.', 'error');
       return;
     }
+
+    const mobileScript = document.createElement('script');
+    mobileScript.src = 'mobile-polish.js?v=20260803r5';
+    mobileScript.defer = true;
+    document.body.appendChild(mobileScript);
 
     let attempts = 0;
     const readinessTimer = setInterval(() => {

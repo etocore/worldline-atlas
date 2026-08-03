@@ -25,4 +25,6 @@ jobs:
           node --check map-core.js
           node --check map-layers.js
           node --check reconstruction.js
+          node --check bootstrap.js
+          node --check mobile-polish.js
           node --check netlify/functions/settlements.js
