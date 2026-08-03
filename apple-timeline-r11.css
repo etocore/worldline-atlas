@@ -195,7 +195,7 @@
   position: absolute;
   z-index: 6;
   top: -12px;
-  left: var(--timeline-progress, 50%);
+  left: var(--timeline-thumb-position, 50%);
   max-width: 130px;
   padding: 5px 8px;
   border-radius: 9px;
