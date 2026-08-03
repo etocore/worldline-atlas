@@ -1,3 +1,5 @@
+@import url('./mobile-polish.css?v=20260803r5');
+
 /* Mobile Safari recovery layer - keep critical map geometry independent of the main stylesheet. */
 html,
 body,
