@@ -1,0 +1,57 @@
+/* Worldline r16 - unmistakable time control */
+.year-chip {
+  display: inline-grid !important;
+  grid-template-columns: 28px minmax(0,1fr) !important;
+  grid-template-rows: auto auto !important;
+  column-gap: 9px !important;
+  align-items: center !important;
+  min-width: 176px !important;
+  min-height: 58px !important;
+  padding: 9px 15px 9px 12px !important;
+  border-radius: 22px !important;
+  text-align: left !important;
+}
+.year-chip .time-chip-icon {
+  grid-row: 1 / 3;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(10,132,255,.9);
+  box-shadow: inset 0 .5px rgba(255,255,255,.24);
+}
+.year-chip .time-chip-icon svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.year-chip #eraLabel {
+  align-self: end;
+  color: rgba(235,235,245,.58) !important;
+  font-size: 10.5px !important;
+  font-weight: 650 !important;
+  line-height: 1.05 !important;
+  letter-spacing: .015em !important;
+  text-transform: none !important;
+}
+.year-chip #yearLabel {
+  align-self: start;
+  color: rgba(255,255,255,.98) !important;
+  font-size: 15px !important;
+  font-weight: 680 !important;
+  line-height: 1.05 !important;
+  letter-spacing: -.012em !important;
+  white-space: nowrap;
+}
+.year-chip:active .time-chip-icon { transform: scale(.94); }
+body[data-timeline-mode="human"] .year-chip .time-chip-icon { background: rgba(175,82,222,.92); }
+@media (max-width: 430px) {
+  .year-chip { min-width: 168px !important; min-height: 56px !important; }
+  .year-chip #yearLabel { font-size: 14.5px !important; }
+}
