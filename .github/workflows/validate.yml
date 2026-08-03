@@ -25,6 +25,12 @@ jobs:
           node --check map-core.js
           node --check map-layers.js
           node --check reconstruction.js
+          node --check reconstruction-packages.js
           node --check bootstrap.js
           node --check mobile-polish.js
           node --check netlify/functions/settlements.js
+      - name: Parse reconstruction JSON
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('reconstructions/schema/reconstruction-package.schema.json', 'utf8'))"
+          node -e "JSON.parse(require('fs').readFileSync('reconstructions/rome-117/manifest.json', 'utf8'))"
+          node -e "JSON.parse(require('fs').readFileSync('reconstructions/rome-117/study-area.geojson', 'utf8'))"
