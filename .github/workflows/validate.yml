@@ -36,6 +36,7 @@ jobs:
           node --check history-catalog.js
           node --check history-engine.js
           node --check history-presence-r14.js
+          node --check mobile-search-snap-r15.js
           node --check apple-controls-loader.js
           node --check apple-controls.js
           node --check earth-history.js
