@@ -61,7 +61,7 @@ for (const runtimeId of ['timelineHud', 'timelinePrimarySlider', 'advancedContro
   if (!appleControls.includes(runtimeId)) errors.push(`apple-controls.js does not create #${runtimeId}`);
 }
 
-if (!appleControls.includes('role', 'combobox') && !appleControls.includes("setAttribute('role', 'combobox')")) {
+if (!appleControls.includes("setAttribute('role', 'combobox')")) {
   errors.push('apple-controls.js does not configure the search field as a combobox');
 }
 
