@@ -30,13 +30,19 @@ jobs:
           node --check mobile-polish.js
           node --check interaction-system.js
           node --check landmark-visibility.js
+          node --check ui-state.js
+          node --check ui-adapters.js
+          node --check search-index.js
           node --check apple-controls-loader.js
           node --check apple-controls.js
           node --check netlify/functions/settlements.js
           node --check netlify/functions/place-summary.js
           node --check scripts/validate-reconstructions.mjs
           node --check scripts/validate-ui.mjs
+          node --check scripts/validate-search.mjs
       - name: Validate reconstruction packages
         run: node scripts/validate-reconstructions.mjs
       - name: Validate UI wiring
         run: node scripts/validate-ui.mjs
+      - name: Validate historical search
+        run: node scripts/validate-search.mjs
