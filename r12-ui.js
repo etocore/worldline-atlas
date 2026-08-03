@@ -33,6 +33,15 @@
     searchInput.setAttribute('autocapitalize', 'words');
     searchInput.setAttribute('spellcheck', 'false');
 
+    const buildMarker = document.querySelector('.build-marker');
+    if (buildMarker) buildMarker.textContent = 'Build 2026-08-03-globe-r12 · Illustrated life regions and unified interface';
+
+    const aboutParagraphs = [...document.querySelectorAll('#aboutDialog p')];
+    const lifeParagraph = aboutParagraphs.find((paragraph) => /Green and orange life markers|life markers are Paleobiology/i.test(paragraph.textContent));
+    if (lifeParagraph) {
+      lifeParagraph.textContent = 'Earth History shows a small set of illustrated life regions using leaf, marine-life, reptile, mammal, and shell symbols. Selecting a region opens common-language flora, fauna, and environment sections. Individual Paleobiology Database records remain available through View fossil evidence and never represent a complete species range.';
+    }
+
     function syncDateLabels() {
       const era = eraLabel.textContent.trim();
       const time = yearLabel.textContent.trim();
