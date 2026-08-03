@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "model": "CAO2024",
+  "generatedAt": null,
+  "coastlines": [],
+  "life": [],
+  "notes": "Generated snapshots are committed by .github/workflows/cache-earth-data.yml. The runtime falls back to the live Netlify proxy until this manifest is populated."
+}
