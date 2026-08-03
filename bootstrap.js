@@ -1,4 +1,5 @@
 (() => {
+  const BUILD = '2026-08-03-globe-r9';
   const nativeFetch = window.fetch.bind(window);
   window.fetch = (input, init = {}) => {
     const url = typeof input === 'string' ? input : input?.url || '';
@@ -23,18 +24,25 @@
     };
   }
 
-  const landmarkRuntime = document.createElement('script');
-  landmarkRuntime.src = 'landmark-visibility.js?v=20260803r7';
-  landmarkRuntime.async = true;
-  document.head.appendChild(landmarkRuntime);
+  function loadScript(path) {
+    const script = document.createElement('script');
+    script.src = `${path}?v=${BUILD}`;
+    script.async = true;
+    document.head.appendChild(script);
+  }
 
-  const appleControlsStyle = document.createElement('link');
-  appleControlsStyle.rel = 'stylesheet';
-  appleControlsStyle.href = 'apple-controls.css?v=20260803r8';
-  document.head.appendChild(appleControlsStyle);
+  function loadStyle(path) {
+    const style = document.createElement('link');
+    style.rel = 'stylesheet';
+    style.href = `${path}?v=${BUILD}`;
+    document.head.appendChild(style);
+  }
 
-  const appleControlsLoader = document.createElement('script');
-  appleControlsLoader.src = 'apple-controls-loader.js?v=20260803r8';
-  appleControlsLoader.async = true;
-  document.head.appendChild(appleControlsLoader);
+  loadScript('ui-state.js');
+  loadScript('search-index.js');
+  loadScript('landmark-visibility.js');
+  loadStyle('apple-controls.css');
+  loadStyle('r9-polish.css');
+  loadScript('ui-adapters.js');
+  loadScript('apple-controls-loader.js');
 })();
