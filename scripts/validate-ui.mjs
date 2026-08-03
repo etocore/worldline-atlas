@@ -1,6 +1,6 @@
 import { readFile, access } from 'node:fs/promises';
 
-const BUILD = '2026-08-03-globe-r12';
+const BUILD = '2026-08-03-globe-r13';
 const requiredFiles = [
   'interaction-system.css',
   'interaction-system.js',
@@ -11,6 +11,9 @@ const requiredFiles = [
   'ui-state.js',
   'ui-adapters.js',
   'search-index.js',
+  'history-catalog.js',
+  'history-engine.js',
+  'history-engine.css',
   'r9-polish.css',
   'earth-history.css',
   'earth-history.js',
@@ -60,6 +63,8 @@ const [
   uiState,
   uiAdapters,
   searchIndex,
+  historyEngine,
+  historyStyle,
   earthHistory,
   earthContext,
   earthSync,
@@ -76,6 +81,8 @@ const [
   readFile('ui-state.js', 'utf8'),
   readFile('ui-adapters.js', 'utf8'),
   readFile('search-index.js', 'utf8'),
+  readFile('history-engine.js', 'utf8'),
+  readFile('history-engine.css', 'utf8'),
   readFile('earth-history.js', 'utf8'),
   readFile('earth-era-context.js', 'utf8'),
   readFile('earth-ui-sync.js', 'utf8'),
@@ -103,6 +110,9 @@ for (const asset of [
   'ui-state.js',
   'ui-adapters.js',
   'search-index.js',
+  'history-catalog.js',
+  'history-engine.js',
+  'history-engine.css',
   'r9-polish.css',
   'earth-history.css',
   'earth-history.js',
@@ -135,6 +145,9 @@ for (const adapter of ["register('settings'", "register('place'"]) {
 for (const capability of ['SITE_ALIASES', 'PERIODS', 'TOPICS', 'parseYear', 'search(query']) {
   if (!searchIndex.includes(capability)) errors.push(`search-index.js is missing ${capability}`);
 }
+for (const capability of ['wrapSearch', 'openChapter', 'renderBriefing', 'WorldlineHistory']) {
+  if (!historyEngine.includes(capability)) errors.push(`history-engine.js is missing ${capability}`);
+}
 for (const capability of ['timelineModeControl', 'timelineMilestones', 'WorldlineEarthHistory', 'paleo-coastlines']) {
   if (!earthHistory.includes(capability)) errors.push(`earth-history.js is missing ${capability}`);
 }
@@ -153,6 +166,8 @@ requireText(r12Style, '.search-shell[data-detent="compact"] .sheet-handle', 'Com
 requireText(r12Style, '.life-region-content', 'The regional life sheet is not styled');
 requireText(lifeRuntime, 'Life in this area', 'The regional life detail experience is missing');
 requireText(lifeRuntime, 'View fossil evidence', 'Raw fossil evidence is not progressively disclosed');
+requireText(historyStyle, '.history-briefing', 'The researched chapter sheet is not styled');
+requireText(historyStyle, '.history-source-disclosure', 'History sources are not progressively disclosed');
 
 requireText(netlify, 'from = "/api/place-summary"', 'Netlify does not expose /api/place-summary');
 requireText(netlify, 'from = "/api/paleocoastlines"', 'Netlify does not expose /api/paleocoastlines');
@@ -165,8 +180,8 @@ try {
   errors.push('version.json is not valid JSON');
 }
 if (parsedVersion?.build !== BUILD) errors.push(`version.json build should be ${BUILD}, found ${parsedVersion?.build}`);
-for (const source of [bootstrap, r12Ui, lifeRuntime]) {
-  if (!source.includes(BUILD)) errors.push(`An r12 runtime is missing the ${BUILD} marker`);
+for (const source of [bootstrap, historyEngine]) {
+  if (!source.includes(BUILD)) errors.push(`An r13 runtime is missing the ${BUILD} marker`);
 }
 
 if (errors.length) {
@@ -175,4 +190,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Unified r12 UI, search, timeline, place sheet, and life-region wiring are valid.');
+console.log('Unified UI, regional life, researched history, search, timeline, and place-sheet wiring are valid.');
