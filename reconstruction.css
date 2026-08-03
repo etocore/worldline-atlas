@@ -1,0 +1,107 @@
+.surface-badge {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 999px;
+  background: rgba(25,25,27,.72);
+  color: rgba(245,245,247,.72);
+  box-shadow: 0 8px 28px rgba(0,0,0,.22);
+  backdrop-filter: blur(22px) saturate(145%);
+  -webkit-backdrop-filter: blur(22px) saturate(145%);
+  font-size: .66rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.surface-badge.reconstructed {
+  border-color: rgba(255,179,92,.4);
+  background: rgba(72,48,26,.72);
+  color: #ffd29d;
+}
+
+.metric-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.surface-control {
+  margin-top: 15px;
+  padding: 13px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 15px;
+  background: rgba(255,255,255,.035);
+}
+
+.surface-control-copy > div {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+}
+
+.surface-control-copy span {
+  color: rgba(245,245,247,.82);
+  font-size: .76rem;
+  font-weight: 620;
+}
+
+.surface-control-copy strong {
+  color: var(--amber);
+  font-size: .72rem;
+}
+
+.surface-control-copy p {
+  max-width: 510px;
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: .68rem;
+  line-height: 1.4;
+}
+
+.surface-segment {
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 3px;
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: 12px;
+  background: rgba(0,0,0,.24);
+}
+
+.surface-segment button {
+  min-height: 32px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: .69rem;
+  font-weight: 650;
+}
+
+.surface-segment button.active {
+  background: rgba(255,255,255,.14);
+  color: #fff;
+  box-shadow: 0 3px 12px rgba(0,0,0,.2);
+}
+
+body[data-surface-mode="reconstructed"] .map-vignette {
+  background:
+    linear-gradient(180deg, rgba(41,29,17,.08), transparent 22%, transparent 70%, rgba(35,24,14,.2)),
+    radial-gradient(circle at 50% 42%, transparent 40%, rgba(34,25,17,.12) 76%, rgba(0,0,0,.4) 100%);
+}
+
+body[data-surface-mode="reconstructed"] .search-shell {
+  border-color: rgba(255,179,92,.2);
+}
+
+@media (max-width: 760px) {
+  .surface-badge { display: none; }
+  .metric-grid { grid-template-columns: repeat(2, 1fr); }
+  .surface-control { grid-template-columns: 1fr; gap: 11px; }
+  .surface-segment { width: 100%; }
+}
