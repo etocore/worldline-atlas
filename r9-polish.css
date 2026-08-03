@@ -1,0 +1,99 @@
+/* Worldline r9 refinements for unified surfaces and richer historical search. */
+body[data-ui-surface="timeline"] .search-shell,
+body[data-ui-surface="place"] .search-shell,
+body[data-ui-surface="settings"] .timeline-hud,
+body[data-ui-surface="place"] .timeline-hud {
+  pointer-events: none;
+}
+
+.search-suggestion {
+  min-height: 66px;
+  grid-template-columns: 38px minmax(0, 1fr) 18px;
+  padding-block: 8px;
+}
+
+.search-suggestion-copy {
+  display: grid;
+  align-content: center;
+  gap: 2px;
+}
+
+.search-suggestion-status {
+  display: inline-flex;
+  justify-self: start;
+  min-height: 18px;
+  margin-top: 3px;
+  padding: 3px 7px 2px;
+  border-radius: 999px;
+  color: rgba(235, 235, 245, .7);
+  background: rgba(118, 118, 128, .2);
+  font: 600 .59rem/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  letter-spacing: .01em;
+}
+
+.search-suggestion-icon.topic { background: rgba(50, 173, 230, .9); }
+.search-suggestion-icon.period { background: rgba(255, 69, 58, .86); }
+.search-suggestion-icon.site { background: rgba(10, 132, 255, .9); }
+
+.search-empty-state {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-height: 70px;
+  padding: 8px 10px;
+  color: rgba(255, 255, 255, .92);
+}
+
+.search-empty-state strong,
+.search-empty-state span {
+  display: block;
+}
+
+.search-empty-state strong {
+  font: 600 .9rem/1.2 -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.search-empty-state > div > span {
+  margin-top: 4px;
+  color: rgba(235, 235, 245, .56);
+  font: 500 .72rem/1.3 -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body[data-ui-surface="search"] .map-tool-stack,
+body[data-ui-surface="search"] .map-identity {
+  opacity: .72;
+  transition: opacity .18s ease;
+}
+
+body[data-ui-surface="settings"] .map-tool-stack,
+body[data-ui-surface="place"] .map-tool-stack {
+  opacity: .58;
+  transition: opacity .18s ease;
+}
+
+@media (max-width: 720px) {
+  .search-suggestions {
+    max-height: min(52dvh, 440px);
+    border-radius: 20px;
+  }
+
+  .search-suggestion {
+    min-height: 64px;
+  }
+
+  body[data-ui-surface="search"] .search-shell {
+    bottom: max(8px, env(safe-area-inset-bottom));
+  }
+
+  body[data-ui-surface="search"] .search-suggestions {
+    bottom: calc(100% + 7px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-ui-surface] .map-tool-stack,
+  body[data-ui-surface] .map-identity {
+    transition: none;
+  }
+}
