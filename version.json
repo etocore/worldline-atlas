@@ -1,4 +1,4 @@
 {
-  "build": "2026-08-03-globe-r15",
-  "description": "Keyboard-safe mobile search with bounded suggestions and magnetic snapping to curated Earth and human history milestones"
+  "build": "2026-08-03-globe-r16",
+  "description": "Human-readable timeline control with automatic Earth and Human History switching from search intent"
 }
