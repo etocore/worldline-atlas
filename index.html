@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="description" content="Explore known and reconstructed human settlements on an interactive satellite globe through time." />
+  <meta name="description" content="Explore a scientifically sourced reconstruction of Earth and human history on an interactive globe." />
   <meta name="theme-color" content="#000000" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
@@ -12,27 +12,28 @@
   <link rel="preconnect" href="https://unpkg.com" />
   <link rel="preconnect" href="https://tiles.maps.eox.at" />
   <link rel="preconnect" href="https://vtiles.openhistoricalmap.org" />
+  <link rel="preconnect" href="https://gws.gplates.org" />
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.18.0/dist/maplibre-gl.css" />
-  <link rel="stylesheet" href="styles.css?v=20260803r9" />
-  <link rel="stylesheet" href="reconstruction.css?v=20260803r9" />
-  <link rel="stylesheet" href="safari-fix.css?v=20260803r9" />
-  <link rel="stylesheet" href="mobile-polish.css?v=20260803r9" />
-  <link rel="stylesheet" href="interaction-system.css?v=20260803r9" />
+  <link rel="stylesheet" href="styles.css?v=20260803r10" />
+  <link rel="stylesheet" href="reconstruction.css?v=20260803r10" />
+  <link rel="stylesheet" href="safari-fix.css?v=20260803r10" />
+  <link rel="stylesheet" href="mobile-polish.css?v=20260803r10" />
+  <link rel="stylesheet" href="interaction-system.css?v=20260803r10" />
 </head>
 <body>
   <main class="map-app">
-    <section class="map-stage" aria-label="Interactive satellite globe with historical settlements">
+    <section class="map-stage" aria-label="Interactive reconstructed Earth through geological and human history">
       <div id="map"></div>
-      <div id="globeLoadState" class="globe-load-state" aria-live="polite">Loading interactive globe…</div>
+      <div id="globeLoadState" class="globe-load-state" aria-live="polite">Loading reconstructed Earth…</div>
       <div class="map-vignette" aria-hidden="true"></div>
 
       <div class="map-identity">
         <button id="brandButton" class="brand-orb" type="button" aria-label="Open Worldline controls">W</button>
         <button id="yearButton" class="year-chip" type="button" aria-label="Open historical timeline">
-          <span id="eraLabel">Classical urban systems</span>
-          <strong id="yearLabel">117 CE</strong>
+          <span id="eraLabel">Pangea</span>
+          <strong id="yearLabel">250 Ma</strong>
         </button>
-        <span id="surfaceBadge" class="surface-badge">Modern surface</span>
+        <span id="surfaceBadge" class="surface-badge reconstructed">Reconstructed Earth</span>
       </div>
 
       <div class="map-tool-stack" aria-label="Map view controls">
@@ -52,8 +53,8 @@
 
         <div class="search-row">
           <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m15.5 15.5 5 5"></path></svg>
-          <input id="historySearch" type="search" autocomplete="off" enterkeyhint="search" placeholder="Search a place, year, or ask history" aria-label="Search historical places and years" />
-          <button id="searchContextButton" class="search-context" type="button" aria-label="Open year controls"><span id="searchContextYear">117 CE</span></button>
+          <input id="historySearch" type="search" autocomplete="off" enterkeyhint="search" placeholder="Search an era, place, event, or time" aria-label="Search Earth and human history" />
+          <button id="searchContextButton" class="search-context" type="button" aria-label="Open time controls"><span id="searchContextYear">250 Ma</span></button>
           <button id="searchSubmit" class="search-submit" type="button" aria-label="Search">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 17 10-10M9 7h8v8"></path></svg>
           </button>
@@ -64,7 +65,7 @@
           <div class="panel-header">
             <div>
               <p class="panel-kicker">Worldline Atlas</p>
-              <h1 id="timelineDate">117 CE</h1>
+              <h1 id="timelineDate">250 Ma</h1>
             </div>
             <div class="panel-actions">
               <span id="sourceStatus" class="status-pill" aria-live="polite">Loading sources</span>
@@ -75,32 +76,33 @@
             </div>
           </div>
 
-          <p id="eraSummary" class="era-summary">Large urban networks connected the Mediterranean, Africa, western Asia, South Asia, and East Asia.</p>
+          <p id="eraSummary" class="era-summary">Pangea dominated the planet as ecosystems recovered from the end-Permian extinction.</p>
 
           <div class="metric-grid">
             <div><span>Visible records</span><strong id="visibleCount">0</strong></div>
             <div><span>Evidence mode</span><strong id="evidenceLabel">Balanced</strong></div>
             <div><span>Live catalog</span><strong id="catalogCount">0</strong></div>
-            <div><span>Surface</span><strong id="surfaceModeLabel">Modern satellite</strong></div>
+            <div><span>Surface</span><strong id="surfaceModeLabel">Reconstructed Earth</strong></div>
           </div>
-          <p id="coverageMessage" class="coverage-message">Zoom into a region to load additional catalogued settlements.</p>
+          <p id="coverageMessage" class="coverage-message">Earth History uses a pinned plate model where defensible and an explicit schematic beyond it.</p>
 
           <div id="timelineControls" class="timeline-block">
             <div class="timeline-heading">
-              <label for="timeSlider">Historical year</label>
+              <label for="timeSlider">Exact human-history year</label>
               <label class="year-entry" for="yearInput">
                 <span class="sr-only">Exact historical year</span>
-                <input id="yearInput" type="number" min="-15000" max="2026" step="1" value="117" inputmode="numeric" aria-label="Exact year, negative for BCE" />
+                <input id="yearInput" type="number" min="-300000" max="2026" step="1" value="-10000" inputmode="numeric" aria-label="Exact human-history year, negative for BCE" />
               </label>
             </div>
             <div class="timeline-row">
-              <button id="playButton" class="play-button" type="button" aria-label="Play timeline">▶</button>
-              <input id="timeSlider" type="range" min="-15000" max="2026" step="1" value="117" aria-label="Historical year" />
+              <button id="playButton" class="play-button" type="button" aria-label="Play human timeline">▶</button>
+              <input id="timeSlider" type="range" min="-300000" max="2026" step="1" value="-10000" aria-label="Human-history year" />
             </div>
-            <div class="range-ends" aria-hidden="true"><span>15,000 BCE</span><span>Present</span></div>
+            <div class="range-ends" aria-hidden="true"><span>300,000 years ago</span><span>Present</span></div>
           </div>
 
-          <div class="quick-years" aria-label="Jump to a period">
+          <div class="quick-years" aria-label="Jump to a period in human history">
+            <button type="button" data-year="-300000">300,000 years ago</button>
             <button type="button" data-year="-10000">10,000 BCE</button>
             <button type="button" data-year="-3000">3000 BCE</button>
             <button type="button" data-year="117">117 CE</button>
@@ -115,13 +117,13 @@
             <div class="surface-control-copy">
               <div>
                 <span id="surfaceControlLabel">Earth surface</span>
-                <strong id="surfaceDetailLabel">Modern satellite</strong>
+                <strong id="surfaceDetailLabel">Reconstructed Earth</strong>
               </div>
-              <p id="surfaceExplanation">Current Sentinel-2 imagery with historical settlement evidence placed above it.</p>
+              <p id="surfaceExplanation">The selected time determines the reconstructed surface. Observed imagery is a reference input, not a competing mode.</p>
             </div>
-            <div class="surface-segment" role="group" aria-label="Earth surface mode">
-              <button id="modernSurfaceButton" class="active" type="button" aria-pressed="true">Modern</button>
-              <button id="reconstructedSurfaceButton" type="button" aria-pressed="false">Reconstructed</button>
+            <div class="surface-segment" role="group" aria-label="Legacy Earth surface mode">
+              <button id="modernSurfaceButton" type="button" aria-pressed="false">Reference</button>
+              <button id="reconstructedSurfaceButton" class="active" type="button" aria-pressed="true">Reconstructed</button>
             </div>
           </section>
 
@@ -133,7 +135,7 @@
             </div>
 
             <fieldset class="layer-block">
-              <legend>Settlement layers</legend>
+              <legend>Human-history layers</legend>
               <label><input id="ohmToggle" type="checkbox" checked /> Dated map records</label>
               <label><input id="curatedToggle" type="checkbox" checked /> Reviewed sites</label>
               <label><input id="wikidataToggle" type="checkbox" checked /> Live catalog</label>
@@ -147,20 +149,20 @@
             <span><i class="swatch catalog"></i>Wikidata catalog</span>
             <span><i class="swatch uncertain"></i>Lower confidence</span>
           </div>
-          <p class="imagery-note">Reconstructed mode currently uses dated vector evidence over muted modern terrain. It does not yet claim to be historical satellite imagery.</p>
+          <p class="imagery-note">Earth History currently moves scientifically reconstructed coastlines. Terrain, climate, land cover, ice, and life layers will be added as independently sourced model components.</p>
         </div>
       </section>
 
       <section id="placeSheet" class="place-sheet" data-detent="closed" aria-hidden="true" role="dialog" aria-modal="false" aria-labelledby="placeTitle">
-        <button id="placeSheetHandle" class="place-sheet-handle" type="button" aria-label="Resize place details"><span></span></button>
+        <button id="placeSheetHandle" class="place-sheet-handle" type="button" aria-label="Resize details"><span></span></button>
         <div class="place-sheet-scroll">
           <header class="place-header">
             <div>
-              <p id="placeEyebrow" class="place-eyebrow">Historical place</p>
-              <h2 id="placeTitle">Place details</h2>
+              <p id="placeEyebrow" class="place-eyebrow">Historical context</p>
+              <h2 id="placeTitle">Details</h2>
               <p id="placeSubtitle" class="place-subtitle"></p>
             </div>
-            <button id="placeClose" class="place-close" type="button" aria-label="Close place details">
+            <button id="placeClose" class="place-close" type="button" aria-label="Close details">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>
             </button>
           </header>
@@ -169,14 +171,14 @@
             <img id="placeImage" alt="" />
           </figure>
 
-          <div class="place-facts" aria-label="Place evidence summary">
+          <div class="place-facts" aria-label="Evidence summary">
             <span id="placeFactRange" class="place-fact">Date range</span>
             <span id="placeFactEvidence" class="place-fact">Evidence</span>
             <span id="placeFactConfidence" class="place-fact">Confidence</span>
           </div>
 
-          <p class="place-summary-label">Historical context</p>
-          <p id="placeSummary" class="place-summary">Select a place to load historical context.</p>
+          <p class="place-summary-label">Context</p>
+          <p id="placeSummary" class="place-summary">Select a place or timeline milestone to load context.</p>
           <p id="placeContextSource" class="place-context-source"></p>
 
           <div id="placeEvidence" class="place-evidence">Evidence notes appear here.</div>
@@ -193,29 +195,30 @@
   <dialog id="aboutDialog">
     <button id="closeDialog" class="dialog-close" type="button" aria-label="Close">×</button>
     <p class="panel-kicker">How to read the atlas</p>
-    <h2>Worldline separates observed imagery from historical reconstruction.</h2>
-    <p>Modern mode uses a Sentinel-2 cloudless mosaic. Reconstructed mode progressively removes modern surface detail as you zoom in and replaces available structures with date-filtered OpenHistoricalMap footprints.</p>
-    <p>Historical footprints are extruded using recorded height or level information when present. Missing heights use a clearly identified estimated fallback. This first reconstruction surface is therefore a dated vector model, not a photograph of the past.</p>
-    <p>The long-term pipeline will add reviewed historical land-cover rasters and locally rendered orthophoto tiles built from cited geometry, materials, vegetation, and competing scholarly interpretations.</p>
-    <p>Coverage is uneven. A blank area means no compatible record was returned, not that nobody lived there.</p>
+    <h2>The selected time determines the Earth you see.</h2>
+    <p>Earth History is the default. From the present to 1.8 billion years ago, coastlines are requested from the pinned CAO2024 GPlates reconstruction model. The app never relies on GPlates' changeable default model.</p>
+    <p>Before 1.8 billion years ago, exact global coastlines are not scientifically defensible. Worldline therefore switches to a clearly labelled schematic planet rather than inventing continental positions.</p>
+    <p>Human History is a separate, denser timeline beginning 300,000 years ago. It adds archaeological sites, historical settlements, dated map records, and contextual summaries without pretending that sparse evidence represents complete coverage.</p>
+    <p>This first planetary release moves reconstructed coastlines. Later layers will add paleoelevation, bathymetry, climate, ice, vegetation, fossil occurrences, human land use, and deterministic rendered surface textures.</p>
     <div class="source-list">
+      <a href="https://gwsdoc.gplates.org/models/" target="_blank" rel="noreferrer">GPlates reconstruction models</a>
+      <a href="https://stratigraphy.org/chart/" target="_blank" rel="noreferrer">International Chronostratigraphic Chart</a>
       <a href="https://www.openhistoricalmap.org" target="_blank" rel="noreferrer">OpenHistoricalMap</a>
       <a href="https://www.wikidata.org" target="_blank" rel="noreferrer">Wikidata</a>
-      <a href="https://s2maps.eu" target="_blank" rel="noreferrer">Sentinel-2 cloudless by EOX</a>
       <a href="https://maplibre.org" target="_blank" rel="noreferrer">MapLibre</a>
     </div>
-    <p class="build-marker">Build 2026-08-03-globe-r9 · Unified surfaces and historical search</p>
+    <p class="build-marker">Build 2026-08-03-globe-r10 · Earth History foundation</p>
   </dialog>
 
   <script src="https://unpkg.com/maplibre-gl@5.18.0/dist/maplibre-gl.js"></script>
-  <script src="bootstrap.js?v=20260803r9"></script>
-  <script src="data.js?v=20260803r9"></script>
-  <script src="map-core.js?v=20260803r9"></script>
-  <script src="reconstruction-packages.js?v=20260803r9"></script>
-  <script src="map-layers.js?v=20260803r9"></script>
-  <script src="reconstruction.js?v=20260803r9"></script>
-  <script src="app.js?v=20260803r9"></script>
-  <script src="mobile-polish.js?v=20260803r9"></script>
-  <script src="interaction-system.js?v=20260803r9"></script>
+  <script src="bootstrap.js?v=20260803r10"></script>
+  <script src="data.js?v=20260803r10"></script>
+  <script src="map-core.js?v=20260803r10"></script>
+  <script src="reconstruction-packages.js?v=20260803r10"></script>
+  <script src="map-layers.js?v=20260803r10"></script>
+  <script src="reconstruction.js?v=20260803r10"></script>
+  <script src="app.js?v=20260803r10"></script>
+  <script src="mobile-polish.js?v=20260803r10"></script>
+  <script src="interaction-system.js?v=20260803r10"></script>
 </body>
 </html>

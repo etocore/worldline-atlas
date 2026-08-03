@@ -35,14 +35,21 @@ jobs:
           node --check search-index.js
           node --check apple-controls-loader.js
           node --check apple-controls.js
+          node --check earth-history.js
+          node --check earth-era-context.js
+          node --check earth-ui-sync.js
           node --check netlify/functions/settlements.js
           node --check netlify/functions/place-summary.js
+          node --check netlify/functions/paleocoastlines.js
           node --check scripts/validate-reconstructions.mjs
           node --check scripts/validate-ui.mjs
           node --check scripts/validate-search.mjs
+          node --check scripts/validate-earth-history.mjs
       - name: Validate reconstruction packages
         run: node scripts/validate-reconstructions.mjs
       - name: Validate UI wiring
         run: node scripts/validate-ui.mjs
       - name: Validate historical search
         run: node scripts/validate-search.mjs
+      - name: Validate Earth history
+        run: node scripts/validate-earth-history.mjs

@@ -1,5 +1,5 @@
 (() => {
-  const BUILD = '2026-08-03-globe-r7';
+  const BUILD = '2026-08-03-globe-r10';
   const loadState = document.querySelector('#globeLoadState');
 
   function setViewportHeight() {
@@ -29,7 +29,7 @@
 
     const isPhone = window.matchMedia('(max-width: 720px)').matches;
     if (isPhone && map.getZoom() < 0.65) {
-      map.jumpTo({ center: [-76, 18], zoom: 0.42, bearing: 0, pitch: 0 });
+      map.jumpTo({ center: [8, 8], zoom: 0.42, bearing: 0, pitch: 0 });
     }
 
     document.body.classList.add('globe-ready');
