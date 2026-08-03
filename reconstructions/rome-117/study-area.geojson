@@ -1,0 +1,29 @@
+{
+  "type": "FeatureCollection",
+  "name": "Rome 117 CE working study area",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "rome-117-working-extent",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [12.405, 41.835],
+          [12.585, 41.835],
+          [12.585, 41.955],
+          [12.405, 41.955],
+          [12.405, 41.835]
+        ]]
+      },
+      "properties": {
+        "name": "Rome 117 CE research extent",
+        "packageId": "rome-117",
+        "evidenceClass": "placeholder",
+        "confidence": 0,
+        "historicalBoundary": false,
+        "reviewStatus": "foundation",
+        "note": "This rectangle only defines the area currently under research. It is not a claim about the ancient urban footprint, walls, administrative limits, or settlement density."
+      }
+    }
+  ]
+}
