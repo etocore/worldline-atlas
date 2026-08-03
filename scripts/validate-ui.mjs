@@ -1,6 +1,6 @@
 import { readFile, access } from 'node:fs/promises';
 
-const BUILD = '2026-08-03-globe-r9';
+const BUILD = '2026-08-03-globe-r10';
 const requiredFiles = [
   'interaction-system.css',
   'interaction-system.js',
@@ -12,7 +12,10 @@ const requiredFiles = [
   'ui-adapters.js',
   'search-index.js',
   'r9-polish.css',
-  'netlify/functions/place-summary.js'
+  'earth-history.css',
+  'earth-history.js',
+  'netlify/functions/place-summary.js',
+  'netlify/functions/paleocoastlines.js'
 ];
 
 const requiredIds = [
@@ -43,7 +46,7 @@ async function requireFile(path) {
 
 await Promise.all(requiredFiles.map(requireFile));
 
-const [html, bootstrap, netlify, version, appleControls, appleLoader, uiState, uiAdapters, searchIndex] = await Promise.all([
+const [html, bootstrap, netlify, version, appleControls, appleLoader, uiState, uiAdapters, searchIndex, earthHistory] = await Promise.all([
   readFile('index.html', 'utf8'),
   readFile('bootstrap.js', 'utf8'),
   readFile('netlify.toml', 'utf8'),
@@ -52,7 +55,8 @@ const [html, bootstrap, netlify, version, appleControls, appleLoader, uiState, u
   readFile('apple-controls-loader.js', 'utf8'),
   readFile('ui-state.js', 'utf8'),
   readFile('ui-adapters.js', 'utf8'),
-  readFile('search-index.js', 'utf8')
+  readFile('search-index.js', 'utf8'),
+  readFile('earth-history.js', 'utf8')
 ]);
 
 for (const id of requiredIds) {
@@ -70,7 +74,9 @@ for (const asset of [
   'ui-state.js',
   'ui-adapters.js',
   'search-index.js',
-  'r9-polish.css'
+  'r9-polish.css',
+  'earth-history.css',
+  'earth-history.js'
 ]) {
   if (!bootstrap.includes(asset)) errors.push(`bootstrap.js does not load ${asset}`);
 }
@@ -100,8 +106,15 @@ for (const capability of ['SITE_ALIASES', 'PERIODS', 'TOPICS', 'parseYear', 'sea
   if (!searchIndex.includes(capability)) errors.push(`search-index.js is missing ${capability}`);
 }
 
+for (const capability of ['timelineModeControl', 'timelineMilestones', 'WorldlineEarthHistory', 'paleo-coastlines']) {
+  if (!earthHistory.includes(capability)) errors.push(`earth-history.js is missing ${capability}`);
+}
+
 if (!netlify.includes('from = "/api/place-summary"')) {
   errors.push('netlify.toml does not expose /api/place-summary');
+}
+if (!netlify.includes('from = "/api/paleocoastlines"')) {
+  errors.push('netlify.toml does not expose /api/paleocoastlines');
 }
 
 let parsedVersion;
@@ -115,8 +128,11 @@ if (parsedVersion && parsedVersion.build !== BUILD) {
   errors.push(`version.json build should be ${BUILD}, found ${parsedVersion.build}`);
 }
 
-for (const source of [bootstrap, appleControls, appleLoader, uiState, uiAdapters, searchIndex]) {
-  if (!source.includes(BUILD)) errors.push(`A runtime file does not contain the ${BUILD} marker`);
+if (!bootstrap.includes(BUILD) || !earthHistory.includes(BUILD)) {
+  errors.push(`The Earth history entry points do not contain the ${BUILD} marker`);
+}
+if (!html.includes('2026-08-03-globe-r10') || !html.includes('20260803r10')) {
+  errors.push('index.html does not expose the r10 build and cache markers');
 }
 
 if (errors.length) {
@@ -125,4 +141,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Unified UI and historical search wiring are valid.');
+console.log('Unified UI, historical search, and Earth History wiring are valid.');
