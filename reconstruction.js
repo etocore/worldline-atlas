@@ -109,4 +109,10 @@ function setSurfaceMode(mode) {
 dom.modernSurfaceButton.addEventListener('click', () => setSurfaceMode('modern'));
 dom.reconstructedSurfaceButton.addEventListener('click', () => setSurfaceMode('reconstructed'));
 
+const reconstructionBootTimer = setInterval(() => {
+  if (!mapReady) return;
+  clearInterval(reconstructionBootTimer);
+  applySurfaceMode();
+}, 80);
+
 updateSurfaceUi();
