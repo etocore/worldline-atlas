@@ -48,6 +48,15 @@
     });
 
     const statefulSetSheetOpen = function statefulSetSheetOpen(open, options = {}) {
+      const activeElementId = document.activeElement?.id;
+      const searchTriggered = Boolean(open) && (activeElementId === 'historySearch' || activeElementId === 'searchSubmit');
+      if (searchTriggered) {
+        rawSetSheet(false);
+        if (ui.isOpen('search') || globalThis.__WORLDLINE_APPLE_CONTROLS_BUILD__) {
+          return ui.activate('search', { focus: false }, { reason: 'legacy-search-guard' });
+        }
+        return false;
+      }
       if (open) return ui.activate('settings', { options }, { reason: 'settings-request' });
       return ui.close('settings', { reason: 'settings-close' });
     };
