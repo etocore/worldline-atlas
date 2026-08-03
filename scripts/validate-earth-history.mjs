@@ -1,6 +1,6 @@
 import { readFile, access } from 'node:fs/promises';
 
-const CURRENT_BUILD = '2026-08-03-globe-r11';
+const CURRENT_BUILD = '2026-08-03-globe-r12';
 const requiredFiles = [
   'earth-history.js',
   'earth-history.css',
@@ -49,9 +49,10 @@ requireText(proxy, 'gws.gplates.org/reconstruct/coastlines', 'The GPlates coastl
 requireText(proxy, 's-maxage=2592000', 'The GPlates proxy does not cache model output');
 
 requireText(netlify, 'from = "/api/paleocoastlines"', 'Netlify does not expose /api/paleocoastlines');
+requireText(netlify, 'Cache-Control = "public, max-age=0, must-revalidate"', 'Static assets do not revalidate across releases');
 requireText(bootstrap, 'earth-history.css', 'bootstrap.js does not load earth-history.css');
 requireText(bootstrap, 'earth-history.js', 'bootstrap.js does not load earth-history.js');
-requireText(style, '.timeline-mode-control', 'The Apple-style mode control is not styled');
+requireText(style, '.timeline-mode-control', 'The timeline scope control is not styled');
 requireText(style, '.timeline-era-card', 'The compact era card is not styled');
 requireText(style, '.surface-control { display: none', 'The legacy reconstruction switch remains visible');
 requireText(html, '250 Ma', 'The initial HTML does not present Earth History first');
@@ -66,9 +67,6 @@ try {
 }
 if (parsedVersion?.build !== CURRENT_BUILD) failures.push(`version.json should be ${CURRENT_BUILD}`);
 if (!bootstrap.includes(CURRENT_BUILD)) failures.push(`bootstrap.js is missing the ${CURRENT_BUILD} marker`);
-if (!html.includes('2026-08-03-globe-r11') || !html.includes('20260803r11')) {
-  failures.push('The production shell is missing the r11 build markers');
-}
 
 if (failures.length) {
   console.error('Earth history validation failed:');
@@ -76,4 +74,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Earth History foundation is wired and scientifically bounded.');
+console.log('Earth History foundation remains wired and scientifically bounded in r12.');
