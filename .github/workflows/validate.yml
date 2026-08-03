@@ -33,6 +33,8 @@ jobs:
           node --check ui-state.js
           node --check ui-adapters.js
           node --check search-index.js
+          node --check history-catalog.js
+          node --check history-engine.js
           node --check apple-controls-loader.js
           node --check apple-controls.js
           node --check earth-history.js
@@ -51,6 +53,7 @@ jobs:
           node --check scripts/validate-search.mjs
           node --check scripts/validate-earth-history.mjs
           node --check scripts/validate-earth-cache.mjs
+          node --check scripts/validate-history-engine.mjs
       - name: Validate reconstruction packages
         run: node scripts/validate-reconstructions.mjs
       - name: Validate UI wiring
@@ -61,3 +64,5 @@ jobs:
         run: node scripts/validate-earth-history.mjs
       - name: Validate cached Earth and regional life evidence
         run: node scripts/validate-earth-cache.mjs
+      - name: Validate researched chronology and chapter experience
+        run: node scripts/validate-history-engine.mjs
