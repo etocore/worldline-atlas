@@ -1,0 +1,41 @@
+{
+  "version": 2,
+  "model": "CAO2024",
+  "generatedAt": null,
+  "coastlines": [],
+  "life": [
+    {
+      "ageMa": 66,
+      "model": "published-paleocoordinates",
+      "featureCount": 1,
+      "floraCount": 0,
+      "faunaCount": 1,
+      "path": "data/earth/cache/life-66.json",
+      "sha256": "seed-r11-66"
+    },
+    {
+      "ageMa": 100,
+      "model": "published-paleocoordinates",
+      "featureCount": 2,
+      "floraCount": 1,
+      "faunaCount": 1,
+      "path": "data/earth/cache/life-100.json",
+      "sha256": "seed-r11-100"
+    },
+    {
+      "ageMa": 250,
+      "model": "published-paleocoordinates",
+      "featureCount": 2,
+      "floraCount": 0,
+      "faunaCount": 2,
+      "path": "data/earth/cache/life-250.json",
+      "sha256": "seed-r11-250"
+    }
+  ],
+  "sources": {
+    "coastlines": "https://gws.gplates.org/reconstruct/coastlines/",
+    "occurrences": "https://paleobiodb.org/",
+    "reconstructedPoints": "https://gws.gplates.org/reconstruct/reconstruct_points/"
+  },
+  "notes": "The included life snapshots are small reviewed CC0 seeds. The GitHub Actions cache workflow replaces and expands them with generated coastline and fossil snapshots. Live GPlates remains a fallback until coastline snapshots are committed."
+}

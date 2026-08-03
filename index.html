@@ -14,11 +14,11 @@
   <link rel="preconnect" href="https://vtiles.openhistoricalmap.org" />
   <link rel="preconnect" href="https://gws.gplates.org" />
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.18.0/dist/maplibre-gl.css" />
-  <link rel="stylesheet" href="styles.css?v=20260803r10" />
-  <link rel="stylesheet" href="reconstruction.css?v=20260803r10" />
-  <link rel="stylesheet" href="safari-fix.css?v=20260803r10" />
-  <link rel="stylesheet" href="mobile-polish.css?v=20260803r10" />
-  <link rel="stylesheet" href="interaction-system.css?v=20260803r10" />
+  <link rel="stylesheet" href="styles.css?v=20260803r11" />
+  <link rel="stylesheet" href="reconstruction.css?v=20260803r11" />
+  <link rel="stylesheet" href="safari-fix.css?v=20260803r11" />
+  <link rel="stylesheet" href="mobile-polish.css?v=20260803r11" />
+  <link rel="stylesheet" href="interaction-system.css?v=20260803r11" />
 </head>
 <body>
   <main class="map-app">
@@ -84,7 +84,7 @@
             <div><span>Live catalog</span><strong id="catalogCount">0</strong></div>
             <div><span>Surface</span><strong id="surfaceModeLabel">Reconstructed Earth</strong></div>
           </div>
-          <p id="coverageMessage" class="coverage-message">Earth History uses a pinned plate model where defensible and an explicit schematic beyond it.</p>
+          <p id="coverageMessage" class="coverage-message">Earth History uses cached plate-model snapshots first, then silently refines from the pinned live model when available.</p>
 
           <div id="timelineControls" class="timeline-block">
             <div class="timeline-heading">
@@ -149,7 +149,7 @@
             <span><i class="swatch catalog"></i>Wikidata catalog</span>
             <span><i class="swatch uncertain"></i>Lower confidence</span>
           </div>
-          <p class="imagery-note">Earth History currently moves scientifically reconstructed coastlines. Terrain, climate, land cover, ice, and life layers will be added as independently sourced model components.</p>
+          <p class="imagery-note">Earth History now loads cached coastline keyframes and reviewed fossil occurrence evidence. Terrain, climate, land cover, and ice remain separate upcoming model layers.</p>
         </div>
       </section>
 
@@ -178,7 +178,7 @@
           </div>
 
           <p class="place-summary-label">Context</p>
-          <p id="placeSummary" class="place-summary">Select a place or timeline milestone to load context.</p>
+          <p id="placeSummary" class="place-summary">Select a place, fossil record, or timeline milestone to load context.</p>
           <p id="placeContextSource" class="place-context-source"></p>
 
           <div id="placeEvidence" class="place-evidence">Evidence notes appear here.</div>
@@ -196,29 +196,30 @@
     <button id="closeDialog" class="dialog-close" type="button" aria-label="Close">×</button>
     <p class="panel-kicker">How to read the atlas</p>
     <h2>The selected time determines the Earth you see.</h2>
-    <p>Earth History is the default. From the present to 1.8 billion years ago, coastlines are requested from the pinned CAO2024 GPlates reconstruction model. The app never relies on GPlates' changeable default model.</p>
+    <p>Earth History is the default. From the present to 1.8 billion years ago, coastlines come from the pinned CAO2024 GPlates reconstruction model. Simplified keyframes are stored directly in this GitHub repository so common ages render immediately; the live model is a background refinement and fallback.</p>
     <p>Before 1.8 billion years ago, exact global coastlines are not scientifically defensible. Worldline therefore switches to a clearly labelled schematic planet rather than inventing continental positions.</p>
     <p>Human History is a separate, denser timeline beginning 300,000 years ago. It adds archaeological sites, historical settlements, dated map records, and contextual summaries without pretending that sparse evidence represents complete coverage.</p>
-    <p>This first planetary release moves reconstructed coastlines. Later layers will add paleoelevation, bathymetry, climate, ice, vegetation, fossil occurrences, human land use, and deterministic rendered surface textures.</p>
+    <p>Green and orange life markers are Paleobiology Database fossil records placed at published or model-reconstructed paleocoordinates. They are evidence locations, not complete organism ranges. A blank region does not mean life was absent there.</p>
     <div class="source-list">
       <a href="https://gwsdoc.gplates.org/models/" target="_blank" rel="noreferrer">GPlates reconstruction models</a>
+      <a href="https://paleobiodb.org" target="_blank" rel="noreferrer">Paleobiology Database</a>
       <a href="https://stratigraphy.org/chart/" target="_blank" rel="noreferrer">International Chronostratigraphic Chart</a>
       <a href="https://www.openhistoricalmap.org" target="_blank" rel="noreferrer">OpenHistoricalMap</a>
       <a href="https://www.wikidata.org" target="_blank" rel="noreferrer">Wikidata</a>
       <a href="https://maplibre.org" target="_blank" rel="noreferrer">MapLibre</a>
     </div>
-    <p class="build-marker">Build 2026-08-03-globe-r10 · Earth History foundation</p>
+    <p class="build-marker">Build 2026-08-03-globe-r11 · Cached Earth and fossil evidence</p>
   </dialog>
 
   <script src="https://unpkg.com/maplibre-gl@5.18.0/dist/maplibre-gl.js"></script>
-  <script src="bootstrap.js?v=20260803r10"></script>
-  <script src="data.js?v=20260803r10"></script>
-  <script src="map-core.js?v=20260803r10"></script>
-  <script src="reconstruction-packages.js?v=20260803r10"></script>
-  <script src="map-layers.js?v=20260803r10"></script>
-  <script src="reconstruction.js?v=20260803r10"></script>
-  <script src="app.js?v=20260803r10"></script>
-  <script src="mobile-polish.js?v=20260803r10"></script>
-  <script src="interaction-system.js?v=20260803r10"></script>
+  <script src="bootstrap.js?v=20260803r11"></script>
+  <script src="data.js?v=20260803r11"></script>
+  <script src="map-core.js?v=20260803r11"></script>
+  <script src="reconstruction-packages.js?v=20260803r11"></script>
+  <script src="map-layers.js?v=20260803r11"></script>
+  <script src="reconstruction.js?v=20260803r11"></script>
+  <script src="app.js?v=20260803r11"></script>
+  <script src="mobile-polish.js?v=20260803r11"></script>
+  <script src="interaction-system.js?v=20260803r11"></script>
 </body>
 </html>

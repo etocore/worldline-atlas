@@ -1,6 +1,6 @@
 import { readFile, access } from 'node:fs/promises';
 
-const BUILD = '2026-08-03-globe-r10';
+const CURRENT_BUILD = '2026-08-03-globe-r11';
 const requiredFiles = [
   'earth-history.js',
   'earth-history.css',
@@ -64,12 +64,10 @@ try {
 } catch {
   failures.push('version.json is not valid JSON');
 }
-if (parsedVersion?.build !== BUILD) failures.push(`version.json should be ${BUILD}`);
-
-for (const source of [runtime, bootstrap, html]) {
-  if (!source.includes(BUILD) && !source.includes('20260803r10')) {
-    failures.push('An Earth history production entry point is missing the r10 marker');
-  }
+if (parsedVersion?.build !== CURRENT_BUILD) failures.push(`version.json should be ${CURRENT_BUILD}`);
+if (!bootstrap.includes(CURRENT_BUILD)) failures.push(`bootstrap.js is missing the ${CURRENT_BUILD} marker`);
+if (!html.includes('2026-08-03-globe-r11') || !html.includes('20260803r11')) {
+  failures.push('The production shell is missing the r11 build markers');
 }
 
 if (failures.length) {

@@ -1,0 +1,48 @@
+name: Cache Earth snapshots
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 5 1 * *"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/cache-earth-data.mjs"
+      - ".github/workflows/cache-earth-data.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: earth-snapshot-cache
+  cancel-in-progress: false
+
+jobs:
+  cache:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build simplified coastline and fossil snapshots
+        run: node scripts/cache-earth-data.mjs
+
+      - name: Commit changed snapshots
+        run: |
+          if git diff --quiet -- data/earth/cache; then
+            echo "No Earth snapshot changes"
+            exit 0
+          fi
+          git config user.name "worldline-cache-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/earth/cache
+          git commit -m "Cache reconstructed Earth snapshots"
+          git push

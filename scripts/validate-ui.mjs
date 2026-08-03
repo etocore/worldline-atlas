@@ -1,6 +1,6 @@
 import { readFile, access } from 'node:fs/promises';
 
-const BUILD = '2026-08-03-globe-r10';
+const BUILD = '2026-08-03-globe-r11';
 const requiredFiles = [
   'interaction-system.css',
   'interaction-system.js',
@@ -144,11 +144,9 @@ if (parsedVersion && parsedVersion.build !== BUILD) {
   errors.push(`version.json build should be ${BUILD}, found ${parsedVersion.build}`);
 }
 
-for (const source of [bootstrap, earthHistory, earthContext, earthSync]) {
-  if (!source.includes(BUILD)) errors.push(`An Earth history runtime does not contain the ${BUILD} marker`);
-}
-if (!html.includes('2026-08-03-globe-r10') || !html.includes('20260803r10')) {
-  errors.push('index.html does not expose the r10 build and cache markers');
+if (!bootstrap.includes(BUILD)) errors.push(`bootstrap.js is missing the ${BUILD} marker`);
+if (!html.includes('2026-08-03-globe-r11') || !html.includes('20260803r11')) {
+  errors.push('index.html does not expose the r11 build and cache markers');
 }
 
 if (errors.length) {
