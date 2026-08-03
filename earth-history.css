@@ -76,10 +76,23 @@
   width: 9px;
   height: 9px;
   background: var(--earth-era-glow);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--earth-era-glow) 22%, transparent);
+  box-shadow: 0 0 0 4px rgba(255, 179, 92, .2);
 }
 
 .timeline-primary-slider { position: relative; z-index: 3; }
+
+/* Human History keeps the familiar past-left, present-right direction even though its nonlinear scale is stored in reverse. */
+body[data-timeline-mode="human"] .timeline-primary-slider {
+  direction: rtl;
+}
+
+body[data-timeline-mode="human"] .timeline-primary-slider::-webkit-slider-runnable-track {
+  background: linear-gradient(90deg,
+    var(--apple-blue) 0,
+    var(--apple-blue) calc(100% - var(--timeline-progress)),
+    rgba(118,118,128,.38) calc(100% - var(--timeline-progress)),
+    rgba(118,118,128,.38) 100%);
+}
 
 .timeline-era-card {
   display: grid;
@@ -151,11 +164,17 @@
 .surface-badge { max-width: 170px; }
 body[data-timeline-mode="earth"] .surface-badge.reconstructed { color: rgba(255, 255, 255, .88); }
 
+/* Earth mode keeps the science summary and sources, while human-only layer controls stay out of the way. */
+body[data-timeline-mode="earth"] #timelineControls,
+body[data-timeline-mode="earth"] .quick-years,
+body[data-timeline-mode="earth"] .control-grid,
 body[data-timeline-mode="earth"] .legend,
-body[data-timeline-mode="earth"] .imagery-note,
-body[data-timeline-mode="earth"] .metric-grid,
-body[data-timeline-mode="earth"] .control-grid {
-  opacity: .42;
+body[data-timeline-mode="earth"] .imagery-note {
+  display: none !important;
+}
+
+body[data-timeline-mode="earth"] .metric-grid {
+  grid-template-columns: 1fr 1fr;
 }
 
 body[data-earth-confidence="schematic"] .map-vignette {
