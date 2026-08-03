@@ -48,5 +48,6 @@
   loadScript('ui-adapters.js');
   loadScript('apple-controls-loader.js');
   loadScript('earth-history.js');
+  loadScript('earth-era-context.js');
   loadScript('earth-ui-sync.js');
 })();
