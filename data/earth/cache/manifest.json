@@ -1,41 +1,319 @@
 {
   "version": 2,
   "model": "CAO2024",
-  "generatedAt": null,
-  "coastlines": [],
-  "life": [
+  "generatedAt": "2026-08-03T19:11:54.783Z",
+  "coastlines": [
+    {
+      "ageMa": 0,
+      "model": "CAO2024",
+      "toleranceDegrees": 0.08,
+      "featureCount": 2937,
+      "path": "data/earth/cache/coastlines-0.json",
+      "bytes": 1006399,
+      "sha256": "d2959d7d9f9a0c79346049f96cf2e8fb9998f80cf98081914f0e3717d23ce06b"
+    },
+    {
+      "ageMa": 0.021,
+      "model": "CAO2024",
+      "toleranceDegrees": 0.08,
+      "featureCount": 2928,
+      "path": "data/earth/cache/coastlines-0p021.json",
+      "bytes": 1006246,
+      "sha256": "75d5bc52a8b21472a0d663065554fd43a5893db659b28977baa5ece34aa45d84"
+    },
+    {
+      "ageMa": 2.58,
+      "model": "CAO2024",
+      "toleranceDegrees": 0.08,
+      "featureCount": 2939,
+      "path": "data/earth/cache/coastlines-2p58.json",
+      "bytes": 1008274,
+      "sha256": "ec0f2f2c254038b5fa1f4c3ce0f2f908175cd887696f95995ee4db693f534e12"
+    },
+    {
+      "ageMa": 23,
+      "model": "CAO2024",
+      "toleranceDegrees": 0.08,
+      "featureCount": 2881,
+      "path": "data/earth/cache/coastlines-23.json",
+      "bytes": 993467,
+      "sha256": "4837be1f08dca39a53ad8d161f98be7baed362af1830b3af93e7c47eff9838a2"
+    },
     {
       "ageMa": 66,
-      "model": "published-paleocoordinates",
-      "featureCount": 1,
-      "floraCount": 0,
-      "faunaCount": 1,
-      "path": "data/earth/cache/life-66.json",
-      "sha256": "seed-r11-66"
+      "model": "CAO2024",
+      "toleranceDegrees": 0.08,
+      "featureCount": 2671,
+      "path": "data/earth/cache/coastlines-66.json",
+      "bytes": 937875,
+      "sha256": "7e83d0805b9594042f21ac4c60b64550baa8dc6a552b4e175d5961ded599e8f1"
     },
     {
       "ageMa": 100,
-      "model": "published-paleocoordinates",
-      "featureCount": 2,
-      "floraCount": 1,
-      "faunaCount": 1,
-      "path": "data/earth/cache/life-100.json",
-      "sha256": "seed-r11-100"
+      "model": "CAO2024",
+      "toleranceDegrees": 0.08,
+      "featureCount": 2633,
+      "path": "data/earth/cache/coastlines-100.json",
+      "bytes": 926663,
+      "sha256": "027f2d33dd4e87f9299cebcc7965c4960a820bfe1b2535977fb4ee7768431d33"
+    },
+    {
+      "ageMa": 145,
+      "model": "CAO2024",
+      "toleranceDegrees": 0.12,
+      "featureCount": 2536,
+      "path": "data/earth/cache/coastlines-145.json",
+      "bytes": 734327,
+      "sha256": "cb6a681597084d2d7c453669b3e8556f3bb2908195d35332a4bdfb02e385e8c8"
+    },
+    {
+      "ageMa": 200,
+      "model": "CAO2024",
+      "toleranceDegrees": 0.12,
+      "featureCount": 2478,
+      "path": "data/earth/cache/coastlines-200.json",
+      "bytes": 707592,
+      "sha256": "20524c39b052eda17600d86311ba49dfabdc27d15986a950d75f28f814a4fca7"
+    },
+    {
+      "ageMa": 233,
+      "model": "CAO2024",
+      "toleranceDegrees": 0.12,
+      "featureCount": 2437,
+      "path": "data/earth/cache/coastlines-233.json",
+      "bytes": 702100,
+      "sha256": "7addcaefb1f7b609df6ffc507496549aa6330d88517b0dbae335d5910ac0475c"
     },
     {
       "ageMa": 250,
-      "model": "published-paleocoordinates",
-      "featureCount": 2,
-      "floraCount": 0,
-      "faunaCount": 2,
+      "model": "CAO2024",
+      "toleranceDegrees": 0.12,
+      "featureCount": 2445,
+      "path": "data/earth/cache/coastlines-250.json",
+      "bytes": 701931,
+      "sha256": "c59fbdfd4af6176e6fea46e674e5e95c8513615e947457b0a0b0bf2c7eeb2007"
+    },
+    {
+      "ageMa": 252,
+      "model": "CAO2024",
+      "toleranceDegrees": 0.12,
+      "featureCount": 2366,
+      "path": "data/earth/cache/coastlines-252.json",
+      "bytes": 678992,
+      "sha256": "0bf237b7965782e70c4888a44ebf9b28159d1421e008a05e2d03b765663a82e4"
+    },
+    {
+      "ageMa": 300,
+      "model": "CAO2024",
+      "toleranceDegrees": 0.12,
+      "featureCount": 2358,
+      "path": "data/earth/cache/coastlines-300.json",
+      "bytes": 674205,
+      "sha256": "55d139f722e4e7c8f66c0f26c3c0863dcfaf500c46e4002de126bfd17cfc2832"
+    },
+    {
+      "ageMa": 335,
+      "model": "CAO2024",
+      "toleranceDegrees": 0.12,
+      "featureCount": 2280,
+      "path": "data/earth/cache/coastlines-335.json",
+      "bytes": 658103,
+      "sha256": "db9d10cc9fdf441e7386e67edaa12f376ab7d84e016c158479cee27b763919fa"
+    },
+    {
+      "ageMa": 359,
+      "model": "CAO2024",
+      "toleranceDegrees": 0.12,
+      "featureCount": 2218,
+      "path": "data/earth/cache/coastlines-359.json",
+      "bytes": 649313,
+      "sha256": "8f0b1d80d06b0cc56de521e69da833af6df707b8f46915136aa3318f02983c23"
+    },
+    {
+      "ageMa": 419,
+      "model": "CAO2024",
+      "toleranceDegrees": 0.12,
+      "featureCount": 1565,
+      "path": "data/earth/cache/coastlines-419.json",
+      "bytes": 480319,
+      "sha256": "5a32629dfeaaf4a6555559181dd57f7bee482fe16511e8f758fca293ba72a4a7"
+    },
+    {
+      "ageMa": 470,
+      "model": "CAO2024",
+      "toleranceDegrees": 0.12,
+      "featureCount": 1390,
+      "path": "data/earth/cache/coastlines-470.json",
+      "bytes": 450875,
+      "sha256": "51916d8288747650bbde9914ca7c3c1c5832f5784be9e268c9420fd1ddf327e2"
+    },
+    {
+      "ageMa": 538.8,
+      "model": "CAO2024",
+      "toleranceDegrees": 0.12,
+      "featureCount": 1310,
+      "path": "data/earth/cache/coastlines-538p8.json",
+      "bytes": 424095,
+      "sha256": "9f1825c36ebfa850c79d2c13eb943ccf8729ef9074f6055ea96bfa40128121b6"
+    },
+    {
+      "ageMa": 720,
+      "model": "CAO2024",
+      "toleranceDegrees": 0.18,
+      "featureCount": 973,
+      "path": "data/earth/cache/coastlines-720.json",
+      "bytes": 265844,
+      "sha256": "4df22cf2e454ee28e249dfda9bcf853060f36a822e4f3209a881c69cef03f55e"
+    },
+    {
+      "ageMa": 1000,
+      "model": "CAO2024",
+      "toleranceDegrees": 0.18,
+      "featureCount": 911,
+      "path": "data/earth/cache/coastlines-1000.json",
+      "bytes": 249163,
+      "sha256": "a4e6e70dbd5ad1439c35500bee27bee3a4c677acf9ea17640265b0f16e15ba2d"
+    },
+    {
+      "ageMa": 1800,
+      "model": "CAO2024",
+      "toleranceDegrees": 0.18,
+      "featureCount": 624,
+      "path": "data/earth/cache/coastlines-1800.json",
+      "bytes": 171052,
+      "sha256": "5ec2cfe47122da0fbed745df4e8b0a1526f2a6e2053b7aae21c13835c6a1ad7e"
+    }
+  ],
+  "life": [
+    {
+      "ageMa": 66,
+      "model": "CAO2024",
+      "featureCount": 900,
+      "floraCount": 453,
+      "faunaCount": 447,
+      "path": "data/earth/cache/life-66.json",
+      "bytes": 477385,
+      "sha256": "12637c15ffe11d907e3c4a1c5c1c411aa56316c4c9fd864adef0ca3f417780b0"
+    },
+    {
+      "ageMa": 100,
+      "model": "CAO2024",
+      "featureCount": 70,
+      "floraCount": 1,
+      "faunaCount": 69,
+      "path": "data/earth/cache/life-100.json",
+      "bytes": 36670,
+      "sha256": "904664a2dc98be10181967301a998db9cd9bd4ae5f9673475945968f99d0c3ff"
+    },
+    {
+      "ageMa": 145,
+      "model": "CAO2024",
+      "featureCount": 873,
+      "floraCount": 422,
+      "faunaCount": 451,
+      "path": "data/earth/cache/life-145.json",
+      "bytes": 461382,
+      "sha256": "9ac0dbcaa39e9114a75cff9db25efff6128a6662f1527fb02d6af42d5b8d1d1d"
+    },
+    {
+      "ageMa": 200,
+      "model": "CAO2024",
+      "featureCount": 900,
+      "floraCount": 453,
+      "faunaCount": 447,
+      "path": "data/earth/cache/life-200.json",
+      "bytes": 481055,
+      "sha256": "6bd52b951e26cb82c752f414eb03a86d8b47b8b52ade009b071b99c2233cd86e"
+    },
+    {
+      "ageMa": 233,
+      "model": "CAO2024",
+      "featureCount": 891,
+      "floraCount": 445,
+      "faunaCount": 446,
+      "path": "data/earth/cache/life-233.json",
+      "bytes": 471840,
+      "sha256": "2a87f5f027f9ef75dd027ec9c72676607db6295013e3b8618092e93cdc6a3f80"
+    },
+    {
+      "ageMa": 250,
+      "model": "CAO2024",
+      "featureCount": 900,
+      "floraCount": 442,
+      "faunaCount": 458,
       "path": "data/earth/cache/life-250.json",
-      "sha256": "seed-r11-250"
+      "bytes": 485783,
+      "sha256": "679e1db2c9b02ceeea98b9cb9d925d5a708cb3b90d2035fe0968eca8d492d5df"
+    },
+    {
+      "ageMa": 252,
+      "model": "CAO2024",
+      "featureCount": 900,
+      "floraCount": 445,
+      "faunaCount": 455,
+      "path": "data/earth/cache/life-252.json",
+      "bytes": 485854,
+      "sha256": "cc5e91711b5c83af8ed48bb7070ffce8fca4c06bd75d48c993c63a4ade7215c5"
+    },
+    {
+      "ageMa": 335,
+      "model": "CAO2024",
+      "featureCount": 900,
+      "floraCount": 449,
+      "faunaCount": 451,
+      "path": "data/earth/cache/life-335.json",
+      "bytes": 480562,
+      "sha256": "4584f6685fb6f4265f4c7425166b2c1d5d93f19545b5cf29bb75a2bec0b31605"
+    },
+    {
+      "ageMa": 359,
+      "model": "CAO2024",
+      "featureCount": 899,
+      "floraCount": 441,
+      "faunaCount": 458,
+      "path": "data/earth/cache/life-359.json",
+      "bytes": 481104,
+      "sha256": "9680731263df1e7ab5605739af0797dff13295741ef603e26499d62f125fdcf2"
+    },
+    {
+      "ageMa": 419,
+      "model": "CAO2024",
+      "featureCount": 752,
+      "floraCount": 279,
+      "faunaCount": 473,
+      "path": "data/earth/cache/life-419.json",
+      "bytes": 398187,
+      "sha256": "0fee27a1d581617cecefb00adc3f3e60ff9576e65a123fead9bfaa893ada34a9"
+    },
+    {
+      "ageMa": 470,
+      "model": "CAO2024",
+      "featureCount": 530,
+      "floraCount": 74,
+      "faunaCount": 456,
+      "path": "data/earth/cache/life-470.json",
+      "bytes": 278871,
+      "sha256": "fe0efb3199c2ce1080daf1235e736d14148c22098d8cbe058ed8dfddb02575f0"
+    },
+    {
+      "ageMa": 538.8,
+      "model": "CAO2024",
+      "featureCount": 560,
+      "floraCount": 7,
+      "faunaCount": 553,
+      "path": "data/earth/cache/life-538p8.json",
+      "bytes": 304070,
+      "sha256": "da9a67fe8f38011c9a8da67b28d14b264c2365e4678966f99165bf6591d02f92"
     }
   ],
   "sources": {
     "coastlines": "https://gws.gplates.org/reconstruct/coastlines/",
-    "occurrences": "https://paleobiodb.org/",
+    "occurrences": "https://paleobiodb.org/data1.2/occs/list.json",
     "reconstructedPoints": "https://gws.gplates.org/reconstruct/reconstruct_points/"
   },
-  "notes": "The included life snapshots are small reviewed CC0 seeds. The GitHub Actions cache workflow replaces and expands them with generated coastline and fossil snapshots. Live GPlates remains a fallback until coastline snapshots are committed."
+  "caveats": [
+    "Coastlines are simplified render snapshots from the pinned CAO2024 model.",
+    "Life points are fossil occurrences, not complete organism ranges or population maps.",
+    "Fossil discovery coordinates are reconstructed to paleopositions with CAO2024."
+  ]
 }
