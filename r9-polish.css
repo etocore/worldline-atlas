@@ -1,5 +1,4 @@
 /* Worldline r9 refinements for unified surfaces and richer historical search. */
-body[data-ui-surface="timeline"] .search-shell,
 body[data-ui-surface="place"] .search-shell,
 body[data-ui-surface="settings"] .timeline-hud,
 body[data-ui-surface="place"] .timeline-hud {
