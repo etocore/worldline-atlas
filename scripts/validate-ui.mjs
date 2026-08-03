@@ -4,6 +4,8 @@ const requiredFiles = [
   'interaction-system.css',
   'interaction-system.js',
   'landmark-visibility.js',
+  'apple-controls.css',
+  'apple-controls.js',
   'netlify/functions/place-summary.js'
 ];
 
@@ -17,7 +19,10 @@ const requiredIds = [
   'placeSummary',
   'placeEvidence',
   'placeSource',
-  'placeExpand'
+  'placeExpand',
+  'yearButton',
+  'historySearch',
+  'controlPanel'
 ];
 
 const errors = [];
@@ -32,11 +37,12 @@ async function requireFile(path) {
 
 await Promise.all(requiredFiles.map(requireFile));
 
-const [html, bootstrap, netlify, version] = await Promise.all([
+const [html, bootstrap, netlify, version, appleControls] = await Promise.all([
   readFile('index.html', 'utf8'),
   readFile('bootstrap.js', 'utf8'),
   readFile('netlify.toml', 'utf8'),
-  readFile('version.json', 'utf8')
+  readFile('version.json', 'utf8'),
+  readFile('apple-controls.js', 'utf8')
 ]);
 
 for (const id of requiredIds) {
@@ -47,8 +53,16 @@ for (const asset of ['interaction-system.css', 'interaction-system.js']) {
   if (!html.includes(asset)) errors.push(`index.html does not load ${asset}`);
 }
 
-if (!bootstrap.includes('landmark-visibility.js')) {
-  errors.push('bootstrap.js does not load landmark-visibility.js');
+for (const asset of ['landmark-visibility.js', 'apple-controls.css', 'apple-controls.js']) {
+  if (!bootstrap.includes(asset)) errors.push(`bootstrap.js does not load ${asset}`);
+}
+
+for (const runtimeId of ['timelineHud', 'timelinePrimarySlider', 'advancedControlsButton', 'searchSuggestions', 'searchCancel']) {
+  if (!appleControls.includes(runtimeId)) errors.push(`apple-controls.js does not create #${runtimeId}`);
+}
+
+if (!appleControls.includes('role', 'combobox') && !appleControls.includes("setAttribute('role', 'combobox')")) {
+  errors.push('apple-controls.js does not configure the search field as a combobox');
 }
 
 if (!netlify.includes('from = "/api/place-summary"')) {
@@ -62,12 +76,12 @@ try {
   errors.push('version.json is not valid JSON');
 }
 
-if (parsedVersion && parsedVersion.build !== '2026-08-03-globe-r7') {
-  errors.push(`version.json build should be 2026-08-03-globe-r7, found ${parsedVersion.build}`);
+if (parsedVersion && parsedVersion.build !== '2026-08-03-globe-r8') {
+  errors.push(`version.json build should be 2026-08-03-globe-r8, found ${parsedVersion.build}`);
 }
 
-if (!html.includes('2026-08-03-globe-r7')) {
-  errors.push('index.html does not expose the r7 build marker');
+if (!appleControls.includes('2026-08-03-globe-r8')) {
+  errors.push('apple-controls.js does not expose the r8 build marker');
 }
 
 if (errors.length) {
