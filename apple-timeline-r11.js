@@ -33,10 +33,12 @@
       const max = Number(slider.max || 1000);
       const numeric = Number(slider.value);
       const percent = ((numeric - min) / Math.max(1, max - min)) * 100;
+      const humanMode = globalThis.WorldlineEarthHistory.getMode() === 'human';
+      const thumbPercent = humanMode ? 100 - percent : percent;
       slider.style.setProperty('--timeline-progress', `${percent}%`);
-      wrap.style.setProperty('--timeline-progress', `${Math.max(3, Math.min(97, percent))}%`);
+      wrap.style.setProperty('--timeline-thumb-position', `${Math.max(3, Math.min(97, thumbPercent))}%`);
       bubble.textContent = value.textContent.trim();
-      card.dataset.mode = globalThis.WorldlineEarthHistory.getMode();
+      card.dataset.mode = humanMode ? 'human' : 'earth';
     }
 
     function beginDrag() {
