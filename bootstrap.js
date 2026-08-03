@@ -26,8 +26,8 @@
 
   function loadScript(path) {
     const script = document.createElement('script');
+    script.async = false;
     script.src = `${path}?v=${BUILD}`;
-    script.async = true;
     document.head.appendChild(script);
   }
 
