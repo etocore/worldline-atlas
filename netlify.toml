@@ -39,6 +39,11 @@
   status = 200
 
 [[redirects]]
+  from = "/api/place-summary"
+  to = "/.netlify/functions/place-summary"
+  status = 200
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200

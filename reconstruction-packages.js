@@ -147,18 +147,23 @@ function bindReconstructionPackageInteractions() {
       const feature = event.features?.[0];
       if (!feature) return;
       const properties = feature.properties || {};
-      new maplibregl.Popup({ closeButton: true, maxWidth: '330px' })
-        .setLngLat(event.lngLat)
-        .setHTML(`
-          <strong class="popup-title">${escapeHtml(packageDef.title)}</strong>
-          <div class="popup-meta">
-            Foundation reconstruction package<br>
-            ${escapeHtml(properties.note || 'Research extent only.')}<br>
-            No historical boundary is claimed by this polygon.
-          </div>
-          <a class="popup-link" href="${escapeHtml(packageDef.manifestPath)}" target="_blank" rel="noreferrer">Open package manifest</a>
-        `)
-        .addTo(map);
+      const coordinates = [event.lngLat.lng, event.lngLat.lat];
+
+      if (typeof globalThis.openPlaceCard === 'function') {
+        globalThis.openPlaceCard({
+          name: packageDef.title,
+          eyebrow: 'Foundation reconstruction package',
+          subtitle: `Target year ${formatYear(packageDef.targetYear)}`,
+          range: formatYear(packageDef.targetYear),
+          confidence: 'Research extent only',
+          evidence: 'Placeholder geometry',
+          note: `${properties.note || 'Research extent only.'} No historical boundary, wall, or urban footprint is claimed by this polygon.`,
+          sourceUrl: packageDef.manifestPath,
+          wikiTitle: 'Ancient Rome',
+          wikidata: 'Q220',
+          coordinates
+        });
+      }
     });
 
     map.on('mouseenter', layerId, () => { map.getCanvas().style.cursor = 'pointer'; });
