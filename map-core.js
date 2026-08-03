@@ -1,7 +1,7 @@
 const CONFIG = {
   ohmStyleUrl: 'https://unpkg.com/@openhistoricalmap/map-styles@0.9.17/dist/historical/historical.json',
   satelliteTiles: ['https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg'],
-  minYear: -15000,
+  minYear: -300000,
   maxYear: 2026,
   wikidataMinZoom: 3,
   wikidataMaxWidth: 85,
@@ -57,7 +57,7 @@ const evidenceModes = [
   { key: 'broad', label: 'Broad', threshold: 0.38 }
 ];
 
-let selectedYear = 117;
+let selectedYear = -10000;
 let map;
 let mapReady = false;
 let ohmAvailable = false;
@@ -73,6 +73,7 @@ let catalogCount = 0;
 
 function formatYear(year) {
   const value = Math.trunc(Number(year));
+  if (value < -100000) return `${Math.abs(value).toLocaleString()} years ago`;
   if (value < 0) return `${Math.abs(value).toLocaleString()} BCE`;
   if (value === 0) return '1 BCE / 1 CE';
   return `${value.toLocaleString()} CE`;
@@ -271,59 +272,72 @@ function fallbackStyle() {
 
 async function prepareStyle() {
   try {
-    const response = await fetch(CONFIG.ohmStyleUrl, { mode: 'cors' });
-    if (!response.ok) throw new Error(`Historical style returned ${response.status}`);
-    const ohmStyle = await response.json();
-    const settlements = ohmStyle.layers.filter(isSettlementLayer).map(styleSettlementLayer);
-    const buildings = ohmStyle.layers.filter(isBuildingLayer).map(styleBuildingLayer);
-    const selectedLayers = [...buildings, ...settlements];
-    const usedSources = new Set(selectedLayers.map((layer) => layer.source).filter(Boolean));
-    const selectedSources = {};
-    usedSources.forEach((sourceName) => {
-      if (ohmStyle.sources[sourceName]) selectedSources[sourceName] = ohmStyle.sources[sourceName];
+    const response = await fetch(CONFIG.ohmStyleUrl, { cache: 'force-cache' });
+    if (!response.ok) throw new Error(`OpenHistoricalMap style returned ${response.status}`);
+    const sourceStyle = await response.json();
+    const sources = { ...(sourceStyle.sources || {}), satellite: satelliteSource() };
+    const retainedLayers = [];
+
+    (sourceStyle.layers || []).forEach((layer) => {
+      if (isSettlementLayer(layer)) {
+        const styled = styleSettlementLayer(layer);
+        retainedLayers.push(styled);
+        settlementLayerIds.push(styled.id);
+        originalFilters.set(styled.id, structuredClone(styled.filter || null));
+      } else if (isBuildingLayer(layer)) {
+        const styled = styleBuildingLayer(layer);
+        retainedLayers.push(styled);
+        buildingLayerIds.push(styled.id);
+        originalFilters.set(styled.id, structuredClone(styled.filter || null));
+      }
     });
 
-    settlementLayerIds = settlements.map((layer) => layer.id);
-    buildingLayerIds = buildings.map((layer) => layer.id);
-    selectedLayers.forEach((layer) => originalFilters.set(layer.id, layer.filter || null));
-    ohmAvailable = settlements.length > 0;
-
+    if (!retainedLayers.length) throw new Error('The historical style did not expose recognizable settlement layers.');
+    ohmAvailable = true;
     return {
       version: 8,
-      name: 'Worldline satellite settlement globe',
       ...globeStyleShell(),
-      glyphs: ohmStyle.glyphs,
-      sprite: ohmStyle.sprite,
-      sources: { satellite: satelliteSource(), ...selectedSources },
-      layers: [...baseLayers(), ...buildings, ...settlements]
+      sources,
+      glyphs: sourceStyle.glyphs,
+      sprite: sourceStyle.sprite,
+      layers: [...baseLayers(), ...retainedLayers]
     };
   } catch (error) {
     console.warn('OpenHistoricalMap style unavailable:', error);
     ohmAvailable = false;
     settlementLayerIds = [];
     buildingLayerIds = [];
+    originalFilters.clear();
     return fallbackStyle();
   }
 }
 
-function dateFilterFor(layerId) {
-  const baseFilter = originalFilters.get(layerId);
-  const dateClauses = [
-    ['has', 'start_decdate'],
-    ['<=', ['to-number', ['get', 'start_decdate']], selectedYear + 0.999],
-    ['>=', ['coalesce', ['to-number', ['get', 'end_decdate']], 999999], selectedYear]
+function combineFilters(original, temporal) {
+  return original ? ['all', original, temporal] : temporal;
+}
+
+function temporalFilterForYear() {
+  const year = selectedYear;
+  return [
+    'all',
+    [
+      'any',
+      ['!', ['has', 'start_decdate']],
+      ['<=', ['to-number', ['get', 'start_decdate']], year]
+    ],
+    [
+      'any',
+      ['!', ['has', 'end_decdate']],
+      ['>=', ['to-number', ['get', 'end_decdate']], year]
+    ]
   ];
-  return baseFilter ? ['all', baseFilter, ...dateClauses] : ['all', ...dateClauses];
 }
 
 function applyHistoricalDateFilter() {
   if (!mapReady || !ohmAvailable) return;
+  const temporal = temporalFilterForYear();
   [...settlementLayerIds, ...buildingLayerIds].forEach((layerId) => {
     if (!map.getLayer(layerId)) return;
-    try {
-      map.setFilter(layerId, dateFilterFor(layerId));
-    } catch (error) {
-      console.warn(`Could not date-filter layer ${layerId}`, error);
-    }
+    map.setFilter(layerId, combineFilters(originalFilters.get(layerId), temporal));
   });
 }
