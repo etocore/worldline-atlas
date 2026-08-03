@@ -44,7 +44,9 @@
   loadStyle('apple-controls.css');
   loadStyle('r9-polish.css');
   loadStyle('earth-history.css');
+  loadStyle('earth-ui-sync.css');
   loadScript('ui-adapters.js');
   loadScript('apple-controls-loader.js');
   loadScript('earth-history.js');
+  loadScript('earth-ui-sync.js');
 })();
