@@ -24,4 +24,5 @@ jobs:
           node --check data.js
           node --check map-core.js
           node --check map-layers.js
+          node --check reconstruction.js
           node --check netlify/functions/settlements.js
