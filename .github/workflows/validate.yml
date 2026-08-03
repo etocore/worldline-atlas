@@ -38,6 +38,7 @@ jobs:
           node --check history-presence-r14.js
           node --check mobile-search-snap-r15.js
           node --check time-control-r16.js
+          node --check research-foundation-r17.js
           node --check apple-controls-loader.js
           node --check apple-controls.js
           node --check earth-history.js
@@ -57,6 +58,7 @@ jobs:
           node --check scripts/validate-earth-history.mjs
           node --check scripts/validate-earth-cache.mjs
           node --check scripts/validate-history-engine.mjs
+          node --check scripts/validate-research-foundation.mjs
       - name: Validate reconstruction packages
         run: node scripts/validate-reconstructions.mjs
       - name: Validate UI wiring
@@ -69,3 +71,5 @@ jobs:
         run: node scripts/validate-earth-cache.mjs
       - name: Validate researched chronology and first-load presence
         run: node scripts/validate-history-engine.mjs
+      - name: Validate research foundation
+        run: node scripts/validate-research-foundation.mjs

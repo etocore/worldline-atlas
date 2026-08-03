@@ -1,0 +1,64 @@
+{
+  "version": "2026-08-03-globe-r17",
+  "release_policy": "The first visible globe must load from static, versioned assets or clearly labeled schematic fallbacks. Live services may refine only after the initial experience is interactive.",
+  "source_registry": "data/sources/registry.json",
+  "default_timeline": "earth",
+  "anchor_worlds": [
+    {
+      "id": "present-day",
+      "label": "Present day",
+      "time": { "timeline": "earth", "ageMa": 0 },
+      "status": "observed_reference",
+      "required_layers": ["observed_coastline", "terrain_reference", "land_cover_reference"],
+      "primary_sources": ["nasaEarth", "gplates-cao2024"],
+      "runtime_rule": "Use observed Earth as calibration and reference, not as a competing default mode."
+    },
+    {
+      "id": "last-glacial-maximum",
+      "label": "Last Glacial Maximum",
+      "time": { "timeline": "earth", "ageMa": 0.021 },
+      "status": "model_ensemble_target",
+      "required_layers": ["coastline", "ice", "exposed_shelf", "climate_context"],
+      "primary_sources": ["pmip", "gplates-cao2024", "smithsonian-human-origins"],
+      "runtime_rule": "Render ice, shelf exposure, and migration context as model-constrained, not observed."
+    },
+    {
+      "id": "end-cretaceous",
+      "label": "End-Cretaceous world",
+      "time": { "timeline": "earth", "ageMa": 66 },
+      "status": "deep_time_anchor",
+      "required_layers": ["coastline", "paleoelevation_candidate", "life_regions", "impact_context"],
+      "primary_sources": ["ics", "gplates-cao2024", "pbdb", "paleodem"],
+      "runtime_rule": "Show fauna and flora as representative evidence regions first; raw occurrences remain hidden until requested."
+    },
+    {
+      "id": "pangea-250ma",
+      "label": "Pangea",
+      "time": { "timeline": "earth", "ageMa": 250 },
+      "status": "deep_time_anchor",
+      "required_layers": ["coastline", "paleoelevation_candidate", "arid_interior_context", "life_regions"],
+      "primary_sources": ["ics", "gplates-cao2024", "pbdb", "paleodem"],
+      "runtime_rule": "This remains the default visual QA world until the globe reads as a finished product."
+    }
+  ],
+  "human_history_foundation": {
+    "starts_year": -300000,
+    "dense_after_year": -12000,
+    "coverage_principle": "Each major selected date should expose simultaneous regional lenses rather than a single civilization story.",
+    "required_lenses": ["Africa", "Americas", "Oceania", "East Asia", "South Asia", "Southeast Asia", "Central Asia", "Middle East", "Europe", "Arctic"]
+  },
+  "default_hidden_layers": [
+    "plate-boundary-debug",
+    "tectonic-vector-debug",
+    "raw-fossil-points",
+    "numbered-life-clusters",
+    "unreviewed-historical-boundaries"
+  ],
+  "performance_budget": {
+    "first_visible_globe_ms": 2500,
+    "first_interactive_ms": 3500,
+    "initial_transfer_mb": 3,
+    "timeline_chip_response_ms": 50,
+    "drag_main_thread_task_ms": 100
+  }
+}

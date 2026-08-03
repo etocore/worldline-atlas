@@ -1,0 +1,144 @@
+{
+  "version": "2026-08-03-r17",
+  "editorial_policy": "Authorities are used for chronology, geometry, place identity, and evidence. Wikipedia and LLM summaries may support readable context only and may not author dates, boundaries, geometry, or confidence claims.",
+  "tiers": {
+    "A": "Formal standards, primary scientific model documentation, peer-reviewed or institutionally maintained datasets used as authority.",
+    "B": "Curated academic gazetteers, museum/university collections, or scholarly synthesis used for context and place linkage.",
+    "C": "Community/open datasets useful when provenance is inspectable and claims remain bounded.",
+    "D": "Discovery and readable context only; never authoritative for atlas claims."
+  },
+  "sources": [
+    {
+      "id": "ics",
+      "name": "International Commission on Stratigraphy",
+      "tier": "A",
+      "domain": "geological_time",
+      "url": "https://stratigraphy.org/chart/",
+      "use": "Formal chronostratigraphic interval names and boundary ages.",
+      "license_status": "Published chart; verify current chart version before major release.",
+      "claim_authority": ["geological_interval", "boundary_age"],
+      "not_authority_for": ["paleogeography", "life_distribution", "human_history"],
+      "review_status": "approved"
+    },
+    {
+      "id": "gplates-cao2024",
+      "name": "GPlates CAO2024 reconstruction model",
+      "tier": "A",
+      "domain": "paleogeography",
+      "url": "https://gwsdoc.gplates.org/models/",
+      "use": "Pinned plate-reconstruction geometry from present to 1.8 Ga where supported.",
+      "license_status": "Model documentation and dataset terms must remain pinned by version.",
+      "claim_authority": ["plate_position", "reconstructed_coastline_model"],
+      "not_authority_for": ["climate", "biome", "exact_local_topography", "historical_boundaries"],
+      "review_status": "approved"
+    },
+    {
+      "id": "paleodem",
+      "name": "PaleoDEM / PALEOMAP elevation and bathymetry resources",
+      "tier": "A",
+      "domain": "paleotopography",
+      "url": "https://www.earthbyte.org/paleodem-resource-scotese-and-wright-2018/",
+      "use": "Candidate source for Phanerozoic elevation and bathymetry anchor worlds.",
+      "license_status": "Redistribution and derived-tile permissions require review before public shipping.",
+      "claim_authority": ["paleoelevation_candidate", "bathymetry_candidate"],
+      "not_authority_for": ["settlement", "species_range", "political_boundary"],
+      "review_status": "candidate"
+    },
+    {
+      "id": "pmip",
+      "name": "Paleoclimate Modelling Intercomparison Project",
+      "tier": "A",
+      "domain": "paleoclimate",
+      "url": "https://pmip.lsce.ipsl.fr/",
+      "use": "Model ensembles and benchmarks for selected paleoclimate intervals.",
+      "license_status": "Model outputs vary by project and repository; verify per dataset.",
+      "claim_authority": ["climate_model_ensemble", "ice_age_context"],
+      "not_authority_for": ["single_exact_climate_pixel", "settlement"],
+      "review_status": "approved"
+    },
+    {
+      "id": "pbdb",
+      "name": "Paleobiology Database",
+      "tier": "A",
+      "domain": "fossil_evidence",
+      "url": "https://paleobiodb.org/",
+      "use": "Fossil occurrence evidence used as discovery locations, not complete organism ranges.",
+      "license_status": "Open data; cite PBDB and contributing collections.",
+      "claim_authority": ["fossil_occurrence", "taxonomic_evidence"],
+      "not_authority_for": ["complete_species_range", "absence_from_blank_regions"],
+      "review_status": "approved"
+    },
+    {
+      "id": "smithsonian-human-origins",
+      "name": "Smithsonian Human Origins Program",
+      "tier": "A",
+      "domain": "human_evolution",
+      "url": "https://humanorigins.si.edu/",
+      "use": "Human evolution, dispersal, fossil, behavioral, and environmental context.",
+      "license_status": "Institutional educational source; quote and reuse restrictions must be respected.",
+      "claim_authority": ["human_evolution_context", "human_origins_milestone"],
+      "not_authority_for": ["political_history", "exact_migration_route"],
+      "review_status": "approved"
+    },
+    {
+      "id": "periodo",
+      "name": "PeriodO",
+      "tier": "A",
+      "domain": "period_definitions",
+      "url": "https://perio.do/",
+      "use": "Scholarly period definitions and authority-scoped labels.",
+      "license_status": "Open data; verify current API/data terms.",
+      "claim_authority": ["period_definition", "period_authority_scope"],
+      "not_authority_for": ["worldwide_synchronous_periodization"],
+      "review_status": "approved"
+    },
+    {
+      "id": "pleiades",
+      "name": "Pleiades",
+      "tier": "A",
+      "domain": "ancient_places",
+      "url": "https://pleiades.stoa.org/",
+      "use": "Ancient place names, locations, attestations, and linked references.",
+      "license_status": "CC BY 3.0 for published data; attribution required.",
+      "claim_authority": ["ancient_place_identity", "ancient_name"],
+      "not_authority_for": ["modern_boundary", "complete_settlement_extent"],
+      "review_status": "approved"
+    },
+    {
+      "id": "whg",
+      "name": "World Historical Gazetteer",
+      "tier": "A",
+      "domain": "historical_places",
+      "url": "https://whgazetteer.org/",
+      "use": "Linked historical place records and name reconciliation.",
+      "license_status": "Dataset terms vary by contributed source.",
+      "claim_authority": ["historical_place_linkage", "name_reconciliation"],
+      "not_authority_for": ["unreviewed_geometry_claim"],
+      "review_status": "approved"
+    },
+    {
+      "id": "openhistoricalmap",
+      "name": "OpenHistoricalMap",
+      "tier": "C",
+      "domain": "historical_map_features",
+      "url": "https://www.openhistoricalmap.org/",
+      "use": "Dated map features when tags, dates, and provenance are visible.",
+      "license_status": "ODbL-style terms; attribution and share-alike obligations require review for derived products.",
+      "claim_authority": ["dated_map_record_candidate"],
+      "not_authority_for": ["verified_reconstruction", "complete_global_coverage"],
+      "review_status": "approved_with_caveats"
+    },
+    {
+      "id": "wikipedia",
+      "name": "Wikipedia",
+      "tier": "D",
+      "domain": "readable_context",
+      "url": "https://www.wikipedia.org/",
+      "use": "Readable synopsis and discovery only.",
+      "license_status": "CC BY-SA content; avoid copying long text.",
+      "claim_authority": [],
+      "not_authority_for": ["date_authority", "geometry_authority", "confidence", "historical_boundary", "reconstruction_claim"],
+      "review_status": "context_only"
+    }
+  ]
+}

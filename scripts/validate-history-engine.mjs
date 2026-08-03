@@ -1,7 +1,7 @@
 import { access, readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 
-const BUILD = '2026-08-03-globe-r16';
+const BUILD = '2026-08-03-globe-r17';
 const PRESENCE_BUILD = '2026-08-03-globe-r14';
 const requiredFiles = ['history-catalog.js','history-engine.js','history-engine.css','history-presence-r14.js','history-presence-r14.css','docs/HISTORY_RESEARCH_FRAMEWORK.md'];
 const failures = [];
@@ -47,7 +47,7 @@ requireText(bootstrap,"loadScript('history-presence-r14.js')",'Bootstrap does no
 requireText(framework,'Avoid presenting European labels','The global-history periodization rule is missing');
 let version; try{version=JSON.parse(versionSource);}catch{failures.push('version.json is not valid JSON');}
 if(version?.build!==BUILD) failures.push(`version.json should be ${BUILD}`);
-if(!bootstrap.includes(BUILD)) failures.push(`The r16 production shell is missing ${BUILD}`);
+if(!bootstrap.includes(BUILD)) failures.push(`The r17 production shell is missing ${BUILD}`);
 if(!presence.includes(PRESENCE_BUILD)) failures.push(`The first-load history runtime is missing ${PRESENCE_BUILD}`);
 if(failures.length){console.error('History-engine validation failed:');failures.forEach((failure)=>console.error(`- ${failure}`));process.exit(1);}
-console.log('Researched chronology and first-load history presence are valid in r16.');
+console.log('Researched chronology and first-load history presence are valid in r17.');

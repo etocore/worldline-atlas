@@ -1,6 +1,6 @@
 import { access, readFile } from 'node:fs/promises';
 
-const CURRENT_BUILD = '2026-08-03-globe-r16';
+const CURRENT_BUILD = '2026-08-03-globe-r17';
 const LIFE_BUILD = '2026-08-03-globe-r12';
 const requiredFiles = [
   'earth-cache.js','life-evidence.js','life-regions-r12.css','r12-ui.js','apple-timeline-r11.css','apple-timeline-r11.js','scripts/cache-earth-data.mjs','.github/workflows/cache-earth-data.yml','data/earth/cache/manifest.json','data/earth/cache/life-66.json','data/earth/cache/life-100.json','data/earth/cache/life-250.json'
@@ -56,4 +56,4 @@ if(version?.build!==CURRENT_BUILD) failures.push(`version.json should be ${CURRE
 if(!bootstrap.includes(CURRENT_BUILD)) failures.push(`bootstrap.js is missing ${CURRENT_BUILD}`);
 for(const runtime of [lifeRuntime,r12Ui]) if(!runtime.includes(LIFE_BUILD)) failures.push(`An r12 life runtime is missing the ${LIFE_BUILD} marker`);
 if(failures.length){ console.error('Cached Earth and life-region validation failed:'); failures.forEach((failure)=>console.error(`- ${failure}`)); process.exit(1); }
-console.log('GitHub-cached Earth, illustrated life regions, evidence disclosure, and shared visual foundation are valid in r16.');
+console.log('GitHub-cached Earth, illustrated life regions, evidence disclosure, and shared visual foundation are valid in r17.');
