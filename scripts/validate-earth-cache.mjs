@@ -1,6 +1,7 @@
 import { access, readFile } from 'node:fs/promises';
 
-const BUILD = '2026-08-03-globe-r12';
+const CURRENT_BUILD = '2026-08-03-globe-r13';
+const LIFE_BUILD = '2026-08-03-globe-r12';
 const requiredFiles = [
   'earth-cache.js',
   'life-evidence.js',
@@ -89,7 +90,7 @@ if (lifeRuntime.includes('life-evidence-cluster-count') || lifeRuntime.includes(
 requireText(lifeStyle, '.life-item-art.life-leaf', 'Flora image cards are not styled');
 requireText(lifeStyle, '.life-item-art.life-fish', 'Marine-life image cards are not styled');
 requireText(lifeStyle, '.life-item-art.life-lizard', 'Land-fauna image cards are not styled');
-requireText(r12Ui, 'illustrated life regions', 'The about experience does not describe the new life presentation');
+requireText(r12Ui, 'illustrated life regions', 'The about experience does not describe the life presentation');
 
 requireText(timelineStyle, '.timeline-hud', 'The timeline material is missing');
 requireText(timelineStyle, 'backdrop-filter: blur(34px)', 'The timeline material blur is missing');
@@ -125,9 +126,10 @@ try {
 } catch {
   failures.push('version.json is not valid JSON');
 }
-if (version?.build !== BUILD) failures.push(`version.json should be ${BUILD}`);
-for (const runtime of [bootstrap, lifeRuntime, r12Ui]) {
-  if (!runtime.includes(BUILD)) failures.push(`An r12 runtime is missing the ${BUILD} marker`);
+if (version?.build !== CURRENT_BUILD) failures.push(`version.json should be ${CURRENT_BUILD}`);
+if (!bootstrap.includes(CURRENT_BUILD)) failures.push(`bootstrap.js is missing ${CURRENT_BUILD}`);
+for (const runtime of [lifeRuntime, r12Ui]) {
+  if (!runtime.includes(LIFE_BUILD)) failures.push(`An r12 life runtime is missing the ${LIFE_BUILD} marker`);
 }
 
 if (failures.length) {
@@ -136,4 +138,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('GitHub-cached Earth, illustrated life regions, evidence disclosure, and r12 UI are valid.');
+console.log('GitHub-cached Earth, illustrated life regions, evidence disclosure, and shared r12 visual foundation are valid.');
