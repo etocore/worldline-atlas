@@ -1,6 +1,6 @@
 import { readFile, access } from 'node:fs/promises';
 
-const BUILD = '2026-08-03-globe-r11';
+const BUILD = '2026-08-03-globe-r12';
 const requiredFiles = [
   'interaction-system.css',
   'interaction-system.js',
@@ -17,6 +17,9 @@ const requiredFiles = [
   'earth-era-context.js',
   'earth-ui-sync.css',
   'earth-ui-sync.js',
+  'life-regions-r12.css',
+  'r12-ui.js',
+  'life-evidence.js',
   'netlify/functions/place-summary.js',
   'netlify/functions/paleocoastlines.js'
 ];
@@ -39,7 +42,7 @@ const requiredIds = [
 
 const errors = [];
 
-async function requireFile(path) {
+for (const path of requiredFiles) {
   try {
     await access(path);
   } catch {
@@ -47,9 +50,23 @@ async function requireFile(path) {
   }
 }
 
-await Promise.all(requiredFiles.map(requireFile));
-
-const [html, bootstrap, netlify, version, appleControls, appleLoader, uiState, uiAdapters, searchIndex, earthHistory, earthContext, earthSync] = await Promise.all([
+const [
+  html,
+  bootstrap,
+  netlify,
+  version,
+  appleControls,
+  appleLoader,
+  uiState,
+  uiAdapters,
+  searchIndex,
+  earthHistory,
+  earthContext,
+  earthSync,
+  r12Ui,
+  r12Style,
+  lifeRuntime
+] = await Promise.all([
   readFile('index.html', 'utf8'),
   readFile('bootstrap.js', 'utf8'),
   readFile('netlify.toml', 'utf8'),
@@ -61,8 +78,15 @@ const [html, bootstrap, netlify, version, appleControls, appleLoader, uiState, u
   readFile('search-index.js', 'utf8'),
   readFile('earth-history.js', 'utf8'),
   readFile('earth-era-context.js', 'utf8'),
-  readFile('earth-ui-sync.js', 'utf8')
+  readFile('earth-ui-sync.js', 'utf8'),
+  readFile('r12-ui.js', 'utf8'),
+  readFile('life-regions-r12.css', 'utf8'),
+  readFile('life-evidence.js', 'utf8')
 ]);
+
+function requireText(source, text, message) {
+  if (!source.includes(text)) errors.push(message);
+}
 
 for (const id of requiredIds) {
   if (!html.includes(`id="${id}"`)) errors.push(`index.html is missing #${id}`);
@@ -84,7 +108,10 @@ for (const asset of [
   'earth-history.js',
   'earth-era-context.js',
   'earth-ui-sync.css',
-  'earth-ui-sync.js'
+  'earth-ui-sync.js',
+  'life-regions-r12.css',
+  'r12-ui.js',
+  'life-evidence.js'
 ]) {
   if (!bootstrap.includes(asset)) errors.push(`bootstrap.js does not load ${asset}`);
 }
@@ -97,41 +124,39 @@ if (!appleLoader.includes('apple-controls.js')) errors.push('apple-controls-load
 for (const runtimeId of ['timelineHud', 'timelinePrimarySlider', 'advancedControlsButton', 'searchSuggestions', 'searchCancel']) {
   if (!appleControls.includes(runtimeId)) errors.push(`apple-controls.js does not create #${runtimeId}`);
 }
-
-if (!appleControls.includes("setAttribute('role', 'combobox')")) {
-  errors.push('apple-controls.js does not configure the search field as a combobox');
-}
+requireText(appleControls, "setAttribute('role', 'combobox')", 'Search is not configured as a combobox');
 
 for (const surface of ['timeline', 'search', 'settings', 'place']) {
   if (!uiState.includes(`'${surface}'`)) errors.push(`ui-state.js does not define the ${surface} surface`);
 }
-
 for (const adapter of ["register('settings'", "register('place'"]) {
   if (!uiAdapters.includes(adapter)) errors.push(`ui-adapters.js is missing ${adapter}`);
 }
-
 for (const capability of ['SITE_ALIASES', 'PERIODS', 'TOPICS', 'parseYear', 'search(query']) {
   if (!searchIndex.includes(capability)) errors.push(`search-index.js is missing ${capability}`);
 }
-
 for (const capability of ['timelineModeControl', 'timelineMilestones', 'WorldlineEarthHistory', 'paleo-coastlines']) {
   if (!earthHistory.includes(capability)) errors.push(`earth-history.js is missing ${capability}`);
 }
-
 for (const capability of ['PANGEA_CONTEXT', 'earthInterval', 'nearMilestone', 'openActiveContext']) {
   if (!earthContext.includes(capability)) errors.push(`earth-era-context.js is missing ${capability}`);
 }
-
 for (const capability of ['earthModelPanel', 'earthModelGeometry', 'earthModelConfidence', 'earthModelStep']) {
   if (!earthSync.includes(capability)) errors.push(`earth-ui-sync.js is missing ${capability}`);
 }
 
-if (!netlify.includes('from = "/api/place-summary"')) {
-  errors.push('netlify.toml does not expose /api/place-summary');
-}
-if (!netlify.includes('from = "/api/paleocoastlines"')) {
-  errors.push('netlify.toml does not expose /api/paleocoastlines');
-}
+requireText(r12Ui, "document.body.classList.add('worldline-r12')", 'The r12 visual system is not activated');
+requireText(r12Ui, 'Search places, eras, or life', 'Search does not use the simplified r12 prompt');
+requireText(r12Ui, 'Open advanced timeline controls', 'Advanced timeline controls are not progressively disclosed');
+requireText(r12Style, '--wl-material', 'The unified r12 material tokens are missing');
+requireText(r12Style, '.search-shell[data-detent="compact"] .sheet-handle', 'Compact search still exposes the settings handle');
+requireText(r12Style, '.life-region-content', 'The regional life sheet is not styled');
+requireText(lifeRuntime, 'Life in this area', 'The regional life detail experience is missing');
+requireText(lifeRuntime, 'View fossil evidence', 'Raw fossil evidence is not progressively disclosed');
+
+requireText(netlify, 'from = "/api/place-summary"', 'Netlify does not expose /api/place-summary');
+requireText(netlify, 'from = "/api/paleocoastlines"', 'Netlify does not expose /api/paleocoastlines');
+requireText(netlify, 'Cache-Control = "public, max-age=0, must-revalidate"', 'Static assets are not configured to revalidate when the shell keeps an older query marker');
 
 let parsedVersion;
 try {
@@ -139,14 +164,9 @@ try {
 } catch {
   errors.push('version.json is not valid JSON');
 }
-
-if (parsedVersion && parsedVersion.build !== BUILD) {
-  errors.push(`version.json build should be ${BUILD}, found ${parsedVersion.build}`);
-}
-
-if (!bootstrap.includes(BUILD)) errors.push(`bootstrap.js is missing the ${BUILD} marker`);
-if (!html.includes('2026-08-03-globe-r11') || !html.includes('20260803r11')) {
-  errors.push('index.html does not expose the r11 build and cache markers');
+if (parsedVersion?.build !== BUILD) errors.push(`version.json build should be ${BUILD}, found ${parsedVersion?.build}`);
+for (const source of [bootstrap, r12Ui, lifeRuntime]) {
+  if (!source.includes(BUILD)) errors.push(`An r12 runtime is missing the ${BUILD} marker`);
 }
 
 if (errors.length) {
@@ -155,4 +175,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Unified UI, historical search, and Earth History wiring are valid.');
+console.log('Unified r12 UI, search, timeline, place sheet, and life-region wiring are valid.');
