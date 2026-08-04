@@ -124,6 +124,8 @@ jobs:
           node --check scripts/validate-timeline-controller.mjs
           node --check scripts/validate-surface-engine.mjs
           node --check scripts/validate-ios-interface.mjs
+          node --check playwright.config.mjs
+          node --check tests/e2e/ios-interface.spec.mjs
       - name: Check Python builders
         run: python -m py_compile scripts/build_surface_worlds.py
       - name: Validate reconstruction packages
@@ -146,3 +148,31 @@ jobs:
         run: node scripts/validate-surface-engine.mjs
       - name: Validate iOS interface architecture
         run: node scripts/validate-ios-interface.mjs
+
+  mobile-interface:
+    name: Mobile WebKit interface
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install pinned browser test dependency
+        run: npm install --no-audit --no-fund
+      - name: Install pinned WebKit browser
+        run: npx playwright install --with-deps webkit
+      - name: Run compact iPhone, large iPhone, and iPad regressions
+        run: npm run test:mobile
+      - name: Upload browser failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-webkit-failure-${{ github.sha }}
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+          retention-days: 14
