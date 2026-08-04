@@ -1,0 +1,104 @@
+/* Worldline r24 - persistent, momentum-preserving interval bubbles. */
+.worldline-r24-rail.timeline-interval-rail {
+  position: relative;
+  gap: 6px;
+  margin-inline: -14px;
+  padding: 0 14px 5px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-behavior: smooth;
+  scroll-padding-inline: 22px;
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
+}
+
+.worldline-r24-rail.timeline-interval-rail.is-user-scrolling {
+  cursor: grabbing;
+}
+
+.worldline-r24-rail .timeline-interval-bubble {
+  flex: 0 0 auto;
+  min-width: max-content;
+  min-height: 36px;
+  padding: 0 13px;
+  border: .5px solid rgba(255, 255, 255, .055);
+  border-radius: 18px;
+  color: rgba(235, 235, 245, .68);
+  background: rgba(118, 118, 128, .16);
+  box-shadow: inset 0 .5px rgba(255, 255, 255, .035);
+  font: 600 .76rem/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  white-space: nowrap;
+  transform: translateZ(0);
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 120ms ease;
+}
+
+.worldline-r24-rail .timeline-interval-bubble.is-group-start {
+  margin-left: 8px;
+}
+
+.worldline-r24-rail .timeline-interval-bubble:first-child {
+  margin-left: 0;
+}
+
+.worldline-r24-rail .timeline-interval-bubble:hover {
+  color: rgba(255, 255, 255, .9);
+  background: rgba(118, 118, 128, .24);
+}
+
+.worldline-r24-rail .timeline-interval-bubble:active {
+  transform: scale(.97);
+}
+
+.worldline-r24-rail .timeline-interval-bubble[aria-pressed="true"],
+.worldline-r24-rail .timeline-interval-bubble.is-active {
+  color: #fff;
+  border-color: rgba(100, 210, 255, .28);
+  background: rgba(10, 132, 255, .92);
+  box-shadow:
+    0 2px 8px rgba(0, 64, 160, .28),
+    inset 0 .5px rgba(255, 255, 255, .18);
+}
+
+.worldline-r24-rail .timeline-interval-bubble:focus-visible {
+  outline: 3px solid rgba(100, 210, 255, .72);
+  outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+  .worldline-r24-rail.timeline-interval-rail {
+    margin-inline: -12px;
+    padding-inline: 12px;
+  }
+
+  .worldline-r24-rail .timeline-interval-bubble {
+    min-height: 38px;
+    padding-inline: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .worldline-r24-rail.timeline-interval-rail {
+    scroll-behavior: auto;
+  }
+
+  .worldline-r24-rail .timeline-interval-bubble {
+    transition-duration: .01ms;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .worldline-r24-rail .timeline-interval-bubble {
+    border-color: rgba(255, 255, 255, .22);
+  }
+
+  .worldline-r24-rail .timeline-interval-bubble[aria-pressed="true"] {
+    border-color: #fff;
+  }
+}
