@@ -42,6 +42,39 @@ test('uses the selected period as the scrubber scale', async ({ page }) => {
   expect(committed).toBeLessThan(87);
 });
 
+test('keeps Human History increasing from left to right under the legacy Safari rule', async ({ page }) => {
+  await page.addStyleTag({ url: 'http://127.0.0.1:4173/earth-history.css' });
+  await page.addStyleTag({ url: 'http://127.0.0.1:4173/human-scrubber-r26.css' });
+
+  const slider = page.locator('#timelinePrimarySlider');
+  await page.evaluate(() => {
+    document.body.dataset.timelineMode = 'human';
+    WorldlineTimelineState.setHumanYear(1824, { source: 'r26-test' });
+  });
+
+  const earlier = await slider.evaluate((element) => ({
+    value: Number(element.value),
+    direction: getComputedStyle(element).direction,
+    progress: element.style.getPropertyValue('--timeline-progress')
+  }));
+  expect(earlier.direction).toBe('ltr');
+  expect(earlier.value).toBe(106);
+  expect(earlier.progress).toBe('10.6%');
+  await expect(page.locator('#timelineHudValue')).toHaveText('1,824 CE');
+  await expect(page.locator('#timelineRangeStart')).toHaveText('1,800 CE');
+  await expect(page.locator('#timelineRangeEnd')).toHaveText('Present');
+
+  await page.evaluate(() => WorldlineTimelineState.setHumanYear(1995, { source: 'r26-test' }));
+  const later = await slider.evaluate((element) => Number(element.value));
+  expect(later).toBe(863);
+  expect(later).toBeGreaterThan(earlier.value);
+  await expect(page.locator('#timelineHudValue')).toHaveText('1,995 CE');
+
+  await page.evaluate(() => WorldlineTimelineState.setHumanYear(2026, { source: 'r26-test' }));
+  await expect(slider).toHaveValue('1000');
+  await expect(page.locator('#timelineHudValue')).toHaveText('Present');
+});
+
 test('restores the committed date when a scrub is canceled', async ({ page }) => {
   await page.evaluate(() => WorldlineTimelineState.setEarthAge(120, { source: 'test' }));
   const slider = page.locator('#timelinePrimarySlider');
