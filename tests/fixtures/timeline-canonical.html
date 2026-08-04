@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Worldline canonical timeline fixture</title>
   <link rel="stylesheet" href="../../styles.css" />
+  <link rel="stylesheet" href="../../mobile/base.css" />
+  <link rel="stylesheet" href="../../mobile/sheets.css" />
+  <link rel="stylesheet" href="../../mobile/quality.css" />
   <link rel="stylesheet" href="../../mobile/surfaces.css" />
   <link rel="stylesheet" href="../../search/search.css" />
   <link rel="stylesheet" href="../../earth-history.css" />
@@ -69,19 +72,30 @@
 
   <script>
     window.__fixtureSourceUpdates = [];
+    window.__fixtureSourceRemovals = [];
+    window.__fixturePreviewDelay = 120;
     window.map = {
       getSource(id) {
         if (id !== 'paleo-coastlines') return null;
         return { setData(collection) { window.__fixtureSourceUpdates.push(collection); } };
-      }
+      },
+      removeSource(id) { window.__fixtureSourceRemovals.push({ type: 'source', id }); },
+      removeLayer(id) { window.__fixtureSourceRemovals.push({ type: 'layer', id }); }
     };
-    window.fetch = async (input) => {
+    window.fetch = (input, init = {}) => {
       const url = String(input);
-      if (url.includes('/api/paleocoastlines')) {
-        const time = Number(new URL(url, location.origin).searchParams.get('time'));
-        return { ok: true, async json() { return { time, collection: { type: 'FeatureCollection', features: [] } }; } };
-      }
-      return { ok: true, async json() { return {}; } };
+      if (!url.includes('/api/paleocoastlines')) return Promise.resolve({ ok: true, async json() { return {}; } });
+      const time = Number(new URL(url, location.origin).searchParams.get('time'));
+      return new Promise((resolve, reject) => {
+        const finish = () => resolve({ ok: true, async json() { return { time, collection: { type: 'FeatureCollection', features: [] } }; } });
+        const timer = setTimeout(finish, window.__fixturePreviewDelay);
+        const abort = () => {
+          clearTimeout(timer);
+          reject(new DOMException('Aborted', 'AbortError'));
+        };
+        if (init.signal?.aborted) abort();
+        else init.signal?.addEventListener('abort', abort, { once: true });
+      });
     };
 
     let earthMode = 'earth';
@@ -142,9 +156,11 @@
   <script src="../../timeline/model.js"></script>
   <script src="../../timeline/state.js"></script>
   <script src="../../timeline/view.js"></script>
+  <script src="../../performance/timeline.js"></script>
   <script>
     const readyTimer = setInterval(() => {
       if (window.__WORLDLINE_TIMELINE_BUILD__ !== '2026-08-04-globe-r28') return;
+      if (window.__WORLDLINE_PERFORMANCE_BUILD__ !== '2026-08-04-globe-r30') return;
       clearInterval(readyTimer);
       document.body.dataset.fixtureReady = 'true';
     }, 20);
