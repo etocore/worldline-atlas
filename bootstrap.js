@@ -1,5 +1,5 @@
 (() => {
-  const BUILD = '2026-08-04-globe-r28';
+  const BUILD = '2026-08-04-globe-r29';
   const nativeFetch = window.fetch.bind(window);
   window.fetch = (input, init = {}) => {
     const url = typeof input === 'string' ? input : input?.url || '';
@@ -40,31 +40,30 @@
   loadScript('timeline/state.js');
   loadScript('landmark-visibility.js');
 
-  loadStyle('apple-controls.css');
   loadStyle('r9-polish.css');
   loadStyle('earth-history.css');
   loadStyle('earth-ui-sync.css');
   loadStyle('life-regions-r12.css');
   loadStyle('history-engine.css');
   loadStyle('history-presence-r14.css');
-  loadStyle('mobile-search-snap-r15.css');
   loadStyle('research-foundation-r17.css');
   loadStyle('surface-engine-r20.css');
-  loadStyle('ios-interface-r21.css');
-  loadStyle('interface-reduction-r22.css');
+  loadStyle('mobile/quality.css');
+  loadStyle('mobile/surfaces.css');
+  loadStyle('search/search.css');
   loadStyle('timeline/timeline.css');
 
   loadScript('ui-adapters.js');
-  loadScript('apple-controls-loader.js');
   loadScript('earth-history.js');
   loadScript('earth-era-context.js');
   loadScript('earth-ui-sync.js');
   loadScript('r12-ui.js');
   loadScript('life-evidence.js');
   loadScript('history-presence-r14.js');
-  loadScript('mobile-search-snap-r15.js');
   loadScript('research-foundation-r17.js');
   loadScript('surface-engine-r20.js');
-  loadScript('ios-interface-r21.js');
+  loadScript('mobile/quality.js');
+  loadScript('search/search.js');
+  loadScript('search/viewport.js');
   loadScript('timeline/view.js');
 })();
