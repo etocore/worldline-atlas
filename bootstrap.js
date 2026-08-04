@@ -65,5 +65,6 @@
   loadScript('mobile/quality.js');
   loadScript('search/search.js');
   loadScript('search/viewport.js');
+  loadScript('search/compat.js');
   loadScript('timeline/view.js');
 })();
