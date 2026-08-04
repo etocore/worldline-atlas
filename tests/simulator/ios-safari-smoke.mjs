@@ -98,6 +98,7 @@ function sessionCapabilities() {
     'appium:noReset': true,
     'appium:autoLaunch': false,
     'appium:newCommandTimeout': 300,
+    'appium:simulatorStartupTimeout': 300_000,
     'appium:wdaLaunchTimeout': 600_000,
     'appium:wdaConnectionTimeout': 600_000,
     'appium:wdaStartupRetries': 1,
