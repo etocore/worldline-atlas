@@ -42,6 +42,23 @@ test('uses the selected period as the scrubber scale', async ({ page }) => {
   expect(committed).toBeLessThan(87);
 });
 
+test('restores the committed date when a scrub is canceled', async ({ page }) => {
+  await page.evaluate(() => WorldlineTimelineState.setEarthAge(120, { source: 'test' }));
+  const slider = page.locator('#timelinePrimarySlider');
+
+  await slider.evaluate((element) => {
+    element.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerId: 7 }));
+    element.value = '850';
+    element.dispatchEvent(new Event('input', { bubbles: true }));
+    element.dispatchEvent(new PointerEvent('pointercancel', { bubbles: true, pointerId: 7 }));
+  });
+
+  await expect(page.locator('#timelineHudValue')).toHaveText('120 Ma');
+  const state = await page.evaluate(() => WorldlineTimelineState.getState());
+  expect(state.earthAgeMa).toBe(120);
+  expect(state.interaction).toBe('idle');
+});
+
 test('selecting a neighboring period changes the local scale', async ({ page }) => {
   await page.evaluate(() => WorldlineTimelineState.setEarthAge(120, { source: 'test' }));
   await page.getByRole('button', { name: 'Jurassic' }).click();
@@ -81,7 +98,9 @@ test('keeps the active timeline compact and anchored to the bottom', async ({ pa
       bottomGap: window.innerHeight - rect.bottom,
       left: rect.left,
       right: rect.right,
-      viewportWidth: window.innerWidth
+      viewportWidth: window.innerWidth,
+      documentScrollX: window.scrollX,
+      railScrollLeft: document.querySelector('#timelineIntervalRail').scrollLeft
     };
   });
 
@@ -90,6 +109,8 @@ test('keeps the active timeline compact and anchored to the bottom', async ({ pa
   expect(geometry.bottomGap).toBeLessThan(30);
   expect(geometry.left).toBeGreaterThanOrEqual(7);
   expect(geometry.right).toBeLessThanOrEqual(geometry.viewportWidth - 7);
+  expect(geometry.documentScrollX).toBe(0);
+  expect(geometry.railScrollLeft).toBeGreaterThanOrEqual(0);
 });
 
 test('settings contains only contextual reconstruction controls on Earth history', async ({ page }) => {
