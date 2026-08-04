@@ -143,12 +143,17 @@
     searchShell = document.querySelector('.search-shell');
     if (!slider || !searchInput || !searchShell || !globalThis.WorldlineEarthHistory) return false;
 
-    slider.addEventListener('change', snapTimeline);
-    slider.addEventListener('pointerup', snapTimeline);
-    slider.addEventListener('touchend', snapTimeline, { passive: true });
-    slider.addEventListener('keyup', (event) => {
-      if (['ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown'].includes(event.key)) snapTimeline();
-    });
+    const r18OwnsTimeline = Boolean(globalThis.WorldlineTimelineState);
+    if (!r18OwnsTimeline) {
+      slider.addEventListener('change', snapTimeline);
+      slider.addEventListener('pointerup', snapTimeline);
+      slider.addEventListener('touchend', snapTimeline, { passive: true });
+      slider.addEventListener('keyup', (event) => {
+        if (['ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown'].includes(event.key)) snapTimeline();
+      });
+    } else {
+      window.__WORLDLINE_R15_SNAP_DELEGATED_TO_R18__ = true;
+    }
 
     searchInput.addEventListener('focus', lockSearchViewport);
     const observer = new MutationObserver(syncSearchState);
