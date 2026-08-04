@@ -1,5 +1,5 @@
 (() => {
-  const BUILD = '2026-08-04-globe-r18';
+  const BUILD = '2026-08-04-globe-r19';
   const nativeFetch = window.fetch.bind(window);
   window.fetch = (input, init = {}) => {
     const url = typeof input === 'string' ? input : input?.url || '';
