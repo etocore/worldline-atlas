@@ -1,0 +1,20 @@
+/* Worldline r26 - keep local human-history chapters chronological on Safari. */
+
+/*
+ * earth-history.css reverses the original global human timeline because its
+ * legacy nonlinear storage runs newest-to-oldest. The r23 chapter scrubber
+ * stores each chapter oldest-to-newest, so inheriting that RTL rule makes the
+ * visible control move backward. Own both the native direction and painted
+ * progress track for the replacement local slider.
+ */
+body.worldline-r23-navigation[data-timeline-mode="human"] .timeline-local-slider {
+  direction: ltr;
+}
+
+body.worldline-r23-navigation[data-timeline-mode="human"] .timeline-local-slider::-webkit-slider-runnable-track {
+  background: linear-gradient(90deg,
+    var(--apple-blue) 0,
+    var(--apple-blue) var(--timeline-progress),
+    rgba(118, 118, 128, .34) var(--timeline-progress),
+    rgba(118, 118, 128, .34) 100%);
+}
