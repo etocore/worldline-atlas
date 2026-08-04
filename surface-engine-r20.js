@@ -20,6 +20,7 @@
   let surfaceBadge = null;
   let previousTerrain = null;
   let terrainCaptured = false;
+  let previewSuspended = false;
 
   function atlasMap() {
     try {
@@ -67,6 +68,10 @@
     return generatedWorlds().find((world) => worldContains(world, mode, value)) || null;
   }
 
+  function activeWorld() {
+    return manifest?.worlds?.find((world) => world.id === activeWorldId) || null;
+  }
+
   function cacheBusted(template, world) {
     const separator = template.includes('?') ? '&' : '?';
     return `${template}${separator}v=${encodeURIComponent(world.generatedAt || BUILD)}`;
@@ -94,17 +99,25 @@
     return snapshot.value > 1800 ? 'Schematic Earth' : 'Reconstructed Earth';
   }
 
-  function setBadge(world, loading = false) {
+  function setBadge(world, loading = false, previewing = false) {
     const badge = ensureBadge();
     if (badge) {
       badge.hidden = !world;
       badge.dataset.loading = String(Boolean(loading));
-      badge.textContent = loading
-        ? 'Loading reconstructed relief'
-        : 'Paleoelevation + ocean depth';
+      badge.textContent = previewing
+        ? 'Previewing reconstructed coastlines'
+        : loading
+          ? 'Loading reconstructed relief'
+          : 'Paleoelevation + ocean depth';
     }
     const topBadge = document.querySelector('#surfaceBadge');
-    if (topBadge) topBadge.textContent = world ? 'PaleoDEM surface' : defaultTopBadge();
+    if (topBadge) {
+      topBadge.textContent = previewing
+        ? 'Coastline preview'
+        : world
+          ? 'PaleoDEM surface'
+          : defaultTopBadge();
+    }
   }
 
   function rememberAndHideTechnicalLayers(mapInstance) {
@@ -153,9 +166,7 @@
     });
   }
 
-  function restoreFlatSurface(mapInstance) {
-    removeSurfaceLayers(mapInstance, true);
-    restoreTechnicalLayers(mapInstance);
+  function showVectorReconstruction(mapInstance) {
     if (mapInstance.getLayer('paleo-land-fill')) {
       mapInstance.setPaintProperty('paleo-land-fill', 'fill-opacity', FLAT_LAND_OPACITY);
     }
@@ -163,13 +174,64 @@
       mapInstance.setPaintProperty('paleo-coastline-line', 'line-opacity', FLAT_COASTLINE_OPACITY);
       mapInstance.setPaintProperty('paleo-coastline-line', 'line-width', FLAT_COASTLINE_WIDTH);
     }
+  }
+
+  function hideVectorReconstruction(mapInstance) {
+    if (mapInstance.getLayer('paleo-land-fill')) {
+      mapInstance.setPaintProperty('paleo-land-fill', 'fill-opacity', 0);
+    }
+    if (mapInstance.getLayer('paleo-coastline-line')) {
+      mapInstance.setPaintProperty('paleo-coastline-line', 'line-opacity', 0);
+    }
+  }
+
+  function restoreFlatSurface(mapInstance) {
+    removeSurfaceLayers(mapInstance, true);
+    restoreTechnicalLayers(mapInstance);
+    showVectorReconstruction(mapInstance);
     activeWorldId = null;
+    previewSuspended = false;
     delete document.body.dataset.surfaceWorld;
+    delete document.body.dataset.surfacePreview;
     setBadge(null);
   }
 
+  function restoreInstalledWorldVisuals(mapInstance, world) {
+    if (!world || !mapInstance.getLayer(LAYER_COLOR) || !mapInstance.getLayer(LAYER_HILLSHADE)) return false;
+    mapInstance.setPaintProperty(LAYER_COLOR, 'raster-opacity', 0.99);
+    mapInstance.setPaintProperty(LAYER_HILLSHADE, 'hillshade-exaggeration', 0.19);
+    if (mapInstance.getSource(SOURCE_DEM)) {
+      mapInstance.setTerrain?.({ source: SOURCE_DEM, exaggeration: 0.16 });
+    }
+    hideVectorReconstruction(mapInstance);
+    rememberAndHideTechnicalLayers(mapInstance);
+    previewSuspended = false;
+    delete document.body.dataset.surfacePreview;
+    setBadge(world, false);
+    return true;
+  }
+
+  function suspendForPreview() {
+    if (previewSuspended) return;
+    const mapInstance = atlasMap();
+    const world = activeWorld();
+    if (!mapInstance || !world || !mapInstance.isStyleLoaded?.()) return;
+
+    previewSuspended = true;
+    document.body.dataset.surfacePreview = 'true';
+    if (mapInstance.getLayer(LAYER_COLOR)) {
+      mapInstance.setPaintProperty(LAYER_COLOR, 'raster-opacity', 0.16);
+    }
+    if (mapInstance.getLayer(LAYER_HILLSHADE)) {
+      mapInstance.setPaintProperty(LAYER_HILLSHADE, 'hillshade-exaggeration', 0);
+    }
+    disableSurfaceTerrain(mapInstance, false);
+    showVectorReconstruction(mapInstance);
+    setBadge(world, false, true);
+  }
+
   function installWorld(mapInstance, world) {
-    if (activeWorldId === world.id && mapInstance.getLayer(LAYER_COLOR) && mapInstance.getLayer(LAYER_HILLSHADE)) return;
+    if (activeWorldId === world.id && restoreInstalledWorldVisuals(mapInstance, world)) return;
     captureTerrain(mapInstance);
     removeSurfaceLayers(mapInstance, false);
     setBadge(world, true);
@@ -222,16 +284,13 @@
 
     // The raster package contains its own shoreline. Hiding the CAO2024 fill and
     // edge prevents two different reconstruction models from producing a double coast.
-    if (mapInstance.getLayer('paleo-land-fill')) {
-      mapInstance.setPaintProperty('paleo-land-fill', 'fill-opacity', 0);
-    }
-    if (mapInstance.getLayer('paleo-coastline-line')) {
-      mapInstance.setPaintProperty('paleo-coastline-line', 'line-opacity', 0);
-    }
+    hideVectorReconstruction(mapInstance);
 
     rememberAndHideTechnicalLayers(mapInstance);
     activeWorldId = world.id;
+    previewSuspended = false;
     document.body.dataset.surfaceWorld = world.id;
+    delete document.body.dataset.surfacePreview;
     setBadge(world, false);
 
     mapInstance.once('idle', () => {
@@ -242,6 +301,7 @@
   }
 
   function applySurface() {
+    if (previewSuspended) return;
     const mapInstance = atlasMap();
     const snapshot = timelineSnapshot();
     if (!mapInstance || !snapshot || !mapInstance.isStyleLoaded?.()) return;
@@ -257,6 +317,12 @@
   function scheduleSurfaceUpdate(delay = 0) {
     clearTimeout(updateTimer);
     updateTimer = window.setTimeout(applySurface, delay);
+  }
+
+  function settleSurfaceAfterTimeline() {
+    previewSuspended = false;
+    delete document.body.dataset.surfacePreview;
+    scheduleSurfaceUpdate(0);
   }
 
   async function loadManifest() {
@@ -277,8 +343,9 @@
     initializingPromise = (async () => {
       try {
         await loadManifest();
-        ['worldline:timeline-preview', 'worldline:timeline-commit', 'worldline:timeline-domain', 'worldline:timeline-mode'].forEach((eventName) => {
-          window.addEventListener(eventName, () => scheduleSurfaceUpdate(eventName.includes('preview') ? 70 : 0));
+        window.addEventListener('worldline:timeline-preview', suspendForPreview);
+        ['worldline:timeline-commit', 'worldline:timeline-domain', 'worldline:timeline-mode'].forEach((eventName) => {
+          window.addEventListener(eventName, settleSurfaceAfterTimeline);
         });
         mapInstance.on('styledata', () => scheduleSurfaceUpdate(0));
         mapInstance.on('load', () => scheduleSurfaceUpdate(0));
@@ -287,7 +354,8 @@
         globalThis.WorldlineSurfaceEngine = Object.freeze({
           BUILD,
           getManifest: () => manifest,
-          getActiveWorld: () => manifest?.worlds?.find((world) => world.id === activeWorldId) || null,
+          getActiveWorld: () => activeWorld(),
+          getPreviewSuspended: () => previewSuspended,
           refresh: () => scheduleSurfaceUpdate(0)
         });
         window.__WORLDLINE_SURFACE_ENGINE_BUILD__ = BUILD;
