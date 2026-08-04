@@ -241,7 +241,11 @@
     rail.addEventListener('pointerup', finishInteraction, { passive: true });
     rail.addEventListener('pointercancel', finishInteraction, { passive: true });
     rail.addEventListener('scroll', () => {
-      if (userInteracting) lastManualScrollAt = performance.now();
+      // Any scroll takes ownership from an auto-center frame. This includes
+      // touch momentum, keyboard scrolling, assistive scrolling, and browser
+      // scroll adjustments that do not arrive with a pointer held down.
+      centerRequestToken += 1;
+      lastManualScrollAt = performance.now();
     }, { passive: true });
 
     rail.addEventListener('wheel', (event) => {
