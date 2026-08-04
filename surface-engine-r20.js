@@ -7,12 +7,16 @@
   const SOURCE_DEM = 'worldline-surface-dem';
   const LAYER_COLOR = 'worldline-surface-color';
   const LAYER_HILLSHADE = 'worldline-surface-hillshade';
-  const DEFAULT_FILL_OPACITY = 1;
+  const FLAT_LAND_OPACITY = 1;
+  const FLAT_COASTLINE_OPACITY = 0.92;
+  const FLAT_COASTLINE_WIDTH = ['interpolate', ['linear'], ['zoom'], 0, 0.65, 5, 1.7, 9, 2.4];
+  const SURFACE_COASTLINE_WIDTH = ['interpolate', ['linear'], ['zoom'], 0, 0.35, 5, 1.05, 9, 1.5];
   const hiddenTechnicalLayers = new Map();
 
   let manifest = null;
   let activeWorldId = null;
   let installed = false;
+  let initializingPromise = null;
   let updateTimer = 0;
   let surfaceBadge = null;
 
@@ -59,10 +63,7 @@
   }
 
   function nearestWorld(mode, value) {
-    const candidates = generatedWorlds().filter((world) => world.mode === mode);
-    const containing = candidates.find((world) => worldContains(world, mode, value));
-    if (containing) return containing;
-    return null;
+    return generatedWorlds().find((world) => worldContains(world, mode, value)) || null;
   }
 
   function cacheBusted(template, world) {
@@ -72,8 +73,7 @@
 
   function insertionLayer(mapInstance) {
     if (mapInstance.getLayer('paleo-coastline-line')) return 'paleo-coastline-line';
-    const firstSymbol = mapInstance.getStyle()?.layers?.find((layer) => layer.type === 'symbol');
-    return firstSymbol?.id;
+    return mapInstance.getStyle()?.layers?.find((layer) => layer.type === 'symbol')?.id;
   }
 
   function ensureBadge() {
@@ -87,6 +87,12 @@
     return surfaceBadge;
   }
 
+  function defaultTopBadge(snapshot = timelineSnapshot()) {
+    if (!snapshot) return 'Reconstructed Earth';
+    if (snapshot.mode === 'human') return 'Reconstructed landscape';
+    return snapshot.value > 1800 ? 'Schematic Earth' : 'Reconstructed Earth';
+  }
+
   function setBadge(world, loading = false) {
     const badge = ensureBadge();
     if (badge) {
@@ -97,14 +103,13 @@
         : 'Paleoelevation + ocean depth';
     }
     const topBadge = document.querySelector('#surfaceBadge');
-    if (topBadge && world) topBadge.textContent = 'PaleoDEM surface';
+    if (topBadge) topBadge.textContent = world ? 'PaleoDEM surface' : defaultTopBadge();
   }
 
   function rememberAndHideTechnicalLayers(mapInstance) {
     const layers = mapInstance.getStyle()?.layers || [];
     layers.forEach((layer) => {
-      if (layer.type !== 'line') return;
-      if (/coastline/i.test(layer.id)) return;
+      if (layer.type !== 'line' || /coastline/i.test(layer.id)) return;
       if (!/(plate|tectonic|topolog|static[-_ ]?polygon|reconstruction[-_ ]?(line|boundary))/i.test(layer.id)) return;
       if (!hiddenTechnicalLayers.has(layer.id)) {
         hiddenTechnicalLayers.set(layer.id, mapInstance.getLayoutProperty(layer.id, 'visibility') || 'visible');
@@ -133,10 +138,11 @@
     removeSurfaceLayers(mapInstance);
     restoreTechnicalLayers(mapInstance);
     if (mapInstance.getLayer('paleo-land-fill')) {
-      mapInstance.setPaintProperty('paleo-land-fill', 'fill-opacity', DEFAULT_FILL_OPACITY);
+      mapInstance.setPaintProperty('paleo-land-fill', 'fill-opacity', FLAT_LAND_OPACITY);
     }
     if (mapInstance.getLayer('paleo-coastline-line')) {
-      mapInstance.setPaintProperty('paleo-coastline-line', 'line-opacity', 0.92);
+      mapInstance.setPaintProperty('paleo-coastline-line', 'line-opacity', FLAT_COASTLINE_OPACITY);
+      mapInstance.setPaintProperty('paleo-coastline-line', 'line-width', FLAT_COASTLINE_WIDTH);
     }
     activeWorldId = null;
     delete document.body.dataset.surfaceWorld;
@@ -144,7 +150,7 @@
   }
 
   function installWorld(mapInstance, world) {
-    if (activeWorldId === world.id && mapInstance.getLayer(LAYER_COLOR)) return;
+    if (activeWorldId === world.id && mapInstance.getLayer(LAYER_COLOR) && mapInstance.getLayer(LAYER_HILLSHADE)) return;
     removeSurfaceLayers(mapInstance);
     setBadge(world, true);
 
@@ -197,9 +203,7 @@
     }
     if (mapInstance.getLayer('paleo-coastline-line')) {
       mapInstance.setPaintProperty('paleo-coastline-line', 'line-opacity', 0.48);
-      mapInstance.setPaintProperty('paleo-coastline-line', 'line-width', [
-        'interpolate', ['linear'], ['zoom'], 0, 0.35, 5, 1.05, 9, 1.5
-      ]);
+      mapInstance.setPaintProperty('paleo-coastline-line', 'line-width', SURFACE_COASTLINE_WIDTH);
     }
 
     rememberAndHideTechnicalLayers(mapInstance);
@@ -207,12 +211,11 @@
     document.body.dataset.surfaceWorld = world.id;
     setBadge(world, false);
 
-    const announce = () => {
+    mapInstance.once('idle', () => {
       window.dispatchEvent(new CustomEvent('worldline:surface-world-ready', {
         detail: { world, build: BUILD }
       }));
-    };
-    mapInstance.once('idle', announce);
+    });
   }
 
   function applySurface() {
@@ -221,7 +224,8 @@
     if (!mapInstance || !snapshot || !mapInstance.isStyleLoaded?.()) return;
     const world = nearestWorld(snapshot.mode, snapshot.value);
     if (!world) {
-      if (activeWorldId) restoreFlatSurface(mapInstance);
+      if (activeWorldId || mapInstance.getLayer(LAYER_COLOR)) restoreFlatSurface(mapInstance);
+      else setBadge(null);
       return;
     }
     installWorld(mapInstance, world);
@@ -243,31 +247,38 @@
 
   async function initialize() {
     if (installed) return true;
+    if (initializingPromise) return initializingPromise;
     const mapInstance = atlasMap();
     if (!mapInstance || !globalThis.WorldlineEarthHistory || !globalThis.WorldlineTimelineState) return false;
-    try {
-      await loadManifest();
-    } catch (error) {
-      console.warn('Historical surface manifest unavailable:', error);
-      return false;
-    }
 
-    ['worldline:timeline-preview', 'worldline:timeline-commit', 'worldline:timeline-domain', 'worldline:timeline-mode'].forEach((eventName) => {
-      window.addEventListener(eventName, () => scheduleSurfaceUpdate(eventName.includes('preview') ? 70 : 0));
-    });
-    mapInstance.on('styledata', () => scheduleSurfaceUpdate(0));
-    mapInstance.on('load', () => scheduleSurfaceUpdate(0));
+    initializingPromise = (async () => {
+      try {
+        await loadManifest();
+        ['worldline:timeline-preview', 'worldline:timeline-commit', 'worldline:timeline-domain', 'worldline:timeline-mode'].forEach((eventName) => {
+          window.addEventListener(eventName, () => scheduleSurfaceUpdate(eventName.includes('preview') ? 70 : 0));
+        });
+        mapInstance.on('styledata', () => scheduleSurfaceUpdate(0));
+        mapInstance.on('load', () => scheduleSurfaceUpdate(0));
 
-    installed = true;
-    globalThis.WorldlineSurfaceEngine = Object.freeze({
-      BUILD,
-      getManifest: () => manifest,
-      getActiveWorld: () => manifest?.worlds?.find((world) => world.id === activeWorldId) || null,
-      refresh: () => scheduleSurfaceUpdate(0)
-    });
-    window.__WORLDLINE_SURFACE_ENGINE_BUILD__ = BUILD;
-    scheduleSurfaceUpdate(0);
-    return true;
+        installed = true;
+        globalThis.WorldlineSurfaceEngine = Object.freeze({
+          BUILD,
+          getManifest: () => manifest,
+          getActiveWorld: () => manifest?.worlds?.find((world) => world.id === activeWorldId) || null,
+          refresh: () => scheduleSurfaceUpdate(0)
+        });
+        window.__WORLDLINE_SURFACE_ENGINE_BUILD__ = BUILD;
+        scheduleSurfaceUpdate(0);
+        return true;
+      } catch (error) {
+        console.warn('Historical surface manifest unavailable:', error);
+        return false;
+      } finally {
+        initializingPromise = null;
+      }
+    })();
+
+    return initializingPromise;
   }
 
   const installer = window.setInterval(() => {
