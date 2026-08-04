@@ -191,6 +191,8 @@
 .place-close { background: rgba(118, 118, 128, .2); }
 
 .place-facts {
+  width: 100%;
+  min-width: 0;
   gap: 0;
   margin: 13px 0 15px;
   border-top: .5px solid var(--worldline-section-line);
@@ -198,12 +200,16 @@
 }
 
 .place-fact {
+  min-width: 0;
   min-height: 38px;
   padding: 0 10px;
+  overflow: hidden;
   border: 0;
   border-radius: 0;
   background: transparent;
   font-size: .68rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .place-fact + .place-fact { border-left: .5px solid var(--worldline-section-line); }
