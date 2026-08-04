@@ -3,6 +3,7 @@
 
   const BUILD = '2026-08-04-globe-r25';
   const UNIT_PATTERN = /\b(\d[\d,]*(?:\.\d+)?)\s*(Ga|Ma|ka)\b/g;
+  const UNIT_DETECTOR = /\b\d[\d,]*(?:\.\d+)?\s*(?:Ga|Ma|ka)\b/;
   const ROOT_SELECTORS = [
     '#timelineHud',
     '#controlPanel',
@@ -31,7 +32,7 @@
       acceptNode(node) {
         const parent = node.parentElement;
         if (!parent || parent.closest('script, style, template')) return NodeFilter.FILTER_REJECT;
-        return UNIT_PATTERN.test(node.nodeValue || '')
+        return UNIT_DETECTOR.test(node.nodeValue || '')
           ? NodeFilter.FILTER_ACCEPT
           : NodeFilter.FILTER_REJECT;
       }
