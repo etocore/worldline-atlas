@@ -89,24 +89,24 @@ jobs:
           node --check reconstruction.js
           node --check reconstruction-packages.js
           node --check bootstrap.js
-          node --check mobile-polish.js
-          node --check interaction-system.js
           node --check landmark-visibility.js
           node --check ui-state.js
           node --check ui-adapters.js
           node --check search-index.js
+          node --check search/search.js
+          node --check search/viewport.js
+          node --check search/compat.js
+          node --check mobile/runtime.js
+          node --check mobile/sheets.js
+          node --check mobile/quality.js
           node --check history-catalog.js
           node --check history-engine.js
           node --check history-presence-r14.js
-          node --check mobile-search-snap-r15.js
           node --check research-foundation-r17.js
           node --check timeline/model.js
           node --check timeline/state.js
           node --check timeline/view.js
           node --check surface-engine-r20.js
-          node --check ios-interface-r21.js
-          node --check apple-controls-loader.js
-          node --check apple-controls.js
           node --check earth-history.js
           node --check earth-era-context.js
           node --check earth-ui-sync.js
@@ -152,7 +152,7 @@ jobs:
         run: node scripts/validate-research-foundation.mjs
       - name: Validate historical surface worlds
         run: node scripts/validate-surface-engine.mjs
-      - name: Validate iOS interface architecture
+      - name: Validate canonical mobile interface architecture
         run: node scripts/validate-ios-interface.mjs
 
   mobile-interface:
