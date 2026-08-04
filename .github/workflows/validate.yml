@@ -193,7 +193,7 @@ jobs:
           - slug: ipad
             device: iPad (10th generation)
     env:
-      APPIUM_HOME: ${{ runner.temp }}/worldline-appium
+      APPIUM_HOME: ${{ github.workspace }}/.appium
       PLATFORM_VERSION: '18.5'
       TARGET_URL: http://127.0.0.1:4173/tests/fixtures/ios-interface.html
       ARTIFACT_DIR: simulator-artifacts/${{ matrix.slug }}
