@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '2026-08-04-globe-r21';
+  const BUILD = '2026-08-04-globe-r29';
   const RESTORE_FOCUS_REASONS = new Set([
     'escape',
     'timeline-close-button',
