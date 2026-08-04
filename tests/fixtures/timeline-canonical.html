@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Worldline canonical timeline fixture</title>
+  <link rel="stylesheet" href="../../styles.css" />
+  <link rel="stylesheet" href="../../mobile/surfaces.css" />
+  <link rel="stylesheet" href="../../search/search.css" />
+  <link rel="stylesheet" href="../../earth-history.css" />
+  <link rel="stylesheet" href="../../timeline/timeline.css" />
+  <style>
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #020305; }
+    .map-stage { position: relative; width: 100%; height: 100%; overflow: hidden; }
+    .fixture-map { position: absolute; inset: 0; background: radial-gradient(circle at 50% 38%, #153b56, #06101a 48%, #010203 100%); }
+    .map-identity { position: absolute; z-index: 10; top: 18px; left: 18px; display: flex; }
+    .brand-orb { width: 48px; height: 48px; border-radius: 50%; }
+    .search-shell { position: absolute; z-index: 8; left: 50%; bottom: 10px; width: min(520px, calc(100% - 20px)); transform: translateX(-50%); }
+    .search-row { min-height: 52px; border-radius: 26px; background: rgba(24, 24, 27, .94); }
+    .search-shell:not(.is-open) .control-panel { display: none; }
+    button, input { font: inherit; }
+  </style>
+</head>
+<body data-ui-surface="none">
+  <main class="map-stage" aria-label="Timeline fixture map">
+    <div class="fixture-map" aria-hidden="true"></div>
+    <div class="map-identity">
+      <button id="brandButton" class="brand-orb" type="button">W</button>
+      <button id="yearButton" class="year-chip" type="button">
+        <span id="eraLabel">Earth history</span>
+        <strong id="yearLabel">250 Ma</strong>
+      </button>
+    </div>
+
+    <section id="searchShell" class="search-shell" data-detent="compact" aria-label="Search and settings">
+      <div class="search-row"><input id="historySearch" type="search" aria-label="Search" /></div>
+      <div id="controlPanel" class="control-panel">
+        <header class="panel-header">
+          <div><p class="panel-kicker">Worldline Atlas</p><h1 id="timelineDate">250 Ma</h1></div>
+          <div class="panel-actions">
+            <span id="sourceStatus">Sources ready</span>
+            <button id="aboutButton" type="button">i</button>
+            <button id="sheetClose" type="button">×</button>
+          </div>
+        </header>
+        <p class="era-summary">Legacy summary.</p>
+        <div class="metric-grid"><div><span>Visible</span><strong>10</strong></div></div>
+        <p class="coverage-message">Legacy coverage.</p>
+        <div class="timeline-block"><input type="range" /></div>
+        <div class="quick-years"><button type="button">117 CE</button></div>
+        <section class="surface-control">Legacy surface selector.</section>
+        <div class="control-grid">
+          <div class="control-block">
+            <label for="evidenceSlider"><span>Reconstruction tolerance</span><strong>Balanced</strong></label>
+            <input id="evidenceSlider" type="range" min="0" max="2" value="1" />
+            <div class="range-ends"><span>Strict</span><span>Broad</span></div>
+          </div>
+          <fieldset class="layer-block">
+            <legend>Human history layers</legend>
+            <label><span>Dated map records</span><input type="checkbox" checked /></label>
+            <label><span>Reviewed sites</span><input type="checkbox" checked /></label>
+          </fieldset>
+        </div>
+        <div class="legend">Legacy legend</div>
+        <p class="imagery-note">Legacy explanation.</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    window.__fixtureSourceUpdates = [];
+    window.map = {
+      getSource(id) {
+        if (id !== 'paleo-coastlines') return null;
+        return { setData(collection) { window.__fixtureSourceUpdates.push(collection); } };
+      }
+    };
+    window.fetch = async (input) => {
+      const url = String(input);
+      if (url.includes('/api/paleocoastlines')) {
+        const time = Number(new URL(url, location.origin).searchParams.get('time'));
+        return { ok: true, async json() { return { time, collection: { type: 'FeatureCollection', features: [] } }; } };
+      }
+      return { ok: true, async json() { return {}; } };
+    };
+
+    let earthMode = 'earth';
+    let earthAge = 250;
+    let humanYear = -10000;
+    window.WorldlineEarthHistory = {
+      getMode: () => earthMode,
+      getEarthAgeMa: () => earthAge,
+      getHumanYear: () => humanYear,
+      setMode(value) { earthMode = value; },
+      setEarthAge(value) { earthAge = Number(value); },
+      setHumanYear(value) { humanYear = Number(value); }
+    };
+
+    const adapters = new Map();
+    const uiListeners = new Set();
+    let activeSurface = 'none';
+    window.WorldlineUI = {
+      register(name, adapter) { adapters.set(name, adapter); },
+      activate(name, payload, meta = {}) {
+        const previous = { active: activeSurface };
+        adapters.forEach((adapter, key) => { if (key !== name) adapter.close?.({ replacedBy: name }); });
+        adapters.get(name)?.open?.(payload, meta);
+        activeSurface = name;
+        document.body.dataset.uiSurface = name;
+        uiListeners.forEach((listener) => listener({ active: name, reason: meta.reason || 'activate' }, previous));
+      },
+      close(name, meta = {}) {
+        const previous = { active: activeSurface };
+        adapters.get(name)?.close?.(meta);
+        if (activeSurface === name) activeSurface = 'none';
+        document.body.dataset.uiSurface = activeSurface;
+        uiListeners.forEach((listener) => listener({ active: activeSurface, reason: meta.reason || 'close' }, previous));
+      },
+      isOpen(name) { return Boolean(adapters.get(name)?.isOpen?.()); },
+      subscribe(listener) { uiListeners.add(listener); return () => uiListeners.delete(listener); }
+    };
+
+    const searchShell = document.querySelector('#searchShell');
+    const sheetClose = document.querySelector('#sheetClose');
+    WorldlineUI.register('settings', {
+      open() {
+        searchShell.classList.add('is-open');
+        searchShell.dataset.detent = 'expanded';
+        sheetClose.setAttribute('aria-label', 'Close settings');
+      },
+      close() {
+        searchShell.classList.remove('is-open');
+        searchShell.dataset.detent = 'compact';
+      },
+      isOpen() { return searchShell.classList.contains('is-open'); }
+    });
+    sheetClose.addEventListener('click', () => WorldlineUI.close('settings', { reason: 'settings-close-button' }));
+
+    window.__WORLDLINE_SEARCH_BUILD__ = 'fixture-search-controls';
+    window.__WORLDLINE_APPLE_CONTROLS_BUILD__ = window.__WORLDLINE_SEARCH_BUILD__;
+  </script>
+  <script src="../../timeline/model.js"></script>
+  <script src="../../timeline/state.js"></script>
+  <script src="../../timeline/view.js"></script>
+  <script>
+    const readyTimer = setInterval(() => {
+      if (window.__WORLDLINE_TIMELINE_BUILD__ !== '2026-08-04-globe-r28') return;
+      clearInterval(readyTimer);
+      document.body.dataset.fixtureReady = 'true';
+    }, 20);
+  </script>
+</body>
+</html>

@@ -3,25 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Worldline iOS interface fixture</title>
+  <title>Worldline canonical mobile fixture</title>
   <link rel="stylesheet" href="../../styles.css" />
-  <link rel="stylesheet" href="../../mobile-polish.css" />
-  <link rel="stylesheet" href="../../interaction-system.css" />
-  <link rel="stylesheet" href="../../apple-controls.css" />
-  <link rel="stylesheet" href="../../ios-interface-r21.css" />
-  <link rel="stylesheet" href="../../interface-reduction-r22.css" />
+  <link rel="stylesheet" href="../../mobile/base.css" />
+  <link rel="stylesheet" href="../../mobile/sheets.css" />
+  <link rel="stylesheet" href="../../mobile/quality.css" />
+  <link rel="stylesheet" href="../../mobile/surfaces.css" />
+  <link rel="stylesheet" href="../../search/search.css" />
   <style>
     html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #050506; }
     .map-stage { position: relative; width: 100%; height: 100%; overflow: hidden; }
     .fixture-map { position: absolute; inset: 0; background: radial-gradient(circle at 50% 42%, #1b4260, #07131f 56%, #020507 100%); }
     .map-identity { position: absolute; top: max(12px, env(safe-area-inset-top)); left: 12px; z-index: 5; display: flex; gap: 8px; }
-    .map-tool-stack { position: absolute; right: 12px; top: max(12px, env(safe-area-inset-top)); z-index: 5; }
+    .brand-orb, .year-chip, .map-tool { min-height: 44px; }
+    .brand-orb, .map-tool { min-width: 44px; }
+    .map-tool-stack { position: absolute; right: 12px; top: max(12px, env(safe-area-inset-top)); z-index: 5; transition: opacity .18s ease; }
     .search-shell { position: absolute; z-index: 8; left: 50%; bottom: calc(10px + env(safe-area-inset-bottom)); width: min(680px, calc(100% - 20px)); transform: translateX(-50%); }
     .search-shell:not(.is-open) .control-panel { display: none; }
     .search-suggestions { position: absolute; z-index: 7; left: 10px; right: 10px; bottom: 78px; display: none; }
     .search-suggestions[data-open="true"] { display: block; }
-    .timeline-hud { position: absolute; z-index: 7; left: 50%; top: 72px; display: none; }
+    .timeline-hud { position: absolute; z-index: 7; left: 50%; top: 72px; display: none; transform: translateX(-50%); }
     .timeline-hud[data-open="true"] { display: block; }
+    .timeline-hud-close { width: 44px; height: 44px; }
     button, input { font: inherit; }
   </style>
 </head>
@@ -39,21 +42,8 @@
     </div>
 
     <section id="timelineHud" class="timeline-hud" data-open="false" aria-label="Timeline">
-      <header class="timeline-hud-header">
-        <div>
-          <p class="timeline-hud-kicker">Selected time</p>
-          <p class="timeline-hud-value">117 CE</p>
-        </div>
-        <button class="timeline-hud-close" type="button" aria-label="Close timeline">×</button>
-      </header>
-      <div class="timeline-slider-row">
-        <button class="timeline-play" type="button" aria-label="Play timeline">▶</button>
-        <input class="timeline-primary-slider" type="range" min="0" max="100" value="50" aria-label="Historical time" />
-      </div>
-      <div class="timeline-hud-footer">
-        <p class="timeline-hud-era">Roman Empire at its greatest extent</p>
-        <button class="timeline-more-button" type="button">More controls</button>
-      </div>
+      <button class="timeline-hud-close" type="button" aria-label="Close timeline">×</button>
+      <p>117 CE</p>
     </section>
 
     <section id="searchSuggestions" class="search-suggestions" data-open="false" aria-label="Search suggestions">
@@ -63,7 +53,6 @@
           <strong class="search-suggestion-title">Rome</strong>
           <span class="search-suggestion-subtitle">Historical city · 117 CE</span>
         </span>
-        <span class="search-suggestion-chevron" aria-hidden="true">›</span>
       </button>
     </section>
 
@@ -77,18 +66,13 @@
       </div>
       <div id="controlPanel" class="control-panel">
         <header class="panel-header">
-          <div>
-            <p class="panel-kicker">Worldline Atlas</p>
-            <h1>117 CE</h1>
-          </div>
+          <div><p class="panel-kicker">Worldline Atlas</p><h1>117 CE</h1></div>
           <div class="panel-actions">
             <span class="status-pill ready">Sources ready</span>
             <button id="sheetClose" class="round-button" type="button" aria-label="Collapse controls">×</button>
           </div>
         </header>
-
         <p class="era-summary">The Roman Empire reached its greatest territorial extent under Trajan.</p>
-
         <div class="metric-grid" aria-label="Map status">
           <div><span>Visible records</span><strong>128</strong></div>
           <div><span>Evidence mode</span><strong>Balanced</strong></div>
@@ -96,31 +80,9 @@
           <div><span>Surface</span><strong>Reconstructed</strong></div>
         </div>
         <p class="coverage-message">Evidence coverage varies by region and period.</p>
-
-        <div class="timeline-block">
-          <div class="timeline-heading">
-            <label for="fixtureTimeline">Exact year</label>
-            <label class="year-entry"><input type="number" value="117" aria-label="Exact year" /></label>
-          </div>
-          <div class="timeline-row">
-            <button class="play-button" type="button" aria-label="Play human timeline">▶</button>
-            <input id="fixtureTimeline" type="range" min="-300000" max="2026" value="117" aria-label="Human-history year" />
-          </div>
-        </div>
-
-        <div class="quick-years" aria-label="Jump to a historical period">
-          <button class="quick-year" type="button">10,000 BCE</button>
-          <button class="quick-year active" type="button">117 CE</button>
-          <button class="quick-year" type="button">Present</button>
-        </div>
-
-        <section class="surface-control" aria-label="Earth surface">
-          <div class="surface-control-copy">
-            <div><span>Earth surface</span><strong>Reconstructed Earth</strong></div>
-            <p>Observed imagery is a reference input.</p>
-          </div>
-        </section>
-
+        <div class="timeline-block"><input id="fixtureTimeline" type="range" min="-300000" max="2026" value="117" aria-label="Human-history year" /></div>
+        <div class="quick-years"><button type="button">117 CE</button></div>
+        <section class="surface-control">Observed imagery is a reference input.</section>
         <div class="control-grid">
           <div class="control-block">
             <label for="fixtureRange"><span>Reconstruction tolerance</span><strong>Balanced</strong></label>
@@ -134,8 +96,7 @@
             <label><input type="checkbox" /> Dated buildings</label>
           </fieldset>
         </div>
-
-        <div class="legend" aria-label="Map legend"><span>Reviewed evidence</span><span>Lower confidence</span></div>
+        <div class="legend"><span>Reviewed evidence</span></div>
         <p class="imagery-note">Reconstruction layers remain distinct from observed imagery.</p>
       </div>
     </section>
@@ -177,19 +138,12 @@
     window.mapReady = false;
     window.map = null;
     window.settlementLayerIds = [];
-    window.fetch = async () => ({
-      ok: true,
-      async json() {
-        return { extract: 'Fixture historical context.', pageUrl: '', thumbnail: '' };
-      }
-    });
-
+    window.fetch = async () => ({ ok: true, async json() { return { extract: 'Fixture historical context.', pageUrl: '', thumbnail: '' }; } });
     window.dom = {
       searchShell: document.querySelector('#searchShell'),
       sheetHandle: document.querySelector('#sheetHandle'),
       historySearch: document.querySelector('#historySearch')
     };
-
     window.setSheetOpen = function setSheetOpen(open, { focus = false } = {}) {
       const next = Boolean(open);
       dom.searchShell.classList.toggle('is-open', next);
@@ -199,55 +153,41 @@
     };
   </script>
   <script src="../../ui-state.js"></script>
-  <script src="../../interaction-system.js"></script>
+  <script src="../../mobile/sheets.js"></script>
   <script src="../../ui-adapters.js"></script>
-  <script src="../../ios-interface-r21.js"></script>
+  <script src="../../mobile/quality.js"></script>
   <script>
     (() => {
       let surfacesRegistered = false;
-
       function registerFixtureSurfaces() {
         if (surfacesRegistered || !window.WorldlineUI) return;
         surfacesRegistered = true;
-
         WorldlineUI.register('timeline', {
           open() { document.querySelector('#timelineHud').dataset.open = 'true'; },
           close() { document.querySelector('#timelineHud').dataset.open = 'false'; },
           isOpen() { return document.querySelector('#timelineHud').dataset.open === 'true'; }
         });
-
         WorldlineUI.register('search', {
           open(payload = {}) {
             document.querySelector('#searchSuggestions').dataset.open = 'true';
+            document.body.classList.add('search-active');
             if (payload.focus !== false) document.querySelector('#historySearch').focus();
           },
           close() {
             document.querySelector('#searchSuggestions').dataset.open = 'false';
+            document.body.classList.remove('search-active');
             document.querySelector('#historySearch').blur();
           },
           isOpen() { return document.querySelector('#searchSuggestions').dataset.open === 'true'; }
         });
-
-        document.querySelector('#yearButton').addEventListener('click', () => {
-          WorldlineUI.activate('timeline', null, { reason: 'timeline-button' });
-        });
-        document.querySelector('.timeline-hud-close').addEventListener('click', () => {
-          WorldlineUI.close('timeline', { reason: 'timeline-close-button' });
-        });
+        document.querySelector('#yearButton').addEventListener('click', () => WorldlineUI.activate('timeline', null, { reason: 'timeline-button' }));
+        document.querySelector('.timeline-hud-close').addEventListener('click', () => WorldlineUI.close('timeline', { reason: 'timeline-close-button' }));
         document.querySelector('#brandButton').addEventListener('click', () => window.setSheetOpen(true));
-        document.querySelector('#historySearch').addEventListener('focus', () => {
-          WorldlineUI.activate('search', { focus: false }, { reason: 'search-focus' });
-        });
+        document.querySelector('#historySearch').addEventListener('focus', () => WorldlineUI.activate('search', { focus: false }, { reason: 'search-focus' }));
       }
-
       const readyTimer = setInterval(() => {
         registerFixtureSurfaces();
-        if (
-          surfacesRegistered &&
-          window.__WORLDLINE_INTERACTION_BUILD__ &&
-          window.__WORLDLINE_UI_ADAPTERS_BUILD__ &&
-          window.__WORLDLINE_IOS_INTERFACE_BUILD__
-        ) {
+        if (surfacesRegistered && window.__WORLDLINE_INTERACTION_BUILD__ && window.__WORLDLINE_UI_ADAPTERS_BUILD__ && window.__WORLDLINE_IOS_INTERFACE_BUILD__) {
           clearInterval(readyTimer);
           document.body.dataset.fixtureReady = 'true';
         }
