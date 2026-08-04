@@ -1,5 +1,5 @@
 (() => {
-  const BUILD = '2026-08-04-globe-r29';
+  const BUILD = '2026-08-04-globe-r30';
   const nativeFetch = window.fetch.bind(window);
   window.fetch = (input, init = {}) => {
     const url = typeof input === 'string' ? input : input?.url || '';
@@ -67,4 +67,5 @@
   loadScript('search/viewport.js');
   loadScript('search/compat.js');
   loadScript('timeline/view.js');
+  loadScript('performance/timeline.js');
 })();
