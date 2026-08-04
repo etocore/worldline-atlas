@@ -1,7 +1,6 @@
 import { access, readFile } from 'node:fs/promises';
 
 const failures = [];
-const BUILD = '2026-08-04-globe-r19';
 const required = [
   'atlas-timeline-state-r18.js',
   'atlas-timeline-r18.js',
@@ -43,9 +42,10 @@ function requireText(source, text, message) {
 
 let version;
 try { version = JSON.parse(versionSource); } catch { failures.push('version.json is not valid JSON'); }
+const currentBuild = version?.build;
+if (!/^2026-08-04-globe-r\d+$/.test(currentBuild || '')) failures.push('version.json has an invalid release build identifier');
+if (currentBuild && !bootstrap.includes(currentBuild)) failures.push(`bootstrap.js should use ${currentBuild} as its cache key`);
 
-if (version?.build !== BUILD) failures.push(`version.json should be ${BUILD}`);
-if (!bootstrap.includes(BUILD)) failures.push(`bootstrap.js should use ${BUILD} as its cache key`);
 for (const asset of ['atlas-timeline-state-r18.js', 'atlas-timeline-r18.js', 'atlas-timeline-r18.css']) {
   requireText(bootstrap, asset, `bootstrap.js does not load ${asset}`);
 }
@@ -93,7 +93,7 @@ for (const token of [
 }
 
 requireText(mobileRuntime, '__WORLDLINE_R15_SNAP_DELEGATED_TO_R18__', 'r15 snap listeners are not delegated to r18 when present');
-requireText(mobileRuntime, "const BUILD = '2026-08-04-globe-r19'", 'Mobile viewport runtime is not on r19');
+requireText(mobileRuntime, "const BUILD = '2026-08-04-globe-r19'", 'Mobile viewport runtime is not on the verified r19 repair');
 requireText(mobileRuntime, 'window.visualViewport', 'Mobile search does not bind to the visual viewport');
 requireText(mobileRuntime, 'setTimeout(positionSearch, 240)', 'Mobile search does not follow the iOS keyboard animation');
 requireText(timeRuntime, 'WorldlineTimelineState', 'time-control search bridge does not use r18 state');

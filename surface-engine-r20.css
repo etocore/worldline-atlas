@@ -1,0 +1,60 @@
+:root {
+  --worldline-surface-badge-bg: rgba(100, 210, 255, .12);
+  --worldline-surface-badge-text: rgba(218, 246, 255, .9);
+}
+
+.worldline-surface-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  min-height: 21px;
+  max-width: 100%;
+  margin-top: 3px;
+  padding: 4px 8px;
+  overflow: hidden;
+  border: .5px solid rgba(100, 210, 255, .18);
+  border-radius: 999px;
+  color: var(--worldline-surface-badge-text);
+  background: var(--worldline-surface-badge-bg);
+  font: 600 .59rem/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  letter-spacing: -.005em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.worldline-surface-badge[data-loading="true"]::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  margin-right: 6px;
+  border: 1.5px solid rgba(218, 246, 255, .28);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: worldline-surface-spin .72s linear infinite;
+}
+
+body[data-surface-world] .timeline-era-card {
+  background: linear-gradient(180deg, rgba(118, 118, 128, .17), rgba(82, 82, 88, .12));
+}
+
+body[data-surface-world] #map {
+  filter: saturate(1.035) contrast(1.015);
+}
+
+@keyframes worldline-surface-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 720px) {
+  .worldline-surface-badge {
+    min-height: 20px;
+    padding: 4px 7px;
+    font-size: .57rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .worldline-surface-badge[data-loading="true"]::before {
+    animation: none;
+  }
+}
