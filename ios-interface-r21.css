@@ -1,89 +1,71 @@
-/* Worldline r21 - native sheet physics and interaction hierarchy. */
+/* Worldline r21 - iOS quality rules layered over the existing interaction system. */
 :root {
-  --worldline-touch-target: 44px;
-  --worldline-sheet-peek: min(28dvh, 260px);
-  --worldline-sheet-medium: min(62dvh, 620px);
-  --worldline-sheet-large: calc(100dvh - max(12px, env(safe-area-inset-top)) - 12px);
+  --worldline-min-hit: 44px;
+  --worldline-focus-ring: rgba(10, 132, 255, .88);
 }
 
-.worldline-touch-target { min-width: var(--worldline-touch-target); min-height: var(--worldline-touch-target); }
-input.worldline-touch-target[type="range"] { min-height: var(--worldline-touch-target); }
-
-body[data-ui-surface]:not([data-ui-surface="none"]) .maplibregl-ctrl-group { opacity: .34; transition: opacity .2s ease; }
-body[data-ui-blocking="true"] .maplibregl-ctrl-group { pointer-events: none; }
-body.worldline-sheet-gesture { user-select: none; -webkit-user-select: none; }
-
-#searchShell.is-open,
-#placeSheet[data-detent]:not([data-detent="closed"]) {
-  transform: translate3d(0, var(--worldline-sheet-drag-y, 0), 0);
-  transition: transform .42s cubic-bezier(.32,.72,0,1), max-height .42s cubic-bezier(.32,.72,0,1), top .42s cubic-bezier(.32,.72,0,1);
-  will-change: transform;
+.worldline-hit-square {
+  min-inline-size: var(--worldline-min-hit);
+  min-block-size: var(--worldline-min-hit);
 }
 
-#searchShell.worldline-sheet-dragging,
-#placeSheet.worldline-sheet-dragging { transition: none !important; }
-
-#searchShell.is-open[data-detent="peek"] .control-panel,
-#placeSheet[data-detent="peek"] { max-height: var(--worldline-sheet-peek) !important; }
-
-#searchShell.is-open[data-detent="medium"] .control-panel,
-#placeSheet[data-detent="medium"] { max-height: var(--worldline-sheet-medium) !important; }
-
-#searchShell.is-open[data-detent="large"],
-#placeSheet[data-detent="large"] {
-  top: max(12px, env(safe-area-inset-top)) !important;
-  bottom: 12px !important;
+.worldline-hit-height {
+  min-block-size: var(--worldline-min-hit);
 }
 
-#searchShell.is-open[data-detent="large"] .control-panel,
-#placeSheet[data-detent="large"] { max-height: var(--worldline-sheet-large) !important; }
+.worldline-slider-hit {
+  min-block-size: var(--worldline-min-hit);
+}
 
-#searchShell.is-open[data-detent="peek"] .control-grid,
-#searchShell.is-open[data-detent="peek"] .layer-block,
-#searchShell.is-open[data-detent="peek"] .imagery-note,
-#searchShell.is-open[data-detent="peek"] .coverage-message { display: none !important; }
+.sheet-handle,
+.place-sheet-handle {
+  min-block-size: var(--worldline-min-hit) !important;
+}
 
-#searchShell.is-open .control-panel,
-#placeSheet .place-sheet-content,
-#placeSheet .place-content,
-#placeSheet [data-sheet-scroll] {
+.map-stage :is(button, a, input, [role="button"]):focus-visible {
+  outline: 3px solid var(--worldline-focus-ring);
+  outline-offset: 3px;
+}
+
+body[data-ui-surface="timeline"] .map-tool-stack,
+body[data-ui-surface="timeline"] .maplibregl-ctrl-group,
+body[data-ui-surface="search"] .map-tool-stack,
+body[data-ui-surface="search"] .maplibregl-ctrl-group {
+  opacity: .42;
+  transition: opacity .2s ease;
+}
+
+body[data-ui-blocking="true"] .map-tool-stack,
+body[data-ui-blocking="true"] .maplibregl-ctrl-group {
+  pointer-events: none;
+}
+
+/* The existing interaction-system files remain the sole owners of sheet
+   transforms, heights, detents, drag capture, and release physics. */
+#searchShell .control-panel,
+#placeSheet .place-sheet-scroll {
   overscroll-behavior: contain;
-  scroll-padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  scroll-padding-block-end: calc(24px + env(safe-area-inset-bottom));
 }
-
-#searchShell .sheet-handle,
-#placeSheet .sheet-handle,
-[data-sheet-handle] {
-  min-height: 24px;
-  cursor: grab;
-  touch-action: none;
-}
-
-#searchShell .sheet-handle:active,
-#placeSheet .sheet-handle:active,
-[data-sheet-handle]:active { cursor: grabbing; }
 
 .timeline-primary-slider,
-.timeline-scale { touch-action: pan-x; }
+.timeline-scale {
+  touch-action: pan-x;
+}
 
 @media (max-width: 720px) {
-  #searchShell.is-open,
-  #placeSheet[data-detent]:not([data-detent="closed"]) {
-    left: 10px !important;
-    right: 10px !important;
-    width: auto !important;
-  }
-
   .timeline-hud-close,
   .timeline-play,
-  .round-button { width: var(--worldline-touch-target) !important; height: var(--worldline-touch-target) !important; }
+  .round-button,
+  .place-close,
+  .map-tool {
+    inline-size: var(--worldline-min-hit) !important;
+    block-size: var(--worldline-min-hit) !important;
+  }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  #searchShell.is-open,
-  #placeSheet[data-detent]:not([data-detent="closed"]) { transition: none !important; }
-}
-
+/* Progressive enhancement. Browsers that do not expose this preference
+   safely ignore the query and retain the existing high-contrast material. */
 @media (prefers-reduced-transparency: reduce) {
   .timeline-hud,
   .search-suggestions,
@@ -91,7 +73,7 @@ body.worldline-sheet-gesture { user-select: none; -webkit-user-select: none; }
   #placeSheet {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
-    background: rgba(20,20,23,.98) !important;
+    background: rgba(20, 20, 23, .98) !important;
   }
 }
 
@@ -99,5 +81,29 @@ body.worldline-sheet-gesture { user-select: none; -webkit-user-select: none; }
   .timeline-hud,
   .search-suggestions,
   #searchShell,
-  #placeSheet { border-color: rgba(255,255,255,.34) !important; }
+  #placeSheet {
+    border-color: rgba(255, 255, 255, .38) !important;
+    background-color: rgba(16, 16, 18, .97) !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .timeline-hud,
+  .search-suggestions,
+  #searchShell,
+  #placeSheet {
+    border: 1px solid CanvasText !important;
+    box-shadow: none !important;
+  }
+
+  .map-stage :is(button, a, input, [role="button"]):focus-visible {
+    outline-color: Highlight;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-ui-surface] .map-tool-stack,
+  body[data-ui-surface] .maplibregl-ctrl-group {
+    transition-duration: .01ms !important;
+  }
 }
