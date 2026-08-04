@@ -91,7 +91,14 @@ test('removes the permanent play control and milestone card', async ({ page }) =
 });
 
 test('keeps the active timeline compact and anchored to the bottom', async ({ page }) => {
-  const geometry = await page.locator('#timelineHud').evaluate((element) => {
+  const timeline = page.locator('#timelineHud');
+  await expect.poll(async () => timeline.evaluate((element) => element.getBoundingClientRect().left)).toBeGreaterThanOrEqual(7);
+  await expect.poll(async () => timeline.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    return window.innerWidth - rect.right;
+  })).toBeGreaterThanOrEqual(7);
+
+  const geometry = await timeline.evaluate((element) => {
     const rect = element.getBoundingClientRect();
     return {
       height: rect.height,
