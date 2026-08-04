@@ -121,6 +121,7 @@ body.search-active .search-shell:not(.is-open) {
   width: auto !important;
   max-width: none !important;
   transform: none !important;
+  transition: none !important;
 }
 body.search-active .search-row { grid-template-columns: auto minmax(0,1fr) auto; }
 body.search-active .map-tool-stack,
