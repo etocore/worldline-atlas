@@ -47,54 +47,90 @@
       "id": "250-ma",
       "mode": "earth",
       "targetAgeMa": 250,
-      "coverage": { "olderMa": 255, "youngerMa": 245 },
+      "coverage": {
+        "olderMa": 255,
+        "youngerMa": 245
+      },
       "title": "Pangea near the Permian-Triassic transition",
-      "status": "awaiting-generated-assets",
+      "status": "generated",
       "confidence": "model-constrained",
-      "sourceIds": ["paleodem", "gplates"],
+      "sourceIds": [
+        "paleodem",
+        "gplates"
+      ],
       "layers": {
         "coastlines": "available",
-        "elevation": "generation-pending",
-        "bathymetry": "generation-pending",
+        "elevation": "available",
+        "bathymetry": "available",
         "climate": "not-included",
         "biomes": "not-included",
         "ice": "not-included",
         "settlements": "not-applicable"
       },
-      "assets": null
+      "assets": {
+        "colorTiles": "/data/surface/worlds/250-ma/color/{z}/{x}/{y}.png",
+        "demTiles": "/data/surface/worlds/250-ma/dem/{z}/{x}/{y}.png",
+        "tileSize": 256,
+        "minzoom": 0,
+        "maxzoom": 3,
+        "encoding": "mapbox",
+        "attribution": "PaleoDEM: Scotese and Wright (2018), doi:10.5281/zenodo.5460860"
+      },
+      "actualAgeMa": 250.0,
+      "generatedAt": "2026-08-04T04:48:23.671791+00:00"
     },
     {
       "id": "66-ma",
       "mode": "earth",
       "targetAgeMa": 66,
-      "coverage": { "olderMa": 69, "youngerMa": 63 },
+      "coverage": {
+        "olderMa": 69,
+        "youngerMa": 63
+      },
       "title": "Latest Cretaceous Earth",
       "status": "planned",
-      "sourceIds": ["paleodem", "gplates"]
+      "sourceIds": [
+        "paleodem",
+        "gplates"
+      ]
     },
     {
       "id": "21-ka",
       "mode": "earth",
       "targetAgeMa": 0.021,
-      "coverage": { "olderMa": 0.022, "youngerMa": 0.019 },
+      "coverage": {
+        "olderMa": 0.022,
+        "youngerMa": 0.019
+      },
       "title": "Last Glacial Maximum",
       "status": "planned",
-      "sourceIds": ["chelsaTrace21k", "gplates"]
+      "sourceIds": [
+        "chelsaTrace21k",
+        "gplates"
+      ]
     },
     {
       "id": "10000-bce",
       "mode": "human",
       "targetYear": -10000,
-      "coverage": { "startYear": -10500, "endYear": -9500 },
+      "coverage": {
+        "startYear": -10500,
+        "endYear": -9500
+      },
       "title": "Early Holocene worlds",
       "status": "planned",
-      "sourceIds": ["chelsaTrace21k"]
+      "sourceIds": [
+        "chelsaTrace21k"
+      ]
     },
     {
       "id": "117-ce",
       "mode": "human",
       "targetYear": 117,
-      "coverage": { "startYear": 50, "endYear": 180 },
+      "coverage": {
+        "startYear": 50,
+        "endYear": 180
+      },
       "title": "Connected classical-era worlds",
       "status": "planned"
     },
@@ -102,7 +138,10 @@
       "id": "1500-ce",
       "mode": "human",
       "targetYear": 1500,
-      "coverage": { "startYear": 1450, "endYear": 1550 },
+      "coverage": {
+        "startYear": 1450,
+        "endYear": 1550
+      },
       "title": "Global exchange before industrialization",
       "status": "planned"
     },
@@ -110,7 +149,10 @@
       "id": "1800-ce",
       "mode": "human",
       "targetYear": 1800,
-      "coverage": { "startYear": 1750, "endYear": 1850 },
+      "coverage": {
+        "startYear": 1750,
+        "endYear": 1850
+      },
       "title": "Industrial transition",
       "status": "planned"
     },
@@ -118,9 +160,13 @@
       "id": "present",
       "mode": "earth",
       "targetAgeMa": 0,
-      "coverage": { "olderMa": 0, "youngerMa": 0 },
+      "coverage": {
+        "olderMa": 0,
+        "youngerMa": 0
+      },
       "title": "Observed Earth",
       "status": "existing-reference"
     }
-  ]
+  ],
+  "generatedAt": "2026-08-04T04:48:23.671799+00:00"
 }

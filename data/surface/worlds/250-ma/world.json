@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "250-ma",
+  "targetAgeMa": 250.0,
+  "actualAgeMa": 250.0,
+  "generatedAt": "2026-08-04T04:48:23.671465+00:00",
+  "source": {
+    "title": "PALEOMAP Paleodigital Elevation Models for the Phanerozoic",
+    "authors": "Christopher R. Scotese and Nicky M. Wright",
+    "year": 2018,
+    "doi": "10.5281/zenodo.5460860",
+    "sourceGrid": "Map49_PALEOMAP_1deg_Permo-Triassic Boundary_250Ma.nc"
+  },
+  "representation": {
+    "elevation": "source-derived",
+    "bathymetry": "source-derived",
+    "surfaceColor": "deterministic elevation-derived visual synthesis",
+    "climate": "not represented",
+    "vegetation": "not represented",
+    "settlements": "not represented"
+  },
+  "tiles": {
+    "tileSize": 256,
+    "minzoom": 0,
+    "maxzoom": 3
+  }
+}
