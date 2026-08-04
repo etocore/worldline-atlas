@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
+import { request as httpRequest } from 'node:http';
 
 const APPIUM_URL = process.env.APPIUM_URL || 'http://127.0.0.1:4723';
 const TARGET_URL = process.env.TARGET_URL || 'http://127.0.0.1:4173/tests/fixtures/ios-interface.html';
@@ -8,6 +9,8 @@ const PLATFORM_VERSION = process.env.PLATFORM_VERSION || '18.5';
 const SIMULATOR_UDID = process.env.SIMULATOR_UDID;
 const ARTIFACT_DIR = process.env.ARTIFACT_DIR || 'simulator-artifacts';
 const ELEMENT_KEY = 'element-6066-11e4-a52e-4f735466cecf';
+const COMMAND_TIMEOUT = 180_000;
+const SESSION_TIMEOUT = 720_000;
 
 if (!DEVICE_NAME) throw new Error('DEVICE_NAME is required');
 if (!SIMULATOR_UDID) throw new Error('SIMULATOR_UDID is required');
@@ -20,29 +23,52 @@ function sleep(milliseconds) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
-async function request(method, path, body) {
-  const response = await fetch(`${APPIUM_URL}${path}`, {
-    method,
-    headers: body === undefined ? undefined : { 'content-type': 'application/json' },
-    body: body === undefined ? undefined : JSON.stringify(body)
+function request(method, path, body, { timeout = COMMAND_TIMEOUT } = {}) {
+  const url = new URL(path, `${APPIUM_URL.replace(/\/$/, '')}/`);
+  const bodyText = body === undefined ? null : JSON.stringify(body);
+
+  return new Promise((resolve, reject) => {
+    const client = httpRequest(url, {
+      method,
+      headers: bodyText === null ? undefined : {
+        'content-type': 'application/json',
+        'content-length': Buffer.byteLength(bodyText)
+      }
+    }, (response) => {
+      const chunks = [];
+      response.on('data', (chunk) => chunks.push(chunk));
+      response.on('error', reject);
+      response.on('end', () => {
+        const text = Buffer.concat(chunks).toString('utf8');
+        let payload = {};
+
+        if (text) {
+          try {
+            payload = JSON.parse(text);
+          } catch {
+            reject(new Error(`${method} ${path} returned non-JSON (${response.statusCode}): ${text.slice(0, 500)}`));
+            return;
+          }
+        }
+
+        if ((response.statusCode || 500) >= 400 || payload?.value?.error) {
+          const detail = payload?.value?.message || payload?.message || text || response.statusMessage;
+          reject(new Error(`${method} ${path} failed (${response.statusCode}): ${detail}`));
+          return;
+        }
+
+        resolve(payload.value);
+      });
+    });
+
+    client.setTimeout(timeout, () => {
+      client.destroy(new Error(`${method} ${path} timed out after ${timeout}ms`));
+    });
+    client.on('error', reject);
+
+    if (bodyText === null) client.end();
+    else client.end(bodyText);
   });
-
-  const text = await response.text();
-  let payload = {};
-  if (text) {
-    try {
-      payload = JSON.parse(text);
-    } catch {
-      throw new Error(`${method} ${path} returned non-JSON (${response.status}): ${text.slice(0, 500)}`);
-    }
-  }
-
-  if (!response.ok || payload?.value?.error) {
-    const detail = payload?.value?.message || payload?.message || text || response.statusText;
-    throw new Error(`${method} ${path} failed (${response.status}): ${detail}`);
-  }
-
-  return payload.value;
 }
 
 async function poll(label, callback, { timeout = 45_000, interval = 250 } = {}) {
@@ -71,9 +97,9 @@ function sessionCapabilities() {
     'appium:udid': SIMULATOR_UDID,
     'appium:noReset': true,
     'appium:autoLaunch': false,
-    'appium:newCommandTimeout': 180,
-    'appium:wdaLaunchTimeout': 240_000,
-    'appium:wdaConnectionTimeout': 180_000,
+    'appium:newCommandTimeout': 300,
+    'appium:wdaLaunchTimeout': 600_000,
+    'appium:wdaConnectionTimeout': 600_000,
     'appium:wdaStartupRetries': 1,
     'appium:wdaStartupRetryInterval': 10_000,
     'appium:waitForIdleTimeout': 1,
@@ -84,28 +110,19 @@ function sessionCapabilities() {
 }
 
 async function createSession() {
-  let lastError;
-
-  for (let attempt = 1; attempt <= 2; attempt += 1) {
-    try {
-      const result = await request('POST', '/session', {
-        capabilities: {
-          alwaysMatch: sessionCapabilities(),
-          firstMatch: [{}]
-        }
-      });
-
-      sessionId = result.sessionId;
-      assert.ok(sessionId, 'Appium did not return a session id');
-      await writeFile(`${ARTIFACT_DIR}/session-capabilities.json`, `${JSON.stringify(result.capabilities, null, 2)}\n`);
-      return;
-    } catch (error) {
-      lastError = error;
-      if (attempt < 2) await sleep(10_000);
+  const result = await request('POST', '/session', {
+    capabilities: {
+      alwaysMatch: sessionCapabilities(),
+      firstMatch: [{}]
     }
-  }
+  }, { timeout: SESSION_TIMEOUT });
 
-  throw lastError;
+  sessionId = result.sessionId;
+  assert.ok(sessionId, 'Appium did not return a session id');
+  await writeFile(
+    `${ARTIFACT_DIR}/session-capabilities.json`,
+    `${JSON.stringify(result.capabilities, null, 2)}\n`
+  );
 }
 
 async function execute(script, args = []) {
@@ -182,8 +199,14 @@ async function readInterfaceState() {
 
 function assertContained(state, label) {
   assert.ok(state.visualWidth > 0 && state.visualHeight > 0, `${label}: VisualViewport is unavailable`);
-  assert.ok(state.scrollWidth <= state.innerWidth + 1, `${label}: horizontal page overflow (${state.scrollWidth} > ${state.innerWidth})`);
-  assert.ok(state.scrollHeight <= state.innerHeight + 1, `${label}: vertical page overflow (${state.scrollHeight} > ${state.innerHeight})`);
+  assert.ok(
+    state.scrollWidth <= state.innerWidth + 1,
+    `${label}: horizontal page overflow (${state.scrollWidth} > ${state.innerWidth})`
+  );
+  assert.ok(
+    state.scrollHeight <= state.innerHeight + 1,
+    `${label}: vertical page overflow (${state.scrollHeight} > ${state.innerHeight})`
+  );
 }
 
 async function rotate(orientation) {
@@ -208,7 +231,7 @@ async function captureWebDriverScreenshot(name) {
 async function deleteSession() {
   if (!sessionId) return;
   try {
-    await request('DELETE', `/session/${sessionId}`);
+    await request('DELETE', `/session/${sessionId}`, undefined, { timeout: 120_000 });
   } finally {
     sessionId = null;
   }
@@ -237,7 +260,7 @@ async function run() {
   assert.equal(state.settingsOpen, false);
   assert.equal(state.placeDetent, 'closed');
 
-  await execute(`window.setSheetOpen(true, {}); return true;`);
+  await execute('window.setSheetOpen(true, {}); return true;');
   state = await poll('settings activation', async () => {
     const next = await readInterfaceState();
     return next.surface === 'settings' && next.settingsOpen === true && next;
