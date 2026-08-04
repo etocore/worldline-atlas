@@ -29,14 +29,21 @@
 .search-shell.is-open .panel-header h1 { font-size: 1.68rem; letter-spacing: -.03em; }
 .search-shell.is-open .status-pill { min-height: 34px; padding-inline: 5px; border: 0; background: transparent; }
 .search-shell.is-open .era-summary { margin: 5px 1px 12px; font-size: .86rem; line-height: 1.45; }
-.search-shell.is-open .metric-grid, .search-shell.is-open .surface-control, .search-shell.is-open .control-block, .search-shell.is-open .layer-block { border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; }
+.search-shell.is-open .metric-grid,
+.search-shell.is-open .timeline-block,
+.search-shell.is-open .surface-control,
+.search-shell.is-open .control-block,
+.search-shell.is-open .layer-block { border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; }
 .search-shell.is-open .metric-grid { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 0; padding: 1px 0; overflow: visible; border-top: .5px solid var(--worldline-section-line) !important; border-bottom: .5px solid var(--worldline-section-line) !important; }
 .search-shell.is-open .metric-grid > div { padding: 10px 9px !important; border: 0 !important; border-radius: 0 !important; background: transparent !important; }
 .search-shell.is-open .metric-grid > div + div { border-left: .5px solid var(--worldline-section-line) !important; }
 .search-shell.is-open .metric-grid span { text-transform: none; letter-spacing: 0; font-size: .62rem; }
 .search-shell.is-open .metric-grid strong { font-size: .8rem; }
 .search-shell.is-open .coverage-message { margin: 8px 1px 3px; }
-.search-shell.is-open .surface-control, .search-shell.is-open .control-block, .search-shell.is-open .layer-block { margin-top: 0; padding: 14px 1px !important; border-top: .5px solid var(--worldline-section-line) !important; }
+.search-shell.is-open .timeline-block,
+.search-shell.is-open .surface-control,
+.search-shell.is-open .control-block,
+.search-shell.is-open .layer-block { margin-top: 0; padding: 14px 1px !important; border-top: .5px solid var(--worldline-section-line) !important; }
 .search-shell.is-open .control-grid { grid-template-columns: 1fr; gap: 0; margin-top: 0; }
 .search-shell.is-open .layer-block { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); align-content: initial; gap: 0 14px; }
 .search-shell.is-open .layer-block legend { margin-bottom: 4px; }
