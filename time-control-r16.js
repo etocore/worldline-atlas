@@ -1,12 +1,33 @@
 (() => {
   'use strict';
 
-  const BUILD = '2026-08-03-globe-r16';
+  const BUILD = '2026-08-04-globe-r27';
   const CLOCK_ICON = '<span class="time-chip-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.2v5.1l3.5 2.1"></path></svg></span>';
   let yearButton;
   let eraLabel;
   let yearLabel;
   let lastSignature = '';
+
+  function trimDecimal(value, digits) {
+    return Number(value.toFixed(digits)).toLocaleString(undefined, { maximumFractionDigits: digits });
+  }
+
+  function compactEarthLabel(ageMa) {
+    const value = Number(ageMa);
+    if (!Number.isFinite(value)) return 'Earth history';
+    if (value <= 0.0005) return 'Present';
+    if (value >= 1000) {
+      const billions = value / 1000;
+      return `${Number.isInteger(billions) ? billions.toLocaleString() : trimDecimal(billions, billions < 2 ? 2 : 1)} Ga`;
+    }
+    if (value >= 1) {
+      const digits = value < 10 ? 2 : value < 100 ? 1 : 1;
+      return `${Number.isInteger(value) ? value.toLocaleString() : trimDecimal(value, digits)} Ma`;
+    }
+    const thousands = value * 1000;
+    if (thousands >= 1) return `${Number.isInteger(thousands) ? thousands.toLocaleString() : trimDecimal(thousands, 1)} ka`;
+    return `${Math.max(1, Math.round(value * 1_000_000)).toLocaleString()} years ago`;
+  }
 
   function humanEarthLabel(ageMa) {
     const timeline = globalThis.WorldlineTimelineState;
@@ -41,6 +62,8 @@
     if (!yearButton || !eraLabel || !yearLabel) return false;
     if (!yearButton.querySelector('.time-chip-icon')) yearButton.insertAdjacentHTML('afterbegin', CLOCK_ICON);
     yearButton.setAttribute('aria-haspopup', 'dialog');
+    yearButton.setAttribute('aria-controls', 'timelineHud');
+    document.body.classList.add('worldline-r27-interface');
     return true;
   }
 
@@ -66,13 +89,20 @@
     if (!yearButton && !installControl()) return false;
     const current = currentTimelineState();
     if (!current) return false;
-    const signature = `${current.mode}|${current.selected}`;
+    const expanded = document.body.classList.contains('timeline-active');
+    const signature = `${current.mode}|${current.selected}|${expanded}`;
     if (signature === lastSignature) return true;
     lastSignature = signature;
 
-    eraLabel.textContent = current.mode === 'earth' ? 'Earth timeline' : 'Human timeline';
-    yearLabel.textContent = current.mode === 'earth' ? humanEarthLabel(current.selected) : humanYearLabel(current.selected);
-    yearButton.setAttribute('aria-label', `Open ${current.mode === 'earth' ? 'Earth' : 'Human'} History timeline at ${yearLabel.textContent}`);
+    const domainLabel = current.mode === 'earth' ? 'Earth history' : 'Human history';
+    const visibleDate = current.mode === 'earth' ? compactEarthLabel(current.selected) : humanYearLabel(current.selected);
+    const accessibleDate = current.mode === 'earth' ? humanEarthLabel(current.selected) : humanYearLabel(current.selected);
+
+    eraLabel.textContent = domainLabel;
+    yearLabel.textContent = visibleDate;
+    yearButton.dataset.timelineDomain = current.mode;
+    yearButton.setAttribute('aria-expanded', String(expanded));
+    yearButton.setAttribute('aria-label', `Open ${domainLabel} timeline at ${accessibleDate}`);
     yearButton.title = yearButton.getAttribute('aria-label');
     return true;
   }
