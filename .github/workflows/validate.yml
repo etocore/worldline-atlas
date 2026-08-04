@@ -126,6 +126,7 @@ jobs:
           node --check scripts/validate-ios-interface.mjs
           node --check playwright.config.mjs
           node --check tests/e2e/ios-interface.spec.mjs
+          node --check tests/simulator/ios-safari-smoke.mjs
       - name: Check Python builders
         run: python -m py_compile scripts/build_surface_worlds.py
       - name: Validate reconstruction packages
@@ -176,3 +177,138 @@ jobs:
             test-results
           if-no-files-found: ignore
           retention-days: 14
+
+  ios-simulator-safari:
+    name: iOS Simulator Safari (${{ matrix.device }})
+    runs-on: macos-15
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - slug: iphone-se
+            device: iPhone SE (3rd generation)
+          - slug: iphone-pro-max
+            device: iPhone 16 Pro Max
+          - slug: ipad
+            device: iPad (10th generation)
+    env:
+      APPIUM_HOME: ${{ runner.temp }}/worldline-appium
+      PLATFORM_VERSION: '18.5'
+      TARGET_URL: http://127.0.0.1:4173/tests/fixtures/ios-interface.html
+      ARTIFACT_DIR: simulator-artifacts/${{ matrix.slug }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Select Xcode 16.4 and inspect simulator inventory
+        run: |
+          sudo xcode-select --switch /Applications/Xcode_16.4.app/Contents/Developer
+          xcodebuild -version
+          xcrun simctl list > /dev/null
+          xcrun simctl list runtimes
+      - name: Install pinned Appium and XCUITest driver
+        run: |
+          npm install --no-save --no-audit --no-fund appium@3.4.2
+          npx appium driver install --source=npm appium-xcuitest-driver@11.7.3
+          npx appium driver list --installed
+      - name: Resolve and boot the iOS 18.5 simulator
+        env:
+          DEVICE_NAME: ${{ matrix.device }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import subprocess
+
+          inventory = json.loads(subprocess.check_output([
+              'xcrun', 'simctl', 'list', 'devices', 'available', '-j'
+          ]))
+          runtime = next(
+              (key for key in inventory['devices'] if key.endswith('iOS-18-5')),
+              None
+          )
+          if runtime is None:
+              raise SystemExit('The macOS runner does not contain an iOS 18.5 simulator runtime')
+
+          device_name = os.environ['DEVICE_NAME']
+          matches = [
+              device for device in inventory['devices'][runtime]
+              if device['name'] == device_name and device.get('isAvailable', True)
+          ]
+          if len(matches) != 1:
+              raise SystemExit(
+                  f'Expected one available {device_name} simulator in {runtime}, found {len(matches)}'
+              )
+
+          with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env_file:
+              env_file.write(f"SIMULATOR_UDID={matches[0]['udid']}\n")
+          print(f"Resolved {device_name}: {matches[0]['udid']}")
+          PY
+
+          defaults write com.apple.iphonesimulator ConnectHardwareKeyboard -bool NO
+          xcrun simctl shutdown all || true
+          xcrun simctl boot "$SIMULATOR_UDID"
+          xcrun simctl bootstatus "$SIMULATOR_UDID" -b
+          xcrun simctl list devices | grep "$SIMULATOR_UDID"
+      - name: Start deterministic Worldline fixture server
+        run: |
+          mkdir -p "$ARTIFACT_DIR"
+          nohup python3 -m http.server 4173 --bind 0.0.0.0 \
+            > "$ARTIFACT_DIR/http-server.log" 2>&1 &
+          echo $! > "$ARTIFACT_DIR/http-server.pid"
+          for attempt in {1..30}; do
+            if curl --fail --silent "$TARGET_URL" > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat "$ARTIFACT_DIR/http-server.log"
+          exit 1
+      - name: Start Appium XCUITest server
+        run: |
+          nohup npx appium \
+            --address 127.0.0.1 \
+            --port 4723 \
+            --base-path / \
+            --log "$ARTIFACT_DIR/appium.log" \
+            --log-timestamp \
+            > "$ARTIFACT_DIR/appium-console.log" 2>&1 &
+          echo $! > "$ARTIFACT_DIR/appium.pid"
+          for attempt in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:4723/status > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat "$ARTIFACT_DIR/appium-console.log"
+          exit 1
+      - name: Exercise Worldline in real iOS Simulator Safari
+        env:
+          DEVICE_NAME: ${{ matrix.device }}
+          APPIUM_URL: http://127.0.0.1:4723
+        run: node tests/simulator/ios-safari-smoke.mjs
+      - name: Capture simulator failure evidence
+        if: failure()
+        run: |
+          mkdir -p "$ARTIFACT_DIR"
+          xcrun simctl io "$SIMULATOR_UDID" screenshot "$ARTIFACT_DIR/native-simulator.png" || true
+          xcrun simctl spawn "$SIMULATOR_UDID" log show \
+            --last 10m \
+            --style compact \
+            > "$ARTIFACT_DIR/simulator.log" 2>&1 || true
+          xcrun simctl list devices > "$ARTIFACT_DIR/simulator-inventory.txt" || true
+      - name: Upload iOS Simulator failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-simulator-safari-${{ matrix.slug }}-${{ github.sha }}
+          path: simulator-artifacts
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Shut down simulator
+        if: always()
+        run: xcrun simctl shutdown "$SIMULATOR_UDID" || true
