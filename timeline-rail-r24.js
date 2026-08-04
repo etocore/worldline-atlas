@@ -5,8 +5,8 @@
   const INSTALL_RETRY_MS = 50;
   const MANUAL_SCROLL_GRACE_MS = 650;
 
-  // A single chronological set of non-overlapping Earth intervals. The rail
-  // never changes shape as the selected date moves deeper into the hierarchy.
+  // One chronological set of non-overlapping Earth intervals. The rail keeps
+  // the same DOM and complete chronology as the selected date changes.
   const EARTH_INTERVALS = Object.freeze([
     { id: 'hadean', label: 'Hadean', older: 4567.3, younger: 4000, group: 'Hadean' },
     { id: 'archean', label: 'Archean', older: 4000, younger: 2500, group: 'Archean', groupStart: true },
@@ -44,6 +44,7 @@
   let userInteracting = false;
   let lastManualScrollAt = -Infinity;
   let requestedCenterId = '';
+  let centerRequestToken = 0;
 
   function timelineApi() {
     return globalThis.WorldlineTimelineState;
@@ -84,19 +85,29 @@
   }
 
   function centerButton(button, { force = false, immediate = false } = {}) {
-    if (!rail || !button || userInteracting) return;
-    if (!force && performance.now() - lastManualScrollAt < MANUAL_SCROLL_GRACE_MS) return;
+    if (!rail || !button || userInteracting) return false;
+    if (!force && performance.now() - lastManualScrollAt < MANUAL_SCROLL_GRACE_MS) return false;
 
     const railRect = rail.getBoundingClientRect();
     const buttonRect = button.getBoundingClientRect();
     const comfortablyVisible = buttonRect.left >= railRect.left + 12 && buttonRect.right <= railRect.right - 12;
-    if (comfortablyVisible && !force) return;
+    if (comfortablyVisible && !force) return true;
 
     const maximum = Math.max(0, rail.scrollWidth - rail.clientWidth);
     const target = button.offsetLeft + (button.offsetWidth / 2) - (rail.clientWidth / 2);
     rail.scrollTo({
       left: Math.max(0, Math.min(maximum, target)),
       behavior: immediate || prefersReducedMotion() ? 'auto' : 'smooth'
+    });
+    return true;
+  }
+
+  function scheduleCenter(button, options = {}) {
+    const token = ++centerRequestToken;
+    requestAnimationFrame(() => {
+      if (token !== centerRequestToken) return;
+      const centered = centerButton(button, options);
+      if (centered && requestedCenterId === button?.dataset.intervalId) requestedCenterId = '';
     });
   }
 
@@ -135,7 +146,8 @@
   function updateRail(state = timelineApi().getState(), { initial = false } = {}) {
     if (!rail) return;
     const domain = stateDomain(state);
-    if (renderedDomain !== domain) buildRail(domain);
+    const domainChanged = renderedDomain !== domain;
+    if (domainChanged) buildRail(domain);
 
     const intervals = intervalsForDomain(domain);
     const interval = activeInterval(intervals, stateValue(state, domain), domain);
@@ -152,12 +164,24 @@
 
     const selected = rail.querySelector(`[data-interval-id="${CSS.escape(activeId)}"]`);
     const explicitlyRequested = requestedCenterId === activeId;
-    if (explicitlyRequested) requestedCenterId = '';
-    if (changed || initial || explicitlyRequested) {
-      requestAnimationFrame(() => centerButton(selected, {
-        force: explicitlyRequested || renderedDomain !== domain,
-        immediate: initial
-      }));
+
+    if (initial) {
+      // Establish the initial rail position synchronously before publishing the
+      // build-ready flag. This prevents a stale startup frame from overriding
+      // a user's first manual swipe.
+      centerRequestToken += 1;
+      centerButton(selected, { force: true, immediate: true });
+      requestedCenterId = '';
+      return;
+    }
+
+    if (explicitlyRequested) {
+      scheduleCenter(selected, { force: true });
+      return;
+    }
+
+    if (domainChanged || changed) {
+      scheduleCenter(selected, { force: domainChanged });
     }
   }
 
@@ -173,6 +197,17 @@
     requestedCenterId = interval.id;
     if (domain === 'human') timelineApi().setHumanYear(next, { source: 'timeline-r24-interval' });
     else timelineApi().setEarthAge(next, { source: 'timeline-r24-interval' });
+  }
+
+  function finishInteraction() {
+    userInteracting = false;
+    lastManualScrollAt = performance.now();
+    rail.classList.remove('is-user-scrolling');
+
+    if (requestedCenterId && requestedCenterId === activeId) {
+      const selected = rail.querySelector(`[data-interval-id="${CSS.escape(activeId)}"]`);
+      scheduleCenter(selected, { force: true });
+    }
   }
 
   function bindRail() {
@@ -198,15 +233,11 @@
     });
 
     rail.addEventListener('pointerdown', () => {
+      centerRequestToken += 1;
       userInteracting = true;
       rail.classList.add('is-user-scrolling');
     }, { passive: true });
 
-    const finishInteraction = () => {
-      userInteracting = false;
-      lastManualScrollAt = performance.now();
-      rail.classList.remove('is-user-scrolling');
-    };
     rail.addEventListener('pointerup', finishInteraction, { passive: true });
     rail.addEventListener('pointercancel', finishInteraction, { passive: true });
     rail.addEventListener('scroll', () => {
@@ -216,6 +247,7 @@
     rail.addEventListener('wheel', (event) => {
       if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
       event.preventDefault();
+      centerRequestToken += 1;
       lastManualScrollAt = performance.now();
       rail.scrollLeft += event.deltaY;
     }, { passive: false });
