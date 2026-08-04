@@ -384,10 +384,6 @@ body.timeline-scrubbing .timeline-local-slider::-webkit-slider-thumb {
 }
 
 @media (max-width: 720px) {
-  body.timeline-active .search-shell {
-    transform: translate3d(0, 22px, 0) scale(.98) !important;
-  }
-
   body.worldline-r23-navigation #timelineHud {
     left: 10px !important;
     right: 10px !important;
