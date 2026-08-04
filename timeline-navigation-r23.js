@@ -78,6 +78,7 @@
   let navLevel = null;
   let activeRangeId = '';
   let dragging = false;
+  let dragStart = null;
   let previewTimer = 0;
   let previewController = null;
   let previewSequence = 0;
@@ -236,6 +237,17 @@
     });
   }
 
+  function centerActiveInterval() {
+    const active = intervalRail?.querySelector('[aria-pressed="true"]');
+    if (!active) return;
+    const maximum = Math.max(0, intervalRail.scrollWidth - intervalRail.clientWidth);
+    const target = active.offsetLeft - ((intervalRail.clientWidth - active.offsetWidth) / 2);
+    intervalRail.scrollTo({
+      left: Math.max(0, Math.min(maximum, target)),
+      behavior: 'auto'
+    });
+  }
+
   function renderIntervalRail(context) {
     const intervals = intervalsForLevel(context);
     intervalRail.innerHTML = intervals.map((interval) => {
@@ -249,11 +261,11 @@
         const current = currentSnapshot();
         const currentValue = current.domain === 'earth' ? current.age : current.year;
         const inside = current.domain === 'earth' ? containsEarth(interval, currentValue) : containsHuman(interval, currentValue);
-        commitValue(inside ? currentValue : rangeMidpoint(interval, current.domain), current.domain, 'interval-select');
         navLevel = null;
+        commitValue(inside ? currentValue : rangeMidpoint(interval, current.domain), current.domain, 'interval-select');
       });
     });
-    requestAnimationFrame(() => intervalRail.querySelector('[aria-pressed="true"]')?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'instant' }));
+    requestAnimationFrame(centerActiveInterval);
   }
 
   function surfaceDescription(context) {
@@ -409,6 +421,11 @@
     });
 
     slider.addEventListener('pointerdown', (event) => {
+      const state = timelineApi().getState();
+      dragStart = {
+        domain: state.domain,
+        value: state.domain === 'earth' ? Number(state.earthAgeMa) : Number(state.humanYear)
+      };
       dragging = true;
       slider.setPointerCapture?.(event.pointerId);
       document.body.classList.add('timeline-scrubbing');
@@ -422,14 +439,20 @@
       if (!dragging && timelineApi().getState().interaction === 'idle') return;
       const next = valueFromLocalSlider();
       dragging = false;
+      dragStart = null;
       document.body.classList.remove('timeline-scrubbing');
       commitValue(next.value, next.domain);
     };
     slider.addEventListener('pointerup', settle);
     slider.addEventListener('pointercancel', () => {
+      clearTimeout(previewTimer);
+      previewController?.abort();
+      previewController = null;
       dragging = false;
       document.body.classList.remove('timeline-scrubbing');
-      timelineApi().cancelGesture?.('timeline-r23-cancel');
+      if (dragStart?.domain === 'earth') timelineApi().setEarthAge(dragStart.value, { source: 'timeline-r23-cancel' });
+      else if (dragStart?.domain === 'human') timelineApi().setHumanYear(dragStart.value, { source: 'timeline-r23-cancel' });
+      dragStart = null;
       render();
     });
     slider.addEventListener('change', settle);
