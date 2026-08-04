@@ -53,7 +53,6 @@ for (const forbidden of ['installDragController', 'setPointerCapture', "addEvent
 
 requireText(runtime, "full: 'large'", 'The project full detent is not mapped to the semantic large detent');
 requireText(runtime, '.place-sheet-handle', 'r21 does not target the actual place-sheet handle');
-requireText(runtime, '.place-sheet-scroll', 'r21 does not target the actual place-sheet scroll container');
 requireText(runtime, 'RESTORE_FOCUS_REASONS', 'Focus restoration is not gated by dismissal reason');
 requireText(runtime, "surface === 'search'", 'Search dismissal is not protected from keyboard-reopening focus restoration');
 requireText(runtime, "event.detail !== 0", 'The keyboard alternative is not isolated from pointer activation');
@@ -62,6 +61,7 @@ requireText(runtime, "window.__WORLDLINE_INTERACTION_BUILD__", 'r21 does not wai
 requireText(style, '--worldline-min-hit: 44px', 'The 44px interaction target token is missing');
 requireText(style, '.worldline-hit-square', 'Scoped square hit targets are missing');
 requireText(style, '.worldline-hit-height', 'Scoped minimum-height targets are missing');
+requireText(style, '#placeSheet .place-sheet-scroll', 'The quality layer does not preserve the actual place-sheet scroll container');
 requireText(style, ':focus-visible', 'Visible keyboard focus styling is missing');
 requireText(style, 'prefers-reduced-motion: reduce', 'Reduced Motion adaptation is missing');
 requireText(style, 'prefers-reduced-transparency: reduce', 'Reduced Transparency progressive enhancement is missing');
