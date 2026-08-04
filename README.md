@@ -1,83 +1,107 @@
 # Worldline Atlas
 
-A satellite-first, uncertainty-aware globe of known human settlements through time.
+Worldline Atlas is an evidence-aware interactive globe for exploring Earth history and human history through time.
 
-## Current version
+The selected time changes the world being presented. Geological views use plate-model coastlines, reviewed surface packages where available, and clearly labeled schematic geography where precise reconstruction is not scientifically defensible. Human History adds archaeological sites, historical settlements, dated map records, and contextual evidence without implying complete coverage.
 
-Worldline Atlas uses MapLibre's globe projection to present historical settlement evidence on a modern Sentinel-2 satellite surface. The selected year changes the historical evidence layer, not the imagery itself.
+## Current product
 
-The interface is intentionally map-first:
+Worldline opens in **Earth History** and supports time from Earth’s formation to the present.
 
-- Full-screen interactive Earth
-- Black space and atmospheric globe rendering
-- Minimal floating map controls
-- A compact bottom search bar
-- Historical controls hidden inside an expandable bottom sheet
-- Mobile safe-area support
+- From the present to about **1.8 billion years ago**, coastlines use the pinned CAO2024 GPlates reconstruction model.
+- Before about **1.8 billion years ago**, the atlas switches to explicitly schematic geography rather than inventing precise continental positions.
+- A reviewed PaleoDEM surface package currently provides paleoelevation and ocean-depth relief around **250 million years ago**.
+- At other modeled ages, lightweight vector coastlines update while the user scrubs and the final reconstruction settles after release.
+- Geological dates are organized by eon, era, and period, with a local scrubber inside the selected interval.
 
-The interface is inspired by the clarity and restraint of modern native map apps, but it does not use or redistribute Apple Maps imagery, tiles, branding, or private APIs.
+**Human History** is a separate, denser timeline from 300,000 years ago to the present. It can display reviewed sites, dated OpenHistoricalMap records, Wikidata catalog results, and optional historical building data where the sources support them.
 
-### Data and services
+## Interface
 
-- **Map rendering and globe projection:** MapLibre GL JS
-- **Satellite surface:** EOX Sentinel-2 cloudless WMTS
-- **Historical map records:** OpenHistoricalMap vector tiles and published MapLibre style
+The interface is map-first and optimized for phones and tablets:
+
+- Full-screen MapLibre globe
+- Compact Earth/Human timeline launcher
+- Persistent scrollable geological and historical interval rail
+- Local interval-scale time scrubber
+- Bottom search surface
+- Contextual settings sheet
+- Place and evidence detail sheet
+- Safe-area, dynamic viewport, Reduced Motion, Reduced Transparency, and Increased Contrast support
+
+The visual language is inspired by the clarity and restraint of modern native map applications. Worldline does not use or redistribute Apple Maps imagery, tiles, branding, or private APIs.
+
+## Timeline architecture
+
+The canonical timeline subsystem lives in `timeline/`:
+
+- `model.js` owns interval definitions, hierarchy, scale conversions, and date formatting.
+- `state.js` owns Earth/Human state, preview transactions, commits, persistence, and timeline events.
+- `view.js` owns the launcher, timeline surface, interval rail, local scrubber, contextual settings, and lightweight coastline previews.
+- `timeline.css` is the only production stylesheet owner for timeline UI.
+
+Every visible timeline surface should have one JavaScript owner and one primary stylesheet owner. CI rejects retired timeline generations if they are added back to the production bootstrap.
+
+## Evidence and uncertainty
+
+A visible record means at least one source has a location and date range compatible with the selected time. It does not prove continuous occupation, exact population, exact borders, political control, or complete regional coverage.
+
+A blank region does not mean a place was uninhabited or that life was absent. It means the current reviewed and connected sources did not return compatible evidence at the selected map scale and time.
+
+Fossil markers from the Paleobiology Database represent published occurrence evidence at reported or model-reconstructed paleocoordinates. They are not complete organism ranges.
+
+## Data and services
+
+- **Globe rendering:** MapLibre GL JS
+- **Plate reconstruction:** GPlates Web Service with cached CAO2024-derived keyframes
+- **Generated surface packages:** reviewed PaleoDEM-derived raster color and terrain assets
+- **Fossil evidence:** Paleobiology Database
+- **Historical map records:** OpenHistoricalMap
 - **Supplementary catalog:** Wikidata Query Service through a cached Netlify Function
-- **Early archaeological sites:** A small reviewed GeoJSON-style seed set in `data.js`
+- **Observed reference imagery:** EOX Sentinel-2 cloudless
 - **Hosting:** Netlify
-- **Source control:** GitHub
+- **Source control and review:** GitHub
 
-The app has no paid dependency and does not require API keys. Review each upstream service's current license and usage limits before a commercial launch.
+Upstream libraries, datasets, models, and remote services retain their own terms and attribution requirements.
 
 ## Search behavior
 
-The bottom search bar is the future natural-language entry point. The current interface already supports:
+Search currently supports:
 
-- Reviewed settlement names contained in `data.js`
-- Explicit dates such as `117 CE` and `7000 BCE`
-- Combined searches such as `Rome 117 CE`
-- Camera movement to matched reviewed sites
+- Reviewed place and site names
+- Geological periods and topics
+- Explicit geological ages such as `120 million years ago`
+- Explicit human dates such as `117 CE` and `7000 BCE`
+- Combined place-and-date searches where reviewed evidence exists
+- Camera movement to matched records
 - Clear handling of unmatched prompts
 
-The next search phase will connect unmatched prompts to a research and review queue rather than silently fabricating a reconstruction.
-
-## Historical controls
-
-- Continuous year control from 15,000 BCE to 2026 CE
-- Exact numeric year entry and quick period jumps
-- Timeline playback with period-sensitive increments
-- Dated settlement labels from OpenHistoricalMap
-- Live viewport queries for Wikidata settlements and archaeological sites
-- Optional historical building footprints where OpenHistoricalMap contains them
-- Strict, balanced, and broad evidence thresholds
-- Clickable source records and confidence notes
-- Clustered live catalog points
-
-## Accuracy model
-
-A visible point means that at least one source has a location and a date range compatible with the selected year. It does not prove continuous occupation, exact population, exact boundaries, political control, or a modern-style city.
-
-A blank region does not mean it was uninhabited. It means the current sources did not return a compatible record at the current map scale and date.
-
-The modern satellite layer should not be read as a reconstruction of historical coastlines, vegetation, rivers, roads, or buildings.
+Search results may switch the active timeline domain when their meaning is clearly geological or historical.
 
 ## Local development
 
-The static interface can be served with any local web server:
+Serve the static application with any local web server:
 
 ```bash
 python3 -m http.server 8000
 ```
 
-The Wikidata endpoint is a Netlify Function, so live catalog queries require either Netlify Dev or a deployed Netlify site:
+The Wikidata and paleocoastline endpoints are Netlify Functions, so live connected behavior requires Netlify Dev or a deployed site:
 
 ```bash
 npx netlify dev
 ```
 
+Run the validation suite with:
+
+```bash
+npm install
+npm run test:mobile
+```
+
 ## Netlify deployment
 
-The repository includes `netlify.toml`. Import the repository into Netlify and use:
+The repository includes `netlify.toml`.
 
 - Branch: `main`
 - Base directory: empty
@@ -85,13 +109,12 @@ The repository includes `netlify.toml`. Import the repository into Netlify and u
 - Publish directory: `.`
 - Functions directory: `netlify/functions`
 
-Every merge to `main` triggers a redeploy.
+Every merge to `main` triggers a production redeploy.
 
-## Next milestones
+## Near-term milestones
 
-1. Add a reviewed natural-language request queue and editorial workflow.
-2. Add World Historical Gazetteer, Pleiades, and regional archaeological datasets through normalized adapters.
-3. Store source disagreements and occupation phases as first-class records.
-4. Add paleocoastline, river, climate, and vegetation reconstructions with explicit uncertainty.
-5. Add population ranges and settlement footprint estimates where defensible.
-6. Replace the curated seed file with versioned, cited datasets maintained through pull requests.
+1. Consolidate the remaining overlapping mobile shell generations.
+2. Add complete-page performance budgets for timeline interaction and source settling.
+3. Generate and review additional historical surface worlds, beginning with 120 million years ago, 66 million years ago, and the Last Glacial Maximum.
+4. Expand normalized archaeological, historical, and environmental evidence adapters.
+5. Add a reviewed natural-language research queue without fabricating unsupported reconstructions.
