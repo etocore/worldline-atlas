@@ -7,7 +7,6 @@
   overflow-x: auto;
   overflow-y: hidden;
   overscroll-behavior-x: contain;
-  scroll-behavior: smooth;
   scroll-padding-inline: 22px;
   touch-action: pan-x;
   -webkit-overflow-scrolling: touch;
@@ -84,10 +83,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .worldline-r24-rail.timeline-interval-rail {
-    scroll-behavior: auto;
-  }
-
   .worldline-r24-rail .timeline-interval-bubble {
     transition-duration: .01ms;
   }
