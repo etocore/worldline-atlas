@@ -9,7 +9,6 @@
   overscroll-behavior-x: contain;
   scroll-behavior: smooth;
   scroll-padding-inline: 22px;
-  scroll-snap-type: x proximity;
   touch-action: pan-x;
   -webkit-overflow-scrolling: touch;
   cursor: grab;
@@ -17,7 +16,6 @@
 
 .worldline-r24-rail.timeline-interval-rail.is-user-scrolling {
   cursor: grabbing;
-  scroll-snap-type: none;
 }
 
 .worldline-r24-rail .timeline-interval-bubble {
@@ -25,7 +23,6 @@
   min-width: max-content;
   min-height: 36px;
   padding: 0 13px;
-  scroll-snap-align: center;
   border: .5px solid rgba(255, 255, 255, .055);
   border-radius: 18px;
   color: rgba(235, 235, 245, .68);
