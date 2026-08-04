@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Build static historical surface tiles from published paleoDEM grids.
+"""Build static historical surface tiles from published PaleoDEM grids.
 
 The generated color tiles are an elevation-derived visual synthesis. They do not
 claim climate, vegetation, river, ice, or settlement accuracy. The DEM tiles use
-Mapbox Terrain-RGB encoding so MapLibre can add hillshade and later 3D terrain.
+Mapbox Terrain-RGB encoding so MapLibre can add hillshade and restrained 3D relief.
 """
 
 from __future__ import annotations
@@ -12,6 +12,7 @@ import argparse
 import json
 import math
 import re
+import shutil
 import tempfile
 import urllib.request
 import zipfile
@@ -29,6 +30,8 @@ DEFAULT_SOURCE = (
 )
 TILE_SIZE = 256
 MAX_MERCATOR_LAT = 85.05112878
+BUILDER_VERSION = 2
+WORLD_ID = "250-ma"
 
 
 def parse_args() -> argparse.Namespace:
@@ -43,7 +46,7 @@ def parse_args() -> argparse.Namespace:
 
 def download(url: str, destination: Path) -> None:
     destination.parent.mkdir(parents=True, exist_ok=True)
-    request = urllib.request.Request(url, headers={"User-Agent": "WorldlineAtlasSurfaceBuilder/1.0"})
+    request = urllib.request.Request(url, headers={"User-Agent": "WorldlineAtlasSurfaceBuilder/2.0"})
     with urllib.request.urlopen(request, timeout=180) as response, destination.open("wb") as target:
         while True:
             chunk = response.read(1024 * 1024)
@@ -66,7 +69,7 @@ def age_candidates_from_text(value: str) -> list[float]:
     return candidates
 
 
-def dataset_age(path: Path) -> float | None:
+def dataset_age(path: Path, target_age: float) -> float | None:
     candidates = age_candidates_from_text(path.name)
     try:
         with xr.open_dataset(path, decode_times=False, mask_and_scale=False) as dataset:
@@ -87,22 +90,22 @@ def dataset_age(path: Path) -> float | None:
         print(f"Could not inspect {path.name}: {error}")
     if not candidates:
         return None
-    return min(candidates, key=lambda candidate: abs(candidate - 250.0))
+    return min(candidates, key=lambda candidate: abs(candidate - target_age))
 
 
 def select_dataset(paths: list[Path], target_age: float) -> tuple[Path, float]:
     ranked: list[tuple[float, Path, float]] = []
     for path in paths:
-        age = dataset_age(path)
+        age = dataset_age(path, target_age)
         if age is None:
             continue
         ranked.append((abs(age - target_age), path, age))
     if not ranked:
-        raise RuntimeError("No age-bearing paleoDEM NetCDF file could be identified")
+        raise RuntimeError("No age-bearing PaleoDEM NetCDF file could be identified")
     ranked.sort(key=lambda item: item[0])
     _, path, age = ranked[0]
     if abs(age - target_age) > 8:
-        raise RuntimeError(f"Closest identified paleoDEM age was {age} Ma in {path.name}")
+        raise RuntimeError(f"Closest identified PaleoDEM age was {age} Ma in {path.name}")
     return path, age
 
 
@@ -168,10 +171,11 @@ def load_grid(path: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     return elevation, latitudes, normalized_lon
 
 
-def tile_lon_lat(z: int, x: int, y: int) -> tuple[np.ndarray, np.ndarray]:
+def tile_lon_lat(z: int, x: int, y: int, padding: int = 0) -> tuple[np.ndarray, np.ndarray]:
     count = 2**z
-    px = (x + (np.arange(TILE_SIZE, dtype=np.float64) + 0.5) / TILE_SIZE) / count
-    py = (y + (np.arange(TILE_SIZE, dtype=np.float64) + 0.5) / TILE_SIZE) / count
+    sample_indices = np.arange(-padding, TILE_SIZE + padding, dtype=np.float64) + 0.5
+    px = (x + sample_indices / TILE_SIZE) / count
+    py = (y + sample_indices / TILE_SIZE) / count
     lon = px * 360.0 - 180.0
     mercator = math.pi * (1.0 - 2.0 * py)
     lat = np.degrees(np.arctan(np.sinh(mercator)))
@@ -215,8 +219,8 @@ def colorize(elevation: np.ndarray, lon: np.ndarray, lat: np.ndarray) -> np.ndar
     )
     rgb = np.stack([np.interp(elevation, stops, colors[:, channel]) for channel in range(3)], axis=-1)
 
-    # Relief is derived only from the paleoDEM. The texture below is deliberately
-    # low amplitude and does not encode climate or vegetation claims.
+    # Relief is derived only from the PaleoDEM. A one-pixel geographic halo is
+    # sampled around every tile before this step so gradients remain continuous.
     gradient_y, gradient_x = np.gradient(elevation)
     slope = np.pi / 2.0 - np.arctan(np.hypot(gradient_x, gradient_y) / 140.0)
     aspect = np.arctan2(-gradient_x, gradient_y)
@@ -226,6 +230,8 @@ def colorize(elevation: np.ndarray, lon: np.ndarray, lat: np.ndarray) -> np.ndar
     shade = np.clip((shade + 1.0) / 2.0, 0.0, 1.0)
     shade_factor = 0.68 + shade[..., None] * 0.48
 
+    # This low-amplitude texture prevents large uniform regions from reading as a
+    # flat polygon. It does not encode environmental or biological information.
     texture = (
         np.sin(np.deg2rad(lon * 3.1))
         + np.sin(np.deg2rad(lat * 5.7))
@@ -263,34 +269,57 @@ def write_tiles(
         count = 2**z
         for x in range(count):
             for y in range(count):
-                lon, lat = tile_lon_lat(z, x, y)
+                lon, lat = tile_lon_lat(z, x, y, padding=1)
                 sampled = sample_grid(elevation, latitudes, longitudes, lon, lat)
+                color = colorize(sampled, lon, lat)[1:-1, 1:-1]
+                dem = terrain_rgb(sampled[1:-1, 1:-1])
                 color_path = output / "color" / str(z) / str(x) / f"{y}.png"
                 dem_path = output / "dem" / str(z) / str(x) / f"{y}.png"
                 color_path.parent.mkdir(parents=True, exist_ok=True)
                 dem_path.parent.mkdir(parents=True, exist_ok=True)
-                Image.fromarray(colorize(sampled, lon, lat), mode="RGBA").save(color_path, optimize=True)
-                Image.fromarray(terrain_rgb(sampled), mode="RGBA").save(dem_path, optimize=True)
+                Image.fromarray(color, mode="RGBA").save(color_path, optimize=True)
+                Image.fromarray(dem, mode="RGBA").save(dem_path, optimize=True)
         print(f"Generated zoom {z} ({count * count} color and DEM tiles)")
 
 
-def update_manifest(manifest_path: Path, target_age: float, actual_age: float, max_zoom: int) -> None:
+def previous_generation(world_output: Path, source_grid: str) -> str | None:
+    metadata_path = world_output / "world.json"
+    if not metadata_path.exists():
+        return None
+    try:
+        metadata = json.loads(metadata_path.read_text())
+    except json.JSONDecodeError:
+        return None
+    if metadata.get("builderVersion") != BUILDER_VERSION:
+        return None
+    if metadata.get("source", {}).get("sourceGrid") != source_grid:
+        return None
+    return metadata.get("generatedAt")
+
+
+def update_manifest(
+    manifest_path: Path,
+    actual_age: float,
+    max_zoom: int,
+    generated_at: str,
+) -> None:
     manifest = json.loads(manifest_path.read_text())
-    world = next(item for item in manifest["worlds"] if item["id"] == "250-ma")
+    world = next(item for item in manifest["worlds"] if item["id"] == WORLD_ID)
     world["status"] = "generated"
     world["actualAgeMa"] = actual_age
-    world["generatedAt"] = datetime.now(timezone.utc).isoformat()
+    world["generatedAt"] = generated_at
+    world["builderVersion"] = BUILDER_VERSION
     world["layers"].update({"elevation": "available", "bathymetry": "available"})
     world["assets"] = {
-        "colorTiles": "/data/surface/worlds/250-ma/color/{z}/{x}/{y}.png",
-        "demTiles": "/data/surface/worlds/250-ma/dem/{z}/{x}/{y}.png",
+        "colorTiles": f"/data/surface/worlds/{WORLD_ID}/color/{{z}}/{{x}}/{{y}}.png",
+        "demTiles": f"/data/surface/worlds/{WORLD_ID}/dem/{{z}}/{{x}}/{{y}}.png",
         "tileSize": TILE_SIZE,
         "minzoom": 0,
         "maxzoom": max_zoom,
         "encoding": "mapbox",
         "attribution": "PaleoDEM: Scotese and Wright (2018), doi:10.5281/zenodo.5460860",
     }
-    manifest["generatedAt"] = datetime.now(timezone.utc).isoformat()
+    manifest["generatedAt"] = generated_at
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
 
 
@@ -298,7 +327,7 @@ def main() -> None:
     args = parse_args()
     output_root = Path(args.output_root)
     manifest_path = Path(args.manifest)
-    world_output = output_root / "250-ma"
+    world_output = output_root / WORLD_ID
 
     with tempfile.TemporaryDirectory(prefix="worldline-surface-") as temporary:
         temp = Path(temporary)
@@ -315,18 +344,21 @@ def main() -> None:
         print(f"Using {dataset_path.name} at {actual_age} Ma")
         elevation, latitudes, longitudes = load_grid(dataset_path)
 
-        if world_output.exists():
-            import shutil
+        generated_at = previous_generation(world_output, dataset_path.name)
+        if generated_at is None:
+            generated_at = datetime.now(timezone.utc).isoformat()
 
+        if world_output.exists():
             shutil.rmtree(world_output)
         write_tiles(elevation, latitudes, longitudes, world_output, args.max_zoom)
 
     metadata = {
         "schemaVersion": 1,
-        "id": "250-ma",
+        "builderVersion": BUILDER_VERSION,
+        "id": WORLD_ID,
         "targetAgeMa": args.age,
         "actualAgeMa": actual_age,
-        "generatedAt": datetime.now(timezone.utc).isoformat(),
+        "generatedAt": generated_at,
         "source": {
             "title": "PALEOMAP Paleodigital Elevation Models for the Phanerozoic",
             "authors": "Christopher R. Scotese and Nicky M. Wright",
@@ -338,6 +370,7 @@ def main() -> None:
             "elevation": "source-derived",
             "bathymetry": "source-derived",
             "surfaceColor": "deterministic elevation-derived visual synthesis",
+            "relief": "padded source-derived hillshade with no tile-local edge discontinuity",
             "climate": "not represented",
             "vegetation": "not represented",
             "settlements": "not represented",
@@ -345,7 +378,7 @@ def main() -> None:
         "tiles": {"tileSize": TILE_SIZE, "minzoom": 0, "maxzoom": args.max_zoom},
     }
     (world_output / "world.json").write_text(json.dumps(metadata, indent=2) + "\n")
-    update_manifest(manifest_path, args.age, actual_age, args.max_zoom)
+    update_manifest(manifest_path, actual_age, args.max_zoom, generated_at)
     print(f"Surface package written to {world_output}")
 
 
