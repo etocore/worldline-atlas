@@ -10,7 +10,6 @@
   const FLAT_LAND_OPACITY = 1;
   const FLAT_COASTLINE_OPACITY = 0.92;
   const FLAT_COASTLINE_WIDTH = ['interpolate', ['linear'], ['zoom'], 0, 0.65, 5, 1.7, 9, 2.4];
-  const SURFACE_COASTLINE_WIDTH = ['interpolate', ['linear'], ['zoom'], 0, 0.35, 5, 1.05, 9, 1.5];
   const hiddenTechnicalLayers = new Map();
 
   let manifest = null;
@@ -19,6 +18,8 @@
   let initializingPromise = null;
   let updateTimer = 0;
   let surfaceBadge = null;
+  let previousTerrain = null;
+  let terrainCaptured = false;
 
   function atlasMap() {
     try {
@@ -125,7 +126,25 @@
     hiddenTechnicalLayers.clear();
   }
 
-  function removeSurfaceLayers(mapInstance) {
+  function captureTerrain(mapInstance) {
+    if (terrainCaptured) return;
+    previousTerrain = mapInstance.getTerrain?.() || null;
+    terrainCaptured = true;
+  }
+
+  function disableSurfaceTerrain(mapInstance, restorePrevious = false) {
+    const terrain = mapInstance.getTerrain?.();
+    if (terrain?.source === SOURCE_DEM) {
+      mapInstance.setTerrain?.(restorePrevious ? previousTerrain : null);
+    }
+    if (restorePrevious) {
+      previousTerrain = null;
+      terrainCaptured = false;
+    }
+  }
+
+  function removeSurfaceLayers(mapInstance, restoreTerrain = false) {
+    disableSurfaceTerrain(mapInstance, restoreTerrain);
     [LAYER_HILLSHADE, LAYER_COLOR].forEach((id) => {
       if (mapInstance.getLayer(id)) mapInstance.removeLayer(id);
     });
@@ -135,7 +154,7 @@
   }
 
   function restoreFlatSurface(mapInstance) {
-    removeSurfaceLayers(mapInstance);
+    removeSurfaceLayers(mapInstance, true);
     restoreTechnicalLayers(mapInstance);
     if (mapInstance.getLayer('paleo-land-fill')) {
       mapInstance.setPaintProperty('paleo-land-fill', 'fill-opacity', FLAT_LAND_OPACITY);
@@ -151,7 +170,8 @@
 
   function installWorld(mapInstance, world) {
     if (activeWorldId === world.id && mapInstance.getLayer(LAYER_COLOR) && mapInstance.getLayer(LAYER_HILLSHADE)) return;
-    removeSurfaceLayers(mapInstance);
+    captureTerrain(mapInstance);
+    removeSurfaceLayers(mapInstance, false);
     setBadge(world, true);
 
     const assets = world.assets;
@@ -170,10 +190,11 @@
       type: 'raster',
       source: SOURCE_COLOR,
       paint: {
-        'raster-opacity': 0.98,
-        'raster-fade-duration': 240,
-        'raster-saturation': -0.04,
-        'raster-contrast': 0.08
+        'raster-opacity': 0.99,
+        'raster-fade-duration': 220,
+        'raster-resampling': 'linear',
+        'raster-saturation': -0.02,
+        'raster-contrast': 0.1
       }
     }, before);
 
@@ -191,19 +212,21 @@
       type: 'hillshade',
       source: SOURCE_DEM,
       paint: {
-        'hillshade-exaggeration': 0.22,
+        'hillshade-exaggeration': 0.19,
         'hillshade-shadow-color': '#061018',
         'hillshade-highlight-color': '#f5e9ce',
         'hillshade-accent-color': '#745c3e'
       }
     }, before);
+    mapInstance.setTerrain?.({ source: SOURCE_DEM, exaggeration: 0.16 });
 
+    // The raster package contains its own shoreline. Hiding the CAO2024 fill and
+    // edge prevents two different reconstruction models from producing a double coast.
     if (mapInstance.getLayer('paleo-land-fill')) {
-      mapInstance.setPaintProperty('paleo-land-fill', 'fill-opacity', 0.04);
+      mapInstance.setPaintProperty('paleo-land-fill', 'fill-opacity', 0);
     }
     if (mapInstance.getLayer('paleo-coastline-line')) {
-      mapInstance.setPaintProperty('paleo-coastline-line', 'line-opacity', 0.48);
-      mapInstance.setPaintProperty('paleo-coastline-line', 'line-width', SURFACE_COASTLINE_WIDTH);
+      mapInstance.setPaintProperty('paleo-coastline-line', 'line-opacity', 0);
     }
 
     rememberAndHideTechnicalLayers(mapInstance);
