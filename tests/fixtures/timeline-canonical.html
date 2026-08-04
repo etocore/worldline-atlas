@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Worldline canonical timeline fixture</title>
   <link rel="stylesheet" href="../../styles.css" />
-  <link rel="stylesheet" href="../../apple-controls.css" />
+  <link rel="stylesheet" href="../../mobile/surfaces.css" />
+  <link rel="stylesheet" href="../../search/search.css" />
   <link rel="stylesheet" href="../../earth-history.css" />
-  <link rel="stylesheet" href="../../interface-reduction-r22.css" />
   <link rel="stylesheet" href="../../timeline/timeline.css" />
   <style>
     html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #020305; }
@@ -98,20 +98,46 @@
 
     const adapters = new Map();
     const uiListeners = new Set();
+    let activeSurface = 'none';
     window.WorldlineUI = {
       register(name, adapter) { adapters.set(name, adapter); },
-      activate(name, payload, meta) {
+      activate(name, payload, meta = {}) {
+        const previous = { active: activeSurface };
         adapters.forEach((adapter, key) => { if (key !== name) adapter.close?.({ replacedBy: name }); });
         adapters.get(name)?.open?.(payload, meta);
-        uiListeners.forEach((listener) => listener({ active: name }, { active: 'none' }));
+        activeSurface = name;
+        document.body.dataset.uiSurface = name;
+        uiListeners.forEach((listener) => listener({ active: name, reason: meta.reason || 'activate' }, previous));
       },
-      close(name, meta) {
+      close(name, meta = {}) {
+        const previous = { active: activeSurface };
         adapters.get(name)?.close?.(meta);
-        uiListeners.forEach((listener) => listener({ active: 'none' }, { active: name }));
+        if (activeSurface === name) activeSurface = 'none';
+        document.body.dataset.uiSurface = activeSurface;
+        uiListeners.forEach((listener) => listener({ active: activeSurface, reason: meta.reason || 'close' }, previous));
       },
+      isOpen(name) { return Boolean(adapters.get(name)?.isOpen?.()); },
       subscribe(listener) { uiListeners.add(listener); return () => uiListeners.delete(listener); }
     };
-    window.__WORLDLINE_APPLE_CONTROLS_BUILD__ = 'fixture-search-controls';
+
+    const searchShell = document.querySelector('#searchShell');
+    const sheetClose = document.querySelector('#sheetClose');
+    WorldlineUI.register('settings', {
+      open() {
+        searchShell.classList.add('is-open');
+        searchShell.dataset.detent = 'expanded';
+        sheetClose.setAttribute('aria-label', 'Close settings');
+      },
+      close() {
+        searchShell.classList.remove('is-open');
+        searchShell.dataset.detent = 'compact';
+      },
+      isOpen() { return searchShell.classList.contains('is-open'); }
+    });
+    sheetClose.addEventListener('click', () => WorldlineUI.close('settings', { reason: 'settings-close-button' }));
+
+    window.__WORLDLINE_SEARCH_BUILD__ = 'fixture-search-controls';
+    window.__WORLDLINE_APPLE_CONTROLS_BUILD__ = window.__WORLDLINE_SEARCH_BUILD__;
   </script>
   <script src="../../timeline/model.js"></script>
   <script src="../../timeline/state.js"></script>

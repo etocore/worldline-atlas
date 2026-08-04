@@ -2,15 +2,14 @@ import { test, expect } from '@playwright/test';
 
 const fixturePath = '/tests/fixtures/ios-interface.html';
 
-async function openReducedFixture(page) {
+async function openFixture(page) {
   await page.goto(fixturePath);
   await page.waitForFunction(() => document.body.dataset.fixtureReady === 'true');
-  await page.addStyleTag({ url: 'http://127.0.0.1:4173/interface-reduction-r22.css' });
 }
 
 async function openSettings(page) {
   await page.evaluate(() => {
-    window.WorldlineUI.activate('settings', { options: {} }, { reason: 'r22-visual-test' });
+    window.WorldlineUI.activate('settings', { options: {} }, { reason: 'surface-visual-test' });
   });
   await expect(page.locator('#searchShell')).toHaveClass(/is-open/);
 }
@@ -32,20 +31,16 @@ async function openPlace(page) {
   await expect(page.locator('#placeSheet')).toHaveAttribute('data-detent', 'peek');
 }
 
-test.beforeEach(async ({ page }) => {
-  await openReducedFixture(page);
-});
+test.beforeEach(async ({ page }) => openFixture(page));
 
 test('presents settings as one continuous hierarchy instead of nested cards', async ({ page }) => {
   await openSettings(page);
-
   const hierarchy = await page.evaluate(() => {
     const metric = getComputedStyle(document.querySelector('.metric-grid'));
     const timeline = getComputedStyle(document.querySelector('.timeline-block'));
     const control = getComputedStyle(document.querySelector('.control-block'));
     const grid = getComputedStyle(document.querySelector('.control-grid'));
     const panel = document.querySelector('#controlPanel');
-
     return {
       metricRadius: metric.borderRadius,
       metricBackground: metric.backgroundColor,
@@ -58,7 +53,6 @@ test('presents settings as one continuous hierarchy instead of nested cards', as
       panelClientWidth: panel.clientWidth
     };
   });
-
   expect(hierarchy.metricRadius).toBe('0px');
   expect(hierarchy.metricBackground).toBe('rgba(0, 0, 0, 0)');
   expect(hierarchy.timelineRadius).toBe('0px');
@@ -71,12 +65,10 @@ test('presents settings as one continuous hierarchy instead of nested cards', as
 
 test('keeps place evidence content-led instead of wrapping it in another card', async ({ page }) => {
   await openPlace(page);
-
   const presentation = await page.evaluate(() => {
     const fact = getComputedStyle(document.querySelector('.place-fact'));
     const evidence = getComputedStyle(document.querySelector('.place-evidence'));
     const label = getComputedStyle(document.querySelector('.place-summary-label'));
-
     return {
       factRadius: fact.borderRadius,
       factBackground: fact.backgroundColor,
@@ -86,7 +78,6 @@ test('keeps place evidence content-led instead of wrapping it in another card', 
       summaryLabelDisplay: label.display
     };
   });
-
   expect(presentation.factRadius).toBe('0px');
   expect(presentation.factBackground).toBe('rgba(0, 0, 0, 0)');
   expect(presentation.evidenceRadius).toBe('0px');
@@ -95,28 +86,22 @@ test('keeps place evidence content-led instead of wrapping it in another card', 
   expect(presentation.summaryLabelDisplay).toBe('none');
 });
 
-test('reduces timeline and search chrome while preserving viewport containment', async ({ page }) => {
-  await page.locator('#yearButton').click();
-  await expect(page.locator('#timelineHud')).toHaveAttribute('data-open', 'true');
-
+test('keeps the canonical search surface compact and inside the viewport', async ({ page }) => {
+  await page.locator('#historySearch').focus();
+  await expect(page.locator('#searchSuggestions')).toHaveAttribute('data-open', 'true');
   const presentation = await page.evaluate(() => {
-    const timeline = document.querySelector('#timelineHud');
-    const timelineStyle = getComputedStyle(timeline);
     const suggestions = getComputedStyle(document.querySelector('#searchSuggestions'));
-
+    const shell = document.querySelector('#searchShell').getBoundingClientRect();
     return {
-      timelineWidth: timeline.getBoundingClientRect().width,
-      timelineRadius: Number.parseFloat(timelineStyle.borderRadius),
-      timelineShadow: timelineStyle.boxShadow,
       suggestionRadius: Number.parseFloat(suggestions.borderRadius),
+      shellLeft: shell.left,
+      shellRight: shell.right,
       scrollWidth: document.documentElement.scrollWidth,
       innerWidth: window.innerWidth
     };
   });
-
-  expect(presentation.timelineWidth).toBeLessThanOrEqual(Math.min(590, presentation.innerWidth - 18) + 1);
-  expect(presentation.timelineRadius).toBeLessThanOrEqual(22);
-  expect(presentation.timelineShadow).not.toContain('90px');
   expect(presentation.suggestionRadius).toBe(18);
+  expect(presentation.shellLeft).toBeGreaterThanOrEqual(-1);
+  expect(presentation.shellRight).toBeLessThanOrEqual(presentation.innerWidth + 1);
   expect(presentation.scrollWidth).toBeLessThanOrEqual(presentation.innerWidth + 1);
 });

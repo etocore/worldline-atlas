@@ -1,140 +1,89 @@
 import { access, readFile } from 'node:fs/promises';
 
 const failures = [];
-const requiredFiles = [
-  'ios-interface-r21.js',
-  'ios-interface-r21.css',
-  'interface-reduction-r22.css',
-  'timeline/model.js',
-  'timeline/state.js',
-  'timeline/view.js',
-  'timeline/timeline.css',
-  'docs/IOS_INTERFACE_STANDARD.md',
-  'interaction-system.js',
-  'interaction-system.css',
-  'bootstrap.js',
-  'version.json'
+const required = [
+  'mobile/runtime.js', 'mobile/sheets.js', 'mobile/quality.js',
+  'mobile/base.css', 'mobile/sheets.css', 'mobile/quality.css', 'mobile/surfaces.css',
+  'search/search.js', 'search/viewport.js', 'search/search.css',
+  'timeline/model.js', 'timeline/state.js', 'timeline/view.js', 'timeline/timeline.css',
+  'docs/IOS_INTERFACE_STANDARD.md', 'bootstrap.js', 'index.html', 'version.json'
 ];
-
-for (const file of requiredFiles) {
-  try { await access(file); } catch { failures.push(`Missing iOS interface file: ${file}`); }
+for (const file of required) {
+  try { await access(file); } catch { failures.push(`Missing canonical interface file: ${file}`); }
 }
 
-const [runtime, style, reduction, model, timelineState, timelineView, timelineStyle, standard, interaction, interactionStyle, bootstrap, versionSource] = await Promise.all([
-  readFile('ios-interface-r21.js', 'utf8'),
-  readFile('ios-interface-r21.css', 'utf8'),
-  readFile('interface-reduction-r22.css', 'utf8'),
-  readFile('timeline/model.js', 'utf8'),
-  readFile('timeline/state.js', 'utf8'),
-  readFile('timeline/view.js', 'utf8'),
-  readFile('timeline/timeline.css', 'utf8'),
-  readFile('docs/IOS_INTERFACE_STANDARD.md', 'utf8'),
-  readFile('interaction-system.js', 'utf8'),
-  readFile('interaction-system.css', 'utf8'),
-  readFile('bootstrap.js', 'utf8'),
-  readFile('version.json', 'utf8')
-]);
-
+const sources = Object.fromEntries(await Promise.all(required.map(async (file) => [file, await readFile(file, 'utf8')])));
 let version;
-try { version = JSON.parse(versionSource); } catch { failures.push('version.json is not valid JSON'); }
+try { version = JSON.parse(sources['version.json']); } catch { failures.push('version.json is not valid JSON'); }
 
-function requireText(source, token, message) {
-  if (!source.includes(token)) failures.push(message);
+const requireText = (file, token, message) => {
+  if (!sources[file].includes(token)) failures.push(message);
+};
+const prohibitText = (file, token, message) => {
+  if (sources[file].includes(token)) failures.push(message);
+};
+
+const build = version?.build || '';
+if (build !== '2026-08-04-globe-r29') failures.push('The canonical mobile architecture must use the r29 build');
+if (!sources['bootstrap.js'].includes(build)) failures.push('Bootstrap and version.json builds do not match');
+
+for (const [file, token] of [
+  ['index.html', 'mobile/runtime.js'], ['index.html', 'mobile/sheets.js'],
+  ['index.html', 'mobile/base.css'], ['index.html', 'mobile/sheets.css'],
+  ['bootstrap.js', "loadScript('mobile/quality.js')"], ['bootstrap.js', "loadStyle('mobile/quality.css')"],
+  ['bootstrap.js', "loadStyle('mobile/surfaces.css')"], ['bootstrap.js', "loadScript('search/search.js')"],
+  ['bootstrap.js', "loadScript('search/viewport.js')"], ['bootstrap.js', "loadStyle('search/search.css')"],
+  ['bootstrap.js', "loadScript('timeline/view.js')"], ['bootstrap.js', "loadStyle('timeline/timeline.css')"]
+]) requireText(file, token, `${file} does not load ${token}`);
+
+for (const token of ['function bindPlaceDrag()', 'function bindControlHandleDrag()', '__WORLDLINE_INTERACTION_BUILD__']) {
+  requireText('mobile/sheets.js', token, `The canonical sheet controller is missing ${token}`);
+}
+for (const token of ['.place-sheet-handle', '.place-sheet-scroll', '--sheet-ease']) {
+  requireText('mobile/sheets.css', token, `The canonical sheet stylesheet is missing ${token}`);
+}
+for (const token of ["full: 'large'", 'RESTORE_FOCUS_REASONS', "surface === 'search'", "event.detail !== 0", 'WorldlineIOSInterface']) {
+  requireText('mobile/quality.js', token, `The canonical quality controller is missing ${token}`);
+}
+for (const token of ['--worldline-min-hit: 44px', '.worldline-hit-square', '.worldline-hit-height', ':focus-visible', 'prefers-reduced-motion: reduce', 'prefers-reduced-transparency: reduce', 'prefers-contrast: more', 'forced-colors: active']) {
+  requireText('mobile/quality.css', token, `The canonical quality stylesheet is missing ${token}`);
+}
+for (const token of ['.search-shell.is-open .metric-grid', '.place-facts', '.place-evidence', 'border-radius: 0 !important']) {
+  requireText('mobile/surfaces.css', token, `The canonical surface stylesheet is missing ${token}`);
+}
+for (const token of ["ui().register('search'", 'WorldlineTimelineState', 'WorldlineSearchController']) {
+  requireText('search/search.js', token, `The canonical search controller is missing ${token}`);
+}
+for (const token of ['visualViewport', 'worldline-search-locked', 'WorldlineSearchViewport']) {
+  requireText('search/viewport.js', token, `The keyboard-safe viewport controller is missing ${token}`);
+}
+for (const token of ['.search-suggestions', '.search-cancel', 'worldline-search-locked', 'prefers-reduced-motion: reduce']) {
+  requireText('search/search.css', token, `The canonical search stylesheet is missing ${token}`);
 }
 
-function prohibitText(source, token, message) {
-  if (source.includes(token)) failures.push(message);
+for (const token of ['timelinePrimarySlider', 'timeline-hud', 'milestonePosition', 'snapTimeline']) {
+  prohibitText('search/viewport.js', token, `Search viewport must not own timeline behavior: ${token}`);
+}
+for (const token of ['createTimelineHud', 'timelineSlider', 'timelinePlay']) {
+  prohibitText('search/search.js', token, `Search must not create or control timeline UI: ${token}`);
+}
+for (const token of ['.timeline-hud', '.timeline-local-slider', '.timeline-interval-rail']) {
+  prohibitText('mobile/surfaces.css', token, `Mobile surfaces must not own timeline styles: ${token}`);
+  prohibitText('search/search.css', token, `Search styles must not own timeline styles: ${token}`);
 }
 
-const appBuild = version?.build || '';
-const appRevision = Number.parseInt(appBuild.match(/-r(\d+)$/)?.[1] || '', 10);
-const bootstrapBuild = bootstrap.match(/const BUILD = '([^']+)'/)?.[1] || '';
-if (!/^2026-08-04-globe-r\d+$/.test(appBuild) || appRevision < 28) failures.push('The app build must include canonical timeline r28 or later');
-if (bootstrapBuild !== appBuild) failures.push('Bootstrap and version.json app builds do not match');
-requireText(bootstrap, "loadStyle('ios-interface-r21.css')", 'Bootstrap does not load the r21 interface styles');
-requireText(bootstrap, "loadScript('ios-interface-r21.js')", 'Bootstrap does not load the r21 interface runtime');
-requireText(bootstrap, "loadStyle('interface-reduction-r22.css')", 'Bootstrap does not load the r22 visual reduction layer');
-requireText(bootstrap, "loadStyle('timeline/timeline.css')", 'Bootstrap does not load canonical timeline styles');
-requireText(bootstrap, "loadScript('timeline/view.js')", 'Bootstrap does not load the canonical timeline view');
-
-requireText(interaction, 'function bindPlaceDrag()', 'The authoritative place-sheet drag controller is missing');
-requireText(interaction, 'function bindControlHandleDrag()', 'The authoritative settings-sheet drag controller is missing');
-requireText(interactionStyle, '.place-sheet-handle', 'The real place-sheet handle style is missing');
-requireText(interactionStyle, '.place-sheet-scroll', 'The real place-sheet scroll container style is missing');
-for (const forbidden of ['installDragController', 'setPointerCapture', "addEventListener('pointermove'", '--worldline-sheet-drag-y', "addEventListener('dblclick'"]) {
-  prohibitText(runtime, forbidden, `r21 must not install a competing sheet gesture path: ${forbidden}`);
+const production = `${sources['bootstrap.js']}\n${sources['index.html']}`;
+for (const token of ['interaction-system', 'mobile-polish', 'mobile-search-snap-r15', 'ios-interface-r21', 'interface-reduction-r22', 'apple-controls']) {
+  if (production.includes(token)) failures.push(`Production still references retired mobile generation ${token}`);
 }
 
-requireText(runtime, "full: 'large'", 'The project full detent is not mapped to the semantic large detent');
-requireText(runtime, '.place-sheet-handle', 'r21 does not target the actual place-sheet handle');
-requireText(runtime, 'RESTORE_FOCUS_REASONS', 'Focus restoration is not gated by dismissal reason');
-requireText(runtime, "surface === 'search'", 'Search dismissal is not protected from keyboard-reopening focus restoration');
-requireText(runtime, "event.detail !== 0", 'The keyboard alternative is not isolated from pointer activation');
-requireText(runtime, "window.__WORLDLINE_INTERACTION_BUILD__", 'r21 does not wait for the authoritative interaction system');
-
-requireText(style, '--worldline-min-hit: 44px', 'The 44px interaction target token is missing');
-requireText(style, '.worldline-hit-square', 'Scoped square hit targets are missing');
-requireText(style, '.worldline-hit-height', 'Scoped minimum-height targets are missing');
-requireText(style, '#placeSheet .place-sheet-scroll', 'The quality layer does not preserve the actual place-sheet scroll container');
-requireText(style, ':focus-visible', 'Visible keyboard focus styling is missing');
-requireText(style, 'prefers-reduced-motion: reduce', 'Reduced Motion adaptation is missing');
-requireText(style, 'prefers-reduced-transparency: reduce', 'Reduced Transparency progressive enhancement is missing');
-requireText(style, 'prefers-contrast: more', 'Increased Contrast adaptation is missing');
-requireText(style, 'forced-colors: active', 'Forced-colors adaptation is missing');
-prohibitText(style, '#placeSheet[data-detent="large"]', 'r21 must not introduce a competing DOM detent name');
-prohibitText(style, '--worldline-sheet-drag-y', 'r21 must not override established sheet transforms');
-prohibitText(style, 'transition: none', 'Reduced Motion must preserve state feedback with near-zero duration rather than removing transitions');
-
-for (const token of [
-  '.search-suggestion-icon',
-  '.search-shell.is-open .metric-grid',
-  '.search-shell.is-open .control-grid',
-  '.place-facts',
-  '.place-evidence',
-  'border-radius: 0 !important',
-  'prefers-reduced-transparency: reduce'
-]) requireText(reduction, token, `The non-timeline visual reduction layer is missing: ${token}`);
-prohibitText(reduction, '.timeline-hud', 'The r22 visual layer must no longer own timeline geometry');
-prohibitText(reduction, '--sheet-drag-y', 'The r22 visual layer must not take ownership of sheet movement');
-prohibitText(reduction, 'pointermove', 'The r22 visual layer must not add gesture handling');
-
-for (const token of ['EARTH_TREE', "id: 'cretaceous'", 'HUMAN_INTERVALS', 'localPosition', 'localValue', 'formatTime']) {
-  requireText(model, token, `The canonical timeline model is missing: ${token}`);
+for (const token of ['Apple Human Interface Guidelines', 'one gesture owner', 'reason-aware focus restoration', 'current project architecture']) {
+  requireText('docs/IOS_INTERFACE_STANDARD.md', token, `The iOS interface standard is missing ${token}`);
 }
-for (const token of ['WorldlineTimelineState', 'previewValue', 'worldline:timeline-preview', 'worldline:timeline-commit']) {
-  requireText(timelineState, token, `The canonical timeline state is missing: ${token}`);
-}
-for (const token of ['createHud', 'buildRail', '/api/paleocoastlines?time=', 'buildSettings', 'settingsHistory.hidden', '__WORLDLINE_TIMELINE_BUILD__']) {
-  requireText(timelineView, token, `The canonical timeline view is missing: ${token}`);
-}
-for (const token of [
-  'bottom: calc(12px + env(safe-area-inset-bottom))',
-  '.timeline-breadcrumb',
-  '.timeline-interval-rail',
-  '.timeline-local-slider',
-  '.timeline-render-status',
-  '.worldline-timeline-settings > .metric-grid',
-  '.settings-native-body',
-  '.settings-group',
-  'prefers-reduced-motion: reduce',
-  'prefers-reduced-transparency: reduce'
-]) requireText(timelineStyle, token, `The canonical timeline or settings styles are missing: ${token}`);
-prohibitText(timelineStyle, '.timeline-era-card', 'The canonical timeline must not restore the old milestone card');
-prohibitText(timelineStyle, '.timeline-play', 'The canonical timeline must not restore the permanent play control');
-
-for (const token of [
-  'Apple Human Interface Guidelines',
-  'Awesome iOS is a discovery index',
-  'one gesture owner',
-  'reason-aware focus restoration',
-  'full` maps to the semantic `large',
-  'current project architecture'
-]) requireText(standard, token, `The iOS interface standard is missing: ${token}`);
 
 if (failures.length) {
-  console.error('iOS interface validation failed:');
+  console.error('Canonical mobile interface validation failed:');
   failures.forEach((failure) => console.error(`- ${failure}`));
   process.exit(1);
 }
-
-console.log('iOS architecture, canonical local timeline, live coastline preview, and compact settings are valid.');
+console.log('Canonical mobile shell, quality layer, search, and timeline ownership are valid.');
