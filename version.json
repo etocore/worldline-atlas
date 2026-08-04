@@ -1,4 +1,4 @@
 {
-  "build": "2026-08-04-globe-r19",
-  "description": "iPhone timeline centering repair, duplicate date suppression, and compact keyboard-aware search focus mode"
+  "build": "2026-08-04-globe-r20",
+  "description": "Published PaleoDEM surface pipeline with a rendered 250 Ma anchor world, bathymetric relief, and reusable historical world packages"
 }
