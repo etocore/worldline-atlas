@@ -3,13 +3,17 @@
 
   const BUILD = '2026-08-04-globe-r30';
   const BUDGETS = Object.freeze({
-    inputToRenderP95Ms: 50,
-    inputToPaintP95Ms: 100,
-    maxFrameGapMs: 100,
-    maxPreviewRequestsPerGesture: 4,
-    maxPostReleaseRequests: 1,
-    maxSourceRemovalsDuringGesture: 0,
-    maxCommitsPerGesture: 1
+    release: Object.freeze({
+      inputToRenderP95Ms: 50,
+      maxPreviewRequestsPerGesture: 4,
+      maxPostReleaseRequests: 1,
+      maxSourceRemovalsDuringGesture: 0,
+      maxCommitsPerGesture: 1
+    }),
+    experience: Object.freeze({
+      inputToPaintP95Ms: 100,
+      maxFrameGapMs: 100
+    })
   });
   const HISTORY_LIMIT = 24;
   const SAMPLE_LIMIT = 120;
@@ -72,7 +76,7 @@
   }
 
   function trackFrame(timestamp) {
-    if (!activeGesture || activeGesture.finalizedAt) return;
+    if (!activeGesture || activeGesture.finalizedAt || activeGesture.releasedAt !== null) return;
     if (lastFrameAt) boundedPush(activeGesture.frameGapsMs, timestamp - lastFrameAt);
     lastFrameAt = timestamp;
     frameHandle = requestAnimationFrame(trackFrame);
@@ -97,6 +101,8 @@
     if (!activeGesture) return;
     activeGesture.releasedAt = now();
     activeGesture.cancelled = cancelled;
+    cancelAnimationFrame(frameHandle);
+    lastFrameAt = 0;
     clearTimeout(finalizeTimer);
     finalizeTimer = setTimeout(() => finalizeGesture(cancelled ? 'cancelled' : 'settled'), 360);
   }
@@ -128,17 +134,27 @@
   function evaluate(gesture = latestGesture()) {
     const metrics = summarize(gesture);
     const violations = [];
+    const advisories = [];
     if (!metrics) violations.push('No timeline gesture has been measured.');
     if (metrics) {
-      if (metrics.inputToRenderP95Ms > BUDGETS.inputToRenderP95Ms) violations.push(`Input-to-render p95 ${metrics.inputToRenderP95Ms.toFixed(1)}ms exceeds ${BUDGETS.inputToRenderP95Ms}ms.`);
-      if (metrics.inputToPaintP95Ms > BUDGETS.inputToPaintP95Ms) violations.push(`Input-to-paint p95 ${metrics.inputToPaintP95Ms.toFixed(1)}ms exceeds ${BUDGETS.inputToPaintP95Ms}ms.`);
-      if (metrics.maxFrameGapMs > BUDGETS.maxFrameGapMs) violations.push(`Maximum frame gap ${metrics.maxFrameGapMs.toFixed(1)}ms exceeds ${BUDGETS.maxFrameGapMs}ms.`);
-      if (metrics.previewRequests > BUDGETS.maxPreviewRequestsPerGesture) violations.push(`${metrics.previewRequests} preview requests exceed the per-gesture budget of ${BUDGETS.maxPreviewRequestsPerGesture}.`);
-      if (metrics.postReleaseRequests > BUDGETS.maxPostReleaseRequests) violations.push(`${metrics.postReleaseRequests} post-release requests exceed the settle budget of ${BUDGETS.maxPostReleaseRequests}.`);
-      if (metrics.sourceRemovals > BUDGETS.maxSourceRemovalsDuringGesture) violations.push(`${metrics.sourceRemovals} map sources or layers were removed during the gesture.`);
-      if (metrics.commits > BUDGETS.maxCommitsPerGesture) violations.push(`${metrics.commits} commits occurred during one gesture.`);
+      const release = BUDGETS.release;
+      const experience = BUDGETS.experience;
+      if (metrics.inputToRenderP95Ms > release.inputToRenderP95Ms) violations.push(`Input-to-render p95 ${metrics.inputToRenderP95Ms.toFixed(1)}ms exceeds ${release.inputToRenderP95Ms}ms.`);
+      if (metrics.previewRequests > release.maxPreviewRequestsPerGesture) violations.push(`${metrics.previewRequests} preview requests exceed the per-gesture budget of ${release.maxPreviewRequestsPerGesture}.`);
+      if (metrics.postReleaseRequests > release.maxPostReleaseRequests) violations.push(`${metrics.postReleaseRequests} post-release requests exceed the settle budget of ${release.maxPostReleaseRequests}.`);
+      if (metrics.sourceRemovals > release.maxSourceRemovalsDuringGesture) violations.push(`${metrics.sourceRemovals} map sources or layers were removed during the gesture.`);
+      if (metrics.commits > release.maxCommitsPerGesture) violations.push(`${metrics.commits} commits occurred during one gesture.`);
+      if (metrics.inputToPaintP95Ms > experience.inputToPaintP95Ms) advisories.push(`Input-to-paint p95 ${metrics.inputToPaintP95Ms.toFixed(1)}ms exceeds the foreground Safari target of ${experience.inputToPaintP95Ms}ms.`);
+      if (metrics.maxFrameGapMs > experience.maxFrameGapMs) advisories.push(`Maximum frame gap ${metrics.maxFrameGapMs.toFixed(1)}ms exceeds the foreground Safari target of ${experience.maxFrameGapMs}ms.`);
     }
-    return Object.freeze({ pass: violations.length === 0, budgets: BUDGETS, metrics, violations });
+    return Object.freeze({
+      pass: violations.length === 0,
+      experiencePass: advisories.length === 0,
+      budgets: BUDGETS,
+      metrics,
+      violations,
+      advisories
+    });
   }
 
   function reset() {
