@@ -1,4 +1,4 @@
 {
-  "build": "2026-08-04-globe-r20",
-  "description": "Published PaleoDEM surface pipeline with a rendered 250 Ma anchor world, bathymetric relief, and reusable historical world packages"
+  "build": "2026-08-04-globe-r21",
+  "description": "Native spatial interface foundation with shared draggable sheet detents, focus restoration, and iOS interaction constraints"
 }
