@@ -62,43 +62,75 @@ async function poll(label, callback, { timeout = 45_000, interval = 250 } = {}) 
   throw new Error(`${label} timed out${lastError ? `: ${lastError.message}` : ''}`);
 }
 
-async function createSession() {
-  const result = await request('POST', '/session', {
-    capabilities: {
-      alwaysMatch: {
-        platformName: 'iOS',
-        browserName: 'Safari',
-        'appium:automationName': 'XCUITest',
-        'appium:deviceName': DEVICE_NAME,
-        'appium:platformVersion': PLATFORM_VERSION,
-        'appium:udid': SIMULATOR_UDID,
-        'appium:noReset': true,
-        'appium:newCommandTimeout': 180,
-        'appium:wdaLaunchTimeout': 180_000,
-        'appium:wdaConnectionTimeout': 180_000,
-        'appium:wdaStartupRetries': 2,
-        'appium:wdaStartupRetryInterval': 20_000,
-        'appium:waitForIdleTimeout': 1,
-        'appium:initialDeeplinkUrl': TARGET_URL
-      },
-      firstMatch: [{}]
-    }
-  });
+function sessionCapabilities() {
+  return {
+    platformName: 'iOS',
+    'appium:automationName': 'XCUITest',
+    'appium:deviceName': DEVICE_NAME,
+    'appium:platformVersion': PLATFORM_VERSION,
+    'appium:udid': SIMULATOR_UDID,
+    'appium:noReset': true,
+    'appium:autoLaunch': false,
+    'appium:newCommandTimeout': 180,
+    'appium:wdaLaunchTimeout': 240_000,
+    'appium:wdaConnectionTimeout': 180_000,
+    'appium:wdaStartupRetries': 1,
+    'appium:wdaStartupRetryInterval': 10_000,
+    'appium:waitForIdleTimeout': 1,
+    'appium:includeSafariInWebviews': true,
+    'appium:webviewConnectTimeout': 30_000,
+    'appium:webviewConnectRetries': 60
+  };
+}
 
-  sessionId = result.sessionId;
-  assert.ok(sessionId, 'Appium did not return a session id');
-  await writeFile(`${ARTIFACT_DIR}/session-capabilities.json`, `${JSON.stringify(result.capabilities, null, 2)}\n`);
+async function createSession() {
+  let lastError;
+
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    try {
+      const result = await request('POST', '/session', {
+        capabilities: {
+          alwaysMatch: sessionCapabilities(),
+          firstMatch: [{}]
+        }
+      });
+
+      sessionId = result.sessionId;
+      assert.ok(sessionId, 'Appium did not return a session id');
+      await writeFile(`${ARTIFACT_DIR}/session-capabilities.json`, `${JSON.stringify(result.capabilities, null, 2)}\n`);
+      return;
+    } catch (error) {
+      lastError = error;
+      if (attempt < 2) await sleep(10_000);
+    }
+  }
+
+  throw lastError;
 }
 
 async function execute(script, args = []) {
   return request('POST', `/session/${sessionId}/execute/sync`, { script, args });
 }
 
+async function executeMobile(method, options = {}) {
+  return execute(`mobile: ${method}`, [options]);
+}
+
+async function launchSafariFixture() {
+  await executeMobile('deepLink', {
+    url: TARGET_URL,
+    bundleId: 'com.apple.mobilesafari'
+  });
+}
+
 async function ensureWebContext() {
-  const contexts = await request('GET', `/session/${sessionId}/contexts`);
-  const webContext = contexts.find((context) => context !== 'NATIVE_APP');
-  assert.ok(webContext, `No Safari web context found. Contexts: ${JSON.stringify(contexts)}`);
+  const webContext = await poll('Safari web context', async () => {
+    const contexts = await request('GET', `/session/${sessionId}/contexts`);
+    return contexts.find((context) => context !== 'NATIVE_APP');
+  }, { timeout: 60_000, interval: 500 });
+
   await request('POST', `/session/${sessionId}/context`, { name: webContext });
+  await request('POST', `/session/${sessionId}/url`, { url: TARGET_URL });
 }
 
 async function find(selector) {
@@ -184,6 +216,7 @@ async function deleteSession() {
 
 async function run() {
   await createSession();
+  await launchSafariFixture();
   await ensureWebContext();
 
   await poll('Worldline fixture readiness', async () => {
