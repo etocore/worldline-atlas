@@ -100,6 +100,7 @@ jobs:
           node --check atlas-timeline-state-r18.js
           node --check atlas-timeline-r18.js
           node --check surface-engine-r20.js
+          node --check ios-interface-r21.js
           node --check apple-controls-loader.js
           node --check apple-controls.js
           node --check earth-history.js
@@ -122,6 +123,7 @@ jobs:
           node --check scripts/validate-research-foundation.mjs
           node --check scripts/validate-timeline-controller.mjs
           node --check scripts/validate-surface-engine.mjs
+          node --check scripts/validate-ios-interface.mjs
       - name: Check Python builders
         run: python -m py_compile scripts/build_surface_worlds.py
       - name: Validate reconstruction packages
@@ -142,3 +144,5 @@ jobs:
         run: node scripts/validate-research-foundation.mjs
       - name: Validate historical surface worlds
         run: node scripts/validate-surface-engine.mjs
+      - name: Validate iOS interface architecture
+        run: node scripts/validate-ios-interface.mjs
