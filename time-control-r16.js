@@ -9,6 +9,8 @@
   let lastSignature = '';
 
   function humanEarthLabel(ageMa) {
+    const timeline = globalThis.WorldlineTimelineState;
+    if (timeline?.formatEarthAge) return timeline.formatEarthAge(ageMa);
     const value = Number(ageMa);
     if (!Number.isFinite(value)) return 'Earth history';
     if (value >= 1000) {
@@ -22,6 +24,8 @@
   }
 
   function humanYearLabel(year) {
+    const timeline = globalThis.WorldlineTimelineState;
+    if (timeline?.formatHumanYear) return timeline.formatHumanYear(year);
     const value = Number(year);
     if (!Number.isFinite(value)) return 'Human history';
     if (value === 2026) return 'Present day';
@@ -40,19 +44,35 @@
     return true;
   }
 
+  function currentTimelineState() {
+    const timeline = globalThis.WorldlineTimelineState;
+    if (timeline?.getState) {
+      const snapshot = timeline.getState();
+      return {
+        mode: snapshot.domain,
+        selected: snapshot.domain === 'earth' ? snapshot.earthAgeMa : snapshot.humanYear
+      };
+    }
+    const earth = globalThis.WorldlineEarthHistory;
+    if (!earth) return null;
+    const mode = earth.getMode();
+    return {
+      mode,
+      selected: mode === 'earth' ? earth.getEarthAgeMa() : earth.getHumanYear()
+    };
+  }
+
   function syncControl() {
     if (!yearButton && !installControl()) return false;
-    const earth = globalThis.WorldlineEarthHistory;
-    if (!earth) return false;
-    const mode = earth.getMode();
-    const selected = mode === 'earth' ? earth.getEarthAgeMa() : earth.getHumanYear();
-    const signature = `${mode}|${selected}`;
+    const current = currentTimelineState();
+    if (!current) return false;
+    const signature = `${current.mode}|${current.selected}`;
     if (signature === lastSignature) return true;
     lastSignature = signature;
 
-    eraLabel.textContent = mode === 'earth' ? 'Earth timeline' : 'Human timeline';
-    yearLabel.textContent = mode === 'earth' ? humanEarthLabel(selected) : humanYearLabel(selected);
-    yearButton.setAttribute('aria-label', `Open ${mode === 'earth' ? 'Earth' : 'Human'} History timeline at ${yearLabel.textContent}`);
+    eraLabel.textContent = current.mode === 'earth' ? 'Earth timeline' : 'Human timeline';
+    yearLabel.textContent = current.mode === 'earth' ? humanEarthLabel(current.selected) : humanYearLabel(current.selected);
+    yearButton.setAttribute('aria-label', `Open ${current.mode === 'earth' ? 'Earth' : 'Human'} History timeline at ${yearLabel.textContent}`);
     yearButton.title = yearButton.getAttribute('aria-label');
     return true;
   }
@@ -67,6 +87,11 @@
 
   function applySearchMode(target) {
     if (!target) return;
+    const timeline = globalThis.WorldlineTimelineState;
+    if (timeline?.setDomain) {
+      timeline.setDomain(target, { source: 'search-result' });
+      return;
+    }
     const earth = globalThis.WorldlineEarthHistory;
     if (!earth || earth.getMode() === target) return;
     earth.setMode(target, { source: 'search-result' });
@@ -96,12 +121,13 @@
   }
 
   const installer = setInterval(() => {
-    if (!installControl() || !globalThis.WorldlineEarthHistory) return;
+    if (!installControl() || (!globalThis.WorldlineEarthHistory && !globalThis.WorldlineTimelineState)) return;
     clearInterval(installer);
     installSearchBridge();
     syncControl();
     setInterval(syncControl, 180);
     window.addEventListener('worldline:timeline-mode', () => setTimeout(syncControl, 0));
+    window.addEventListener('worldline:timeline-state', () => setTimeout(syncControl, 0));
     window.__WORLDLINE_TIME_CONTROL_BUILD__ = BUILD;
   }, 80);
 })();

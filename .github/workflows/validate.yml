@@ -39,6 +39,8 @@ jobs:
           node --check mobile-search-snap-r15.js
           node --check time-control-r16.js
           node --check research-foundation-r17.js
+          node --check atlas-timeline-state-r18.js
+          node --check atlas-timeline-r18.js
           node --check apple-controls-loader.js
           node --check apple-controls.js
           node --check earth-history.js
@@ -59,10 +61,13 @@ jobs:
           node --check scripts/validate-earth-cache.mjs
           node --check scripts/validate-history-engine.mjs
           node --check scripts/validate-research-foundation.mjs
+          node --check scripts/validate-timeline-controller.mjs
       - name: Validate reconstruction packages
         run: node scripts/validate-reconstructions.mjs
       - name: Validate UI wiring
         run: node scripts/validate-ui.mjs
+      - name: Validate authoritative timeline controller
+        run: node scripts/validate-timeline-controller.mjs
       - name: Validate historical search
         run: node scripts/validate-search.mjs
       - name: Validate Earth history

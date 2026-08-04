@@ -1,0 +1,76 @@
+:root {
+  --wl-timeline-accent: #0a84ff;
+  --wl-timeline-track: rgba(255, 255, 255, 0.22);
+  --wl-timeline-glass: rgba(18, 18, 22, 0.76);
+}
+
+.worldline-r18-timeline .timeline-hud {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  contain: layout paint;
+}
+
+.worldline-r18-timeline .timeline-primary-slider {
+  touch-action: pan-x;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.worldline-r18-timeline .timeline-primary-slider::-webkit-slider-thumb {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  background: linear-gradient(180deg, #fff, #d7e8ff);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.32),
+    0 0 0 7px rgba(10, 132, 255, 0.12);
+}
+
+.worldline-r18-timeline .timeline-primary-slider:active::-webkit-slider-thumb {
+  transform: scale(1.08);
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.38),
+    0 0 0 10px rgba(10, 132, 255, 0.16);
+}
+
+.worldline-r18-timeline .timeline-primary-slider:focus-visible {
+  outline: 3px solid rgba(10, 132, 255, 0.7);
+  outline-offset: 10px;
+}
+
+.worldline-r18-timeline .timeline-mode-control button,
+.worldline-r18-timeline #timelineModeControl button {
+  min-height: 36px;
+  border-radius: 999px;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.worldline-r18-timeline .timeline-mode-control button.is-selected,
+.worldline-r18-timeline #timelineModeControl button.is-selected {
+  background: rgba(255, 255, 255, 0.9);
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 650;
+}
+
+.worldline-r18-timeline .timeline-hud-value,
+.worldline-r18-timeline #yearLabel {
+  font-variant-numeric: tabular-nums;
+}
+
+.worldline-r18-timeline .timeline-snap-label {
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .worldline-r18-timeline .timeline-hud,
+  .worldline-r18-timeline .timeline-primary-slider::-webkit-slider-thumb,
+  .worldline-r18-timeline .timeline-mode-control button,
+  .worldline-r18-timeline #timelineModeControl button {
+    transition: none !important;
+    animation: none !important;
+  }
+}
