@@ -58,6 +58,7 @@
   loadStyle('ios-interface-r21.css');
   loadStyle('interface-reduction-r22.css');
   loadStyle('timeline-navigation-r23.css');
+  loadStyle('timeline-navigation-r23-stability.css');
   loadScript('ui-adapters.js');
   loadScript('apple-controls-loader.js');
   loadScript('earth-history.js');
