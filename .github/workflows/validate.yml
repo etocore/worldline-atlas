@@ -71,7 +71,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
       - name: Use Python
         uses: actions/setup-python@v5
         with:
@@ -95,13 +95,12 @@ jobs:
           node --check history-engine.js
           node --check history-presence-r14.js
           node --check mobile-search-snap-r15.js
-          node --check time-control-r16.js
           node --check research-foundation-r17.js
-          node --check atlas-timeline-state-r18.js
-          node --check atlas-timeline-r18.js
+          node --check timeline/model.js
+          node --check timeline/state.js
+          node --check timeline/view.js
           node --check surface-engine-r20.js
           node --check ios-interface-r21.js
-          node --check timeline-navigation-r23.js
           node --check apple-controls-loader.js
           node --check apple-controls.js
           node --check earth-history.js
@@ -109,7 +108,6 @@ jobs:
           node --check earth-ui-sync.js
           node --check earth-cache.js
           node --check life-evidence.js
-          node --check apple-timeline-r11.js
           node --check r12-ui.js
           node --check netlify/functions/settlements.js
           node --check netlify/functions/place-summary.js
@@ -128,6 +126,7 @@ jobs:
           node --check playwright.config.mjs
           node --check tests/e2e/ios-interface.spec.mjs
           node --check tests/e2e/interface-reduction.spec.mjs
+          node --check tests/e2e/timeline-canonical.spec.mjs
           node --check tests/simulator/ios-safari-smoke.mjs
       - name: Check Python builders
         run: python -m py_compile scripts/build_surface_worlds.py
@@ -135,7 +134,7 @@ jobs:
         run: node scripts/validate-reconstructions.mjs
       - name: Validate UI wiring
         run: node scripts/validate-ui.mjs
-      - name: Validate authoritative timeline controller
+      - name: Validate canonical timeline ownership
         run: node scripts/validate-timeline-controller.mjs
       - name: Validate historical search
         run: node scripts/validate-search.mjs
@@ -232,62 +231,37 @@ jobs:
           inventory = json.loads(subprocess.check_output([
               'xcrun', 'simctl', 'list', 'devices', 'available', '-j'
           ]))
-          runtime = next(
-              (key for key in inventory['devices'] if key.endswith('iOS-18-5')),
-              None
-          )
+          runtime = next((key for key in inventory['devices'] if key.endswith('iOS-18-5')), None)
           if runtime is None:
               raise SystemExit('The macOS runner does not contain an iOS 18.5 simulator runtime')
 
           device_name = os.environ['DEVICE_NAME']
-          matches = [
-              device for device in inventory['devices'][runtime]
-              if device['name'] == device_name and device.get('isAvailable', True)
-          ]
+          matches = [device for device in inventory['devices'][runtime] if device['name'] == device_name and device.get('isAvailable', True)]
           if len(matches) != 1:
-              raise SystemExit(
-                  f'Expected one available {device_name} simulator in {runtime}, found {len(matches)}'
-              )
-
+              raise SystemExit(f'Expected one available {device_name} simulator in {runtime}, found {len(matches)}')
           print(matches[0]['udid'])
           PY
           )
           echo "SIMULATOR_UDID=$SIMULATOR_UDID" >> "$GITHUB_ENV"
-          echo "Resolved $DEVICE_NAME: $SIMULATOR_UDID"
-
           defaults write com.apple.iphonesimulator ConnectHardwareKeyboard -bool NO
           xcrun simctl shutdown all || true
           xcrun simctl boot "$SIMULATOR_UDID"
           xcrun simctl bootstatus "$SIMULATOR_UDID" -b
-          xcrun simctl list devices | grep "$SIMULATOR_UDID"
       - name: Start deterministic Worldline fixture server
         run: |
           mkdir -p "$ARTIFACT_DIR"
-          nohup python3 -m http.server 4173 --bind 0.0.0.0 \
-            > "$ARTIFACT_DIR/http-server.log" 2>&1 &
-          echo $! > "$ARTIFACT_DIR/http-server.pid"
+          nohup python3 -m http.server 4173 --bind 0.0.0.0 > "$ARTIFACT_DIR/http-server.log" 2>&1 &
           for attempt in {1..30}; do
-            if curl --fail --silent "$TARGET_URL" > /dev/null; then
-              exit 0
-            fi
+            if curl --fail --silent "$TARGET_URL" > /dev/null; then exit 0; fi
             sleep 1
           done
           cat "$ARTIFACT_DIR/http-server.log"
           exit 1
       - name: Start Appium XCUITest server
         run: |
-          nohup npx appium \
-            --address 127.0.0.1 \
-            --port 4723 \
-            --base-path / \
-            --log "$ARTIFACT_DIR/appium.log" \
-            --log-timestamp \
-            > "$ARTIFACT_DIR/appium-console.log" 2>&1 &
-          echo $! > "$ARTIFACT_DIR/appium.pid"
+          nohup npx appium --address 127.0.0.1 --port 4723 --base-path / --log "$ARTIFACT_DIR/appium.log" --log-timestamp > "$ARTIFACT_DIR/appium-console.log" 2>&1 &
           for attempt in {1..60}; do
-            if curl --fail --silent http://127.0.0.1:4723/status > /dev/null; then
-              exit 0
-            fi
+            if curl --fail --silent http://127.0.0.1:4723/status > /dev/null; then exit 0; fi
             sleep 1
           done
           cat "$ARTIFACT_DIR/appium-console.log"
@@ -302,10 +276,7 @@ jobs:
         run: |
           mkdir -p "$ARTIFACT_DIR"
           xcrun simctl io "$SIMULATOR_UDID" screenshot "$ARTIFACT_DIR/native-simulator.png" || true
-          xcrun simctl spawn "$SIMULATOR_UDID" log show \
-            --last 10m \
-            --style compact \
-            > "$ARTIFACT_DIR/simulator.log" 2>&1 || true
+          xcrun simctl spawn "$SIMULATOR_UDID" log show --last 10m --style compact > "$ARTIFACT_DIR/simulator.log" 2>&1 || true
           xcrun simctl list devices > "$ARTIFACT_DIR/simulator-inventory.txt" || true
       - name: Upload iOS Simulator failure evidence
         if: failure()
