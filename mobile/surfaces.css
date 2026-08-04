@@ -1,0 +1,68 @@
+/* Worldline r22 - visual reduction for search, settings, and place details.
+   Timeline rules were retired in r28 and now live exclusively in timeline/timeline.css. */
+:root {
+  --worldline-section-line: rgba(255, 255, 255, .105);
+  --worldline-secondary-fill: rgba(118, 118, 128, .14);
+}
+
+@supports (overflow: clip) {
+  .map-app, .map-stage { overflow: clip !important; }
+  .place-sheet-scroll { overflow-x: clip; }
+}
+
+.search-suggestions {
+  padding: 4px;
+  border-width: .5px;
+  border-radius: 18px;
+  background: rgba(23, 23, 26, .93);
+  box-shadow: 0 14px 42px rgba(0, 0, 0, .32), inset 0 .5px rgba(255, 255, 255, .06);
+}
+.search-suggestion { grid-template-columns: 30px minmax(0, 1fr) 15px; min-height: 50px; padding: 5px 8px; border-radius: 12px; }
+.search-suggestion + .search-suggestion { border-top-color: rgba(255, 255, 255, .075); }
+.search-suggestion-icon, .search-suggestion-icon.year, .search-suggestion-icon.package { width: 27px; height: 27px; color: rgba(255,255,255,.88); background: rgba(118,118,128,.22); }
+.search-suggestion-icon svg { width: 14px; height: 14px; }
+
+.search-shell.is-open { max-width: min(530px, calc(100% - 20px)) !important; border-radius: 26px !important; box-shadow: 0 20px 64px rgba(0,0,0,.38), inset 0 .5px rgba(255,255,255,.08) !important; }
+.search-shell.is-open .control-panel { padding: 0 16px 18px !important; }
+.search-shell.is-open .panel-header { margin: 0; padding: 7px 0 12px; background: linear-gradient(180deg, rgba(20,20,23,.99) 72%, rgba(20,20,23,0)); }
+.search-shell.is-open .panel-kicker { display: none; }
+.search-shell.is-open .panel-header h1 { font-size: 1.68rem; letter-spacing: -.03em; }
+.search-shell.is-open .status-pill { min-height: 34px; padding-inline: 5px; border: 0; background: transparent; }
+.search-shell.is-open .era-summary { margin: 5px 1px 12px; font-size: .86rem; line-height: 1.45; }
+.search-shell.is-open .metric-grid, .search-shell.is-open .surface-control, .search-shell.is-open .control-block, .search-shell.is-open .layer-block { border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; }
+.search-shell.is-open .metric-grid { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 0; padding: 1px 0; overflow: visible; border-top: .5px solid var(--worldline-section-line) !important; border-bottom: .5px solid var(--worldline-section-line) !important; }
+.search-shell.is-open .metric-grid > div { padding: 10px 9px !important; border: 0 !important; border-radius: 0 !important; background: transparent !important; }
+.search-shell.is-open .metric-grid > div + div { border-left: .5px solid var(--worldline-section-line) !important; }
+.search-shell.is-open .metric-grid span { text-transform: none; letter-spacing: 0; font-size: .62rem; }
+.search-shell.is-open .metric-grid strong { font-size: .8rem; }
+.search-shell.is-open .coverage-message { margin: 8px 1px 3px; }
+.search-shell.is-open .surface-control, .search-shell.is-open .control-block, .search-shell.is-open .layer-block { margin-top: 0; padding: 14px 1px !important; border-top: .5px solid var(--worldline-section-line) !important; }
+.search-shell.is-open .control-grid { grid-template-columns: 1fr; gap: 0; margin-top: 0; }
+.search-shell.is-open .layer-block { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); align-content: initial; gap: 0 14px; }
+.search-shell.is-open .layer-block legend { margin-bottom: 4px; }
+.search-shell.is-open .layer-block label { min-height: 40px; display: flex; align-items: center; gap: 7px; white-space: normal; border-top: .5px solid rgba(255,255,255,.065); }
+.search-shell.is-open .legend { margin-top: 0; padding-top: 12px; border-top: .5px solid var(--worldline-section-line); }
+.search-shell.is-open .imagery-note { margin: 9px 1px 0; }
+
+.place-sheet { min-width: 0; border-width: .5px; box-shadow: 0 20px 64px rgba(0,0,0,.42); }
+.place-sheet-scroll { min-width: 0; }
+.place-eyebrow { color: rgba(255,180,95,.9); text-transform: none; letter-spacing: .015em; font-size: .69rem; }
+.place-close { background: rgba(118,118,128,.2); }
+.place-facts { width: 100%; min-width: 0; gap: 0; margin: 13px 0 15px; border-top: .5px solid var(--worldline-section-line); border-bottom: .5px solid var(--worldline-section-line); }
+.place-fact { min-width: 0; min-height: 38px; padding: 0 10px; overflow: hidden; border: 0; border-radius: 0; background: transparent; font-size: .68rem; text-overflow: ellipsis; white-space: nowrap; }
+.place-fact + .place-fact { border-left: .5px solid var(--worldline-section-line); }
+.place-summary-label { display: none; }
+.place-evidence { margin-top: 15px; padding: 2px 0 2px 12px; border: 0; border-left: 2px solid rgba(255,180,95,.55); border-radius: 0; background: transparent; }
+.place-actions { min-width: 0; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin-top: 15px; }
+.place-action { min-width: 0; border-radius: 13px; }
+
+@media (max-width: 720px) {
+  .search-shell.is-open { max-width: calc(100% - 12px) !important; }
+  .search-shell.is-open .control-panel { padding-inline: 14px !important; }
+  .search-shell.is-open .metric-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .search-shell.is-open .metric-grid > div:nth-child(3) { border-left: 0 !important; }
+  .search-shell.is-open .metric-grid > div:nth-child(n+3) { border-top: .5px solid var(--worldline-section-line) !important; }
+  .place-sheet { min-width: 0; max-width: calc(100% - 16px); }
+}
+@media (max-width: 390px) { .search-shell.is-open .layer-block { grid-template-columns: 1fr; } .place-fact { padding-inline: 8px; } }
+@media (prefers-reduced-transparency: reduce) { .search-suggestions, .search-shell.is-open, .place-sheet { background: rgba(20,20,23,.99) !important; } }
