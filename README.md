@@ -64,6 +64,21 @@ The canonical search subsystem lives in `search/`:
 - `viewport.js` owns keyboard-safe visual viewport positioning and does not control timeline behavior.
 - `search.css` owns the transient search surface and suggestions.
 
+### Performance contract
+
+`performance/timeline.js` measures the canonical timeline without changing its rendering behavior. It exposes `WorldlinePerformance` for diagnostics and CI.
+
+The r30 budgets enforce:
+
+- 95th-percentile input-to-render latency at or below 50 ms
+- Bounded input-to-paint latency and animation-frame gaps
+- No more than four quantized preview requests during one drag
+- No more than one post-release reconstruction request
+- No source or layer removal during a timeline gesture
+- Exactly one committed timeline state per completed drag
+
+The deterministic WebKit contract uses delayed paleocoastline responses to verify stale-request cancellation rather than relying on immediate mock responses.
+
 ## Evidence and uncertainty
 
 A visible record means at least one source has a location and date range compatible with the selected time. It does not prove continuous occupation, exact population, exact borders, political control, or complete regional coverage.
@@ -114,11 +129,17 @@ The Wikidata and paleocoastline endpoints are Netlify Functions, so live connect
 npx netlify dev
 ```
 
-Run the validation suite with:
+Run the full mobile validation suite with:
 
 ```bash
 npm install
 npm run test:mobile
+```
+
+Run only the interaction performance contract with:
+
+```bash
+npm run test:performance
 ```
 
 ## Netlify deployment
@@ -135,7 +156,6 @@ Every merge to `main` triggers a production redeploy.
 
 ## Near-term milestones
 
-1. Add complete-page performance budgets for timeline interaction and source settling.
-2. Generate and review additional historical surface worlds, beginning with 120 million years ago, 66 million years ago, and the Last Glacial Maximum.
-3. Expand normalized archaeological, historical, and environmental evidence adapters.
-4. Add a reviewed natural-language research queue without fabricating unsupported reconstructions.
+1. Generate and review additional historical surface worlds, beginning with 120 million years ago, 66 million years ago, and the Last Glacial Maximum.
+2. Expand normalized archaeological, historical, and environmental evidence adapters.
+3. Add a reviewed natural-language research queue without fabricating unsupported reconstructions.
