@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '2026-08-03-globe-r15';
+  const BUILD = '2026-08-04-globe-r19';
   const SLIDER_MAX = 1000;
   const EARTH_STOPS = [4567.3, 4000, 2500, 1800, 1000, 541, 252, 66, 2.58, 0.3, 0.0117, 0];
   const HUMAN_STOPS = [-300000, -200000, -100000, -50000, -12000, -3000, 0, 1000, 1500, 1800, 1950, 2026];
@@ -14,6 +14,7 @@
   let snapTimer;
   let lastScrollY = 0;
   let installed = false;
+  let viewportFrame = 0;
 
   function positionInStops(value, stops, descending = false) {
     const segment = SLIDER_MAX / (stops.length - 1);
@@ -93,40 +94,49 @@
   function viewportMetrics() {
     const viewport = window.visualViewport;
     return {
-      top: viewport?.offsetTop || 0,
-      height: viewport?.height || window.innerHeight
+      top: Math.max(0, viewport?.offsetTop || 0),
+      height: Math.max(240, viewport?.height || window.innerHeight)
     };
   }
 
-  function positionSearch() {
+  function positionSearchNow() {
     if (!document.body.classList.contains('search-active') || !searchShell) return;
     const { top, height } = viewportMetrics();
-    const shellHeight = Math.max(64, searchShell.querySelector('.search-row')?.getBoundingClientRect().height || 64);
-    const gutter = 12;
-    const searchTop = Math.max(top + 10, top + height - shellHeight - gutter);
-    const availableAbove = Math.max(116, searchTop - top - 18);
-    const resultHeight = Math.min(268, availableAbove);
+    const row = searchShell.querySelector('.search-row');
+    const shellHeight = Math.max(54, Math.ceil(row?.getBoundingClientRect().height || 54));
+    const gutter = 10;
+    const searchTop = Math.round(Math.max(top + 10, top + height - shellHeight - gutter));
+    const availableAbove = Math.max(108, searchTop - top - 18);
+    const resultHeight = Math.min(220, availableAbove);
     const root = document.documentElement;
-    root.style.setProperty('--wl-vv-top', `${top}px`);
-    root.style.setProperty('--wl-vv-height', `${height}px`);
+    root.style.setProperty('--wl-vv-top', `${Math.round(top)}px`);
+    root.style.setProperty('--wl-vv-height', `${Math.round(height)}px`);
     root.style.setProperty('--wl-search-top', `${searchTop}px`);
-    root.style.setProperty('--wl-search-results-height', `${resultHeight}px`);
+    root.style.setProperty('--wl-search-results-height', `${Math.round(resultHeight)}px`);
     if (window.scrollY !== 0) window.scrollTo(0, 0);
+  }
+
+  function positionSearch() {
+    cancelAnimationFrame(viewportFrame);
+    viewportFrame = requestAnimationFrame(positionSearchNow);
   }
 
   function lockSearchViewport() {
     lastScrollY = window.scrollY;
     document.documentElement.classList.add('worldline-search-locked');
-    requestAnimationFrame(() => {
-      positionSearch();
-      requestAnimationFrame(positionSearch);
-    });
+    positionSearch();
+    requestAnimationFrame(positionSearch);
+    setTimeout(positionSearch, 80);
+    setTimeout(positionSearch, 240);
   }
 
   function unlockSearchViewport() {
+    cancelAnimationFrame(viewportFrame);
     document.documentElement.classList.remove('worldline-search-locked');
     document.documentElement.style.removeProperty('--wl-search-top');
     document.documentElement.style.removeProperty('--wl-search-results-height');
+    document.documentElement.style.removeProperty('--wl-vv-top');
+    document.documentElement.style.removeProperty('--wl-vv-height');
     if (lastScrollY) window.scrollTo(0, lastScrollY);
     lastScrollY = 0;
   }
@@ -161,6 +171,7 @@
     window.visualViewport?.addEventListener('resize', positionSearch);
     window.visualViewport?.addEventListener('scroll', positionSearch);
     window.addEventListener('orientationchange', () => setTimeout(positionSearch, 120));
+    window.addEventListener('pageshow', positionSearch);
 
     installed = true;
     window.__WORLDLINE_MOBILE_SEARCH_SNAP_BUILD__ = BUILD;
