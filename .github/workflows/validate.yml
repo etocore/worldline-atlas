@@ -32,6 +32,16 @@ jobs:
         run: python -m pip install --upgrade numpy scipy xarray netCDF4 Pillow
       - name: Generate the 250 Ma surface package
         run: python scripts/build_surface_worlds.py --age 250 --max-zoom 3
+      - name: Upload visual QA package
+        uses: actions/upload-artifact@v4
+        with:
+          name: surface-preview-${{ github.sha }}
+          path: |
+            data/surface/worlds/250-ma/world.json
+            data/surface/worlds/250-ma/color
+            data/surface/worlds/250-ma/dem/0/0/0.png
+          if-no-files-found: error
+          retention-days: 14
       - name: Commit generated surface assets
         run: |
           if git diff --quiet -- data/surface; then
