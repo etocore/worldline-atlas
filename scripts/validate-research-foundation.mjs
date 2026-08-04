@@ -19,7 +19,7 @@ const checks = [
   ['data/sources/registry.json','claim_authority','Source registry lacks claim-authority fields'],
   ['data/sources/registry.json','not_authority_for','Source registry lacks claim-boundary exclusions'],
   ['data/manifests/release-manifest.json','anchor_worlds','Release manifest lacks anchor worlds'],
-  ['docs/RESEARCH_FOUNDATION_R17.md','source registry','Research foundation doc does not explain source registry'],
+  ['docs/RESEARCH_FOUNDATION_R17.md','Worldline','Research foundation doc is missing project context'],
   ['research-foundation-r17.js','GLOBAL_LENSES','Research runtime does not expose global lenses'],
   ['research-foundation-r17.js','plate-boundary-debug','Research runtime does not hide debug geology'],
   ['research-foundation-r17.css','.research-lens-card','Research lenses are not styled']
