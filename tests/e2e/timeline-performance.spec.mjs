@@ -1,5 +1,10 @@
 import { expect, test } from '@playwright/test';
 
+// Performance samples must not include Playwright's trace, screenshot, or video
+// encoders. Failure evidence remains available from the surrounding functional
+// suite, while this contract measures the application and WebKit scheduler only.
+test.use({ trace: 'off', screenshot: 'off', video: 'off' });
+
 async function openFixture(page) {
   await page.goto('/tests/fixtures/timeline-canonical.html');
   await expect(page.locator('body')).toHaveAttribute('data-fixture-ready', 'true');
