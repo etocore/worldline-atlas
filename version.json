@@ -1,4 +1,4 @@
 {
-  "build": "2026-08-04-globe-r22",
-  "description": "Reduced spatial interface with flatter materials, separator-based settings hierarchy, cleaner search results, and evidence-first place details"
+  "build": "2026-08-04-globe-r23",
+  "description": "Hierarchical geological timeline with local era-scale scrubbing, live coastline previews, and compact context-aware settings"
 }
