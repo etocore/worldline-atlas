@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Worldline canonical timeline fixture</title>
   <link rel="stylesheet" href="../../styles.css" />
-  <link rel="stylesheet" href="../../apple-controls.css" />
+  <link rel="stylesheet" href="../../mobile/surfaces.css" />
+  <link rel="stylesheet" href="../../search/search.css" />
   <link rel="stylesheet" href="../../earth-history.css" />
-  <link rel="stylesheet" href="../../interface-reduction-r22.css" />
   <link rel="stylesheet" href="../../timeline/timeline.css" />
   <style>
     html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #020305; }
@@ -111,7 +111,8 @@
       },
       subscribe(listener) { uiListeners.add(listener); return () => uiListeners.delete(listener); }
     };
-    window.__WORLDLINE_APPLE_CONTROLS_BUILD__ = 'fixture-search-controls';
+    window.__WORLDLINE_SEARCH_BUILD__ = 'fixture-search-controls';
+    window.__WORLDLINE_APPLE_CONTROLS_BUILD__ = window.__WORLDLINE_SEARCH_BUILD__;
   </script>
   <script src="../../timeline/model.js"></script>
   <script src="../../timeline/state.js"></script>
