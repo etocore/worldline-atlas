@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "build": "2026-08-04-globe-r20",
+  "interpolationPolicy": {
+    "preview": "Use the nearest generated anchor world while dragging.",
+    "commit": "Settle on the nearest generated package only inside its reviewed coverage window.",
+    "noInventedGeography": true
+  },
+  "sources": {
+    "paleodem": {
+      "title": "PALEOMAP Paleodigital Elevation Models for the Phanerozoic",
+      "authors": "Christopher R. Scotese and Nicky M. Wright",
+      "year": 2018,
+      "doi": "10.5281/zenodo.5460860",
+      "url": "https://zenodo.org/records/5460860",
+      "resolution": "1 degree source grids",
+      "claimAuthority": [
+        "modeled paleoelevation",
+        "modeled paleobathymetry",
+        "broad land, shelf, and ocean relief"
+      ],
+      "notAuthorityFor": [
+        "climate",
+        "vegetation",
+        "rivers",
+        "species ranges",
+        "human settlement"
+      ],
+      "attributionRequired": true
+    },
+    "chelsaTrace21k": {
+      "title": "CHELSA-TraCE21k",
+      "url": "https://www.chelsa-climate.org/datasets/chelsa-trace21k-centennial-bioclim",
+      "license": "CC0 1.0",
+      "coverage": "21,000 years before present to present",
+      "status": "planned"
+    },
+    "gplates": {
+      "title": "GPlates CAO2024 reconstruction model",
+      "url": "https://gwsdoc.gplates.org/models/",
+      "coverage": "0 to 1,800 Ma",
+      "status": "active"
+    }
+  },
+  "worlds": [
+    {
+      "id": "250-ma",
+      "mode": "earth",
+      "targetAgeMa": 250,
+      "coverage": { "olderMa": 255, "youngerMa": 245 },
+      "title": "Pangea near the Permian-Triassic transition",
+      "status": "awaiting-generated-assets",
+      "confidence": "model-constrained",
+      "sourceIds": ["paleodem", "gplates"],
+      "layers": {
+        "coastlines": "available",
+        "elevation": "generation-pending",
+        "bathymetry": "generation-pending",
+        "climate": "not-included",
+        "biomes": "not-included",
+        "ice": "not-included",
+        "settlements": "not-applicable"
+      },
+      "assets": null
+    },
+    {
+      "id": "66-ma",
+      "mode": "earth",
+      "targetAgeMa": 66,
+      "coverage": { "olderMa": 69, "youngerMa": 63 },
+      "title": "Latest Cretaceous Earth",
+      "status": "planned",
+      "sourceIds": ["paleodem", "gplates"]
+    },
+    {
+      "id": "21-ka",
+      "mode": "earth",
+      "targetAgeMa": 0.021,
+      "coverage": { "olderMa": 0.022, "youngerMa": 0.019 },
+      "title": "Last Glacial Maximum",
+      "status": "planned",
+      "sourceIds": ["chelsaTrace21k", "gplates"]
+    },
+    {
+      "id": "10000-bce",
+      "mode": "human",
+      "targetYear": -10000,
+      "coverage": { "startYear": -10500, "endYear": -9500 },
+      "title": "Early Holocene worlds",
+      "status": "planned",
+      "sourceIds": ["chelsaTrace21k"]
+    },
+    {
+      "id": "117-ce",
+      "mode": "human",
+      "targetYear": 117,
+      "coverage": { "startYear": 50, "endYear": 180 },
+      "title": "Connected classical-era worlds",
+      "status": "planned"
+    },
+    {
+      "id": "1500-ce",
+      "mode": "human",
+      "targetYear": 1500,
+      "coverage": { "startYear": 1450, "endYear": 1550 },
+      "title": "Global exchange before industrialization",
+      "status": "planned"
+    },
+    {
+      "id": "1800-ce",
+      "mode": "human",
+      "targetYear": 1800,
+      "coverage": { "startYear": 1750, "endYear": 1850 },
+      "title": "Industrial transition",
+      "status": "planned"
+    },
+    {
+      "id": "present",
+      "mode": "earth",
+      "targetAgeMa": 0,
+      "coverage": { "olderMa": 0, "youngerMa": 0 },
+      "title": "Observed Earth",
+      "status": "existing-reference"
+    }
+  ]
+}
