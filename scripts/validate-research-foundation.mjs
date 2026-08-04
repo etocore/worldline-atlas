@@ -16,8 +16,9 @@ try { build = JSON.parse(await readFile('version.json','utf8')).build; } catch {
 const bootstrap = await readFile('bootstrap.js','utf8');
 if (!bootstrap.includes(build)) failures.push(`bootstrap.js is missing the current build marker ${build}`);
 const checks = [
-  ['data/sources/registry.json','claimBoundary','Source registry lacks claim-boundary fields'],
-  ['data/manifests/release-manifest.json','anchorWorlds','Release manifest lacks anchor worlds'],
+  ['data/sources/registry.json','claim_authority','Source registry lacks claim-authority fields'],
+  ['data/sources/registry.json','not_authority_for','Source registry lacks claim-boundary exclusions'],
+  ['data/manifests/release-manifest.json','anchor_worlds','Release manifest lacks anchor worlds'],
   ['docs/RESEARCH_FOUNDATION_R17.md','source registry','Research foundation doc does not explain source registry'],
   ['research-foundation-r17.js','GLOBAL_LENSES','Research runtime does not expose global lenses'],
   ['research-foundation-r17.js','plate-boundary-debug','Research runtime does not hide debug geology'],
