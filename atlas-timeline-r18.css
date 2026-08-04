@@ -4,9 +4,13 @@
   --wl-timeline-glass: rgba(18, 18, 22, 0.76);
 }
 
+/*
+ * Do not set transform here. The base timeline uses translateX(-50%) to
+ * center an absolutely positioned panel. Replacing that transform caused
+ * the panel to begin at the horizontal midpoint on iPhone.
+ */
 .worldline-r18-timeline .timeline-hud {
-  transform: translateZ(0);
-  will-change: transform, opacity;
+  will-change: opacity;
   contain: layout paint;
 }
 
@@ -65,11 +69,48 @@
   pointer-events: none;
 }
 
+/* The open timeline already displays the selected date. Hide the duplicate chip. */
+body.timeline-active #yearButton {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.96);
+}
+
+@media (max-width: 720px), (pointer: coarse) {
+  .worldline-r18-timeline .timeline-hud {
+    left: 50% !important;
+    right: auto !important;
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    max-height: calc(100dvh - env(safe-area-inset-top) - 78px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .worldline-r18-timeline .timeline-hud[data-open="false"] {
+    transform: translate(-50%, -12px) scale(0.985);
+  }
+
+  .worldline-r18-timeline .timeline-hud[data-open="true"] {
+    transform: translate(-50%, 0) scale(1);
+  }
+
+  body.timeline-active .map-identity {
+    pointer-events: none;
+  }
+
+  body.timeline-active #brandButton {
+    pointer-events: auto;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .worldline-r18-timeline .timeline-hud,
   .worldline-r18-timeline .timeline-primary-slider::-webkit-slider-thumb,
   .worldline-r18-timeline .timeline-mode-control button,
-  .worldline-r18-timeline #timelineModeControl button {
+  .worldline-r18-timeline #timelineModeControl button,
+  body.timeline-active #yearButton {
     transition: none !important;
     animation: none !important;
   }

@@ -1,9 +1,9 @@
-/* r15: keyboard-safe search and magnetic timeline landmarks. */
+/* r19: keyboard-safe search and magnetic timeline landmarks. */
 :root {
   --wl-vv-top: 0px;
   --wl-vv-height: 100dvh;
   --wl-search-top: auto;
-  --wl-search-results-height: 268px;
+  --wl-search-results-height: 220px;
 }
 
 html.worldline-search-locked,
@@ -34,7 +34,7 @@ body.search-active .map-stage {
     margin: 0 !important;
     transform: none !important;
     border-radius: 25px !important;
-    background: rgba(28, 28, 30, .94) !important;
+    background: rgba(28, 28, 30, .96) !important;
     box-shadow: 0 18px 52px rgba(0, 0, 0, .42), inset 0 .5px rgba(255,255,255,.1) !important;
     -webkit-backdrop-filter: blur(30px) saturate(165%);
     backdrop-filter: blur(30px) saturate(165%);
@@ -50,15 +50,15 @@ body.search-active .map-stage {
     right: 0;
     bottom: calc(100% + 8px);
     left: 0;
-    max-height: var(--wl-search-results-height) !important;
+    max-height: min(220px, var(--wl-search-results-height)) !important;
     overflow: hidden;
     border-radius: 20px;
-    background: rgba(28, 28, 30, .96);
+    background: rgba(28, 28, 30, .97);
     box-shadow: 0 18px 56px rgba(0,0,0,.44), inset 0 .5px rgba(255,255,255,.1);
   }
 
   body.search-active #searchSuggestionList {
-    max-height: min(224px, calc(var(--wl-search-results-height) - 39px));
+    max-height: min(180px, calc(var(--wl-search-results-height) - 39px));
     overflow-y: auto;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
@@ -75,13 +75,22 @@ body.search-active .map-stage {
     display: none;
   }
 
-  body.search-active .history-presence-card,
+  /* Search is a focused task on iPhone. Remove duplicate map chrome behind it. */
+  body.search-active .map-identity,
+  body.search-active .map-tool-stack,
   body.search-active .map-controls,
   body.search-active .floating-info-button,
+  body.search-active .history-presence-card,
   body.search-active #yearButton,
-  body.search-active #worldlineButton {
+  body.search-active #brandButton,
+  body.search-active #worldlineButton,
+  body.search-active #timelineHud {
     opacity: 0 !important;
     pointer-events: none !important;
+  }
+
+  body.search-active .map-vignette {
+    opacity: .72;
   }
 }
 

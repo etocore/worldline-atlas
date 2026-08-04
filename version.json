@@ -1,4 +1,4 @@
 {
-  "build": "2026-08-04-globe-r18",
-  "description": "Authoritative timeline state controller with transaction diagnostics, single-commit slider gestures, and legacy timeline isolation"
+  "build": "2026-08-04-globe-r19",
+  "description": "iPhone timeline centering repair, duplicate date suppression, and compact keyboard-aware search focus mode"
 }
