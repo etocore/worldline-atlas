@@ -7,6 +7,14 @@ async function openFixture(page) {
   await page.waitForFunction(() => document.body.dataset.fixtureReady === 'true');
 }
 
+async function openSettings(page, reason = 'regression-settings-open') {
+  await page.evaluate((activationReason) => {
+    window.WorldlineUI.activate('settings', { options: {} }, { reason: activationReason });
+  }, reason);
+  await expect(page.locator('#searchShell')).toHaveClass(/is-open/);
+  await expect(page.locator('body')).toHaveAttribute('data-ui-surface', 'settings');
+}
+
 async function openPlace(page) {
   await page.evaluate(() => {
     window.openPlaceCard({
@@ -92,11 +100,7 @@ test('keeps exactly one primary surface active', async ({ page }) => {
 
   // Timeline mode intentionally recedes other launch controls. Exercise the
   // authoritative state transition directly instead of forcing a hidden tap.
-  await page.evaluate(() => {
-    window.WorldlineUI.activate('settings', null, { reason: 'regression-surface-switch' });
-  });
-  await expect(page.locator('body')).toHaveAttribute('data-ui-surface', 'settings');
-  await expect(page.locator('#searchShell')).toHaveClass(/is-open/);
+  await openSettings(page, 'regression-surface-switch');
   await expect(page.locator('#timelineHud')).toHaveAttribute('data-open', 'false');
   await expect(page.locator('#searchSuggestions')).toHaveAttribute('data-open', 'false');
   await expect(page.locator('#placeSheet')).toHaveAttribute('data-detent', 'closed');
@@ -107,12 +111,9 @@ test('keeps exactly one primary surface active', async ({ page }) => {
 });
 
 test('uses the established settings handle drag path', async ({ page }) => {
-  await page.locator('#brandButton').click();
-  await expect(page.locator('#searchShell')).toHaveClass(/is-open/);
-  await expect(page.locator('body')).toHaveAttribute('data-ui-surface', 'settings');
-
-  // The settings grabber is intentionally available only after the sheet is
-  // open. Dragging down validates the real production close path.
+  // Compact layouts can intentionally hide the brand orb. Activate settings
+  // through the authoritative state manager, then test the real grabber path.
+  await openSettings(page);
   await dispatchPointerDrag(page, '#sheetHandle', 70);
   await expect(page.locator('#searchShell')).not.toHaveClass(/is-open/);
   await expect(page.locator('body')).toHaveAttribute('data-ui-surface', 'none');
