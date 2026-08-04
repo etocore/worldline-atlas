@@ -10,15 +10,19 @@ permissions:
 
 jobs:
   generate-surface:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/agent/surface-engine-r20' && github.actor != 'github-actions[bot]'
+    if: >-
+      github.actor != 'github-actions[bot]' &&
+      ((github.event_name == 'push' && github.ref == 'refs/heads/agent/surface-engine-r20') ||
+      (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'agent/surface-engine-r20'))
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
       contents: write
     steps:
-      - name: Check out the source branch
+      - name: Check out the surface branch
         uses: actions/checkout@v4
         with:
+          ref: agent/surface-engine-r20
           fetch-depth: 0
       - name: Use Python
         uses: actions/setup-python@v5
