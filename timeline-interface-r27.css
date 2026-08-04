@@ -1,0 +1,235 @@
+/* Worldline r27 - Apple-aligned timeline hierarchy and launcher. */
+:root {
+  --timeline-r27-material: rgba(24, 24, 27, .84);
+  --timeline-r27-border: rgba(255, 255, 255, .14);
+  --timeline-r27-secondary: rgba(235, 235, 245, .62);
+}
+
+/*
+ * The r23 markup inherited a centered grid header from the retired timeline.
+ * Give the replacement surface explicit leading alignment and reserve a
+ * dedicated trailing lane for the close control.
+ */
+body.worldline-r23-navigation .timeline-r23-header {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  min-height: 70px !important;
+  padding: 1px 58px 0 2px !important;
+  text-align: left !important;
+}
+
+body.worldline-r23-navigation .timeline-r23-heading {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  gap: 4px;
+}
+
+body.worldline-r23-navigation .timeline-breadcrumb {
+  width: 100%;
+  min-width: 0;
+  min-height: 20px;
+  justify-content: flex-start;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  text-align: left;
+  white-space: nowrap;
+}
+
+body.worldline-r23-navigation .timeline-breadcrumb button,
+body.worldline-r23-navigation .timeline-breadcrumb-current {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+body.worldline-r23-navigation .timeline-r23-title-row {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin-top: 0;
+}
+
+body.worldline-r23-navigation .timeline-hud-value {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  overflow: visible;
+  color: #fff;
+  font-size: clamp(1.48rem, 6.1vw, 1.9rem) !important;
+  line-height: 1.04 !important;
+  letter-spacing: -.038em !important;
+  text-align: left;
+  text-overflow: clip;
+  text-wrap: balance;
+  white-space: normal;
+}
+
+/* The active interval is already present in both the breadcrumb and rail. */
+body.worldline-r23-navigation .timeline-current-interval {
+  display: none !important;
+}
+
+body.worldline-r23-navigation .timeline-hud-close {
+  top: 3px !important;
+  right: 2px !important;
+}
+
+/*
+ * Treat the map-level time control as a launcher, not a status card. It keeps
+ * the current context visible while remaining compact and obviously tappable.
+ */
+body.worldline-r27-interface .map-identity {
+  align-items: center;
+  gap: 8px;
+}
+
+body.worldline-r27-interface .year-chip {
+  position: relative;
+  display: grid !important;
+  grid-template-columns: 28px minmax(0, auto) !important;
+  grid-template-rows: auto auto !important;
+  column-gap: 9px !important;
+  row-gap: 1px !important;
+  align-items: center !important;
+  width: fit-content !important;
+  min-width: 0 !important;
+  max-width: min(216px, calc(100vw - 98px)) !important;
+  min-height: 48px !important;
+  height: auto !important;
+  padding: 7px 28px 7px 9px !important;
+  border: .5px solid var(--timeline-r27-border) !important;
+  border-radius: 16px !important;
+  color: #fff;
+  background: var(--timeline-r27-material) !important;
+  box-shadow:
+    0 8px 26px rgba(0, 0, 0, .28),
+    inset 0 .5px rgba(255, 255, 255, .08) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  backdrop-filter: blur(24px) saturate(150%);
+  text-align: left !important;
+  transform-origin: 50% 50%;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    transform 110ms ease;
+}
+
+body.worldline-r27-interface .year-chip::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 6px;
+  height: 6px;
+  border-top: 1.5px solid rgba(235, 235, 245, .48);
+  border-right: 1.5px solid rgba(235, 235, 245, .48);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+body.worldline-r27-interface .year-chip:hover,
+body.worldline-r27-interface .year-chip:focus-visible {
+  border-color: rgba(100, 210, 255, .32) !important;
+  background: rgba(36, 36, 40, .9) !important;
+}
+
+body.worldline-r27-interface .year-chip:active {
+  transform: scale(.97);
+}
+
+body.worldline-r27-interface .year-chip:focus-visible {
+  outline: 3px solid rgba(100, 210, 255, .68);
+  outline-offset: 3px;
+}
+
+body.worldline-r27-interface .year-chip .time-chip-icon {
+  grid-row: 1 / 3;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: rgba(100, 210, 255, .96);
+  background: rgba(10, 132, 255, .14);
+  box-shadow: inset 0 0 0 .5px rgba(100, 210, 255, .16);
+}
+
+body.worldline-r27-interface .year-chip .time-chip-icon svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+body.worldline-r27-interface .year-chip #eraLabel {
+  align-self: end;
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--timeline-r27-secondary) !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  line-height: 1.05 !important;
+  letter-spacing: .01em !important;
+  text-overflow: ellipsis;
+  text-transform: none !important;
+  white-space: nowrap;
+}
+
+body.worldline-r27-interface .year-chip #yearLabel {
+  align-self: start;
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  color: rgba(255, 255, 255, .96) !important;
+  font-size: 14.5px !important;
+  font-weight: 680 !important;
+  line-height: 1.08 !important;
+  letter-spacing: -.012em !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 390px) {
+  body.worldline-r27-interface .year-chip {
+    max-width: min(194px, calc(100vw - 94px)) !important;
+    padding-right: 25px !important;
+  }
+
+  body.worldline-r23-navigation .timeline-r23-header {
+    padding-right: 54px !important;
+  }
+
+  body.worldline-r23-navigation .timeline-hud-value {
+    font-size: clamp(1.4rem, 6vw, 1.62rem) !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  body.worldline-r27-interface .year-chip {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(28, 28, 31, .98) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.worldline-r27-interface .year-chip {
+    transition-duration: .01ms;
+  }
+}
+
+@media (prefers-contrast: more) {
+  body.worldline-r27-interface .year-chip {
+    border-color: rgba(255, 255, 255, .38) !important;
+  }
+
+  body.worldline-r27-interface .year-chip #eraLabel {
+    color: rgba(255, 255, 255, .78) !important;
+  }
+}
