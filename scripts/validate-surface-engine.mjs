@@ -2,7 +2,8 @@ import { access, readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 
 const failures = [];
-const BUILD = '2026-08-04-globe-r20';
+const SURFACE_BUILD = '2026-08-04-globe-r20';
+const APP_BUILD_PATTERN = /^2026-08-04-globe-r\d+$/;
 const requiredFiles = [
   'data/surface/worlds.json',
   'data/surface/worlds/250-ma/world.json',
@@ -42,8 +43,10 @@ try { manifest = JSON.parse(manifestSource); } catch { failures.push('Surface ma
 try { worldMetadata = JSON.parse(worldSource); } catch { failures.push('250 Ma world metadata is not valid JSON'); }
 try { version = JSON.parse(versionSource); } catch { failures.push('version.json is not valid JSON'); }
 
-if (version?.build !== BUILD) failures.push(`version.json should be ${BUILD}`);
-if (manifest?.build !== BUILD) failures.push(`Surface manifest should be ${BUILD}`);
+const bootstrapBuild = bootstrap.match(/const BUILD = '([^']+)'/)?.[1] || '';
+if (!APP_BUILD_PATTERN.test(version?.build || '')) failures.push('version.json does not contain a valid Worldline app build');
+if (bootstrapBuild !== version?.build) failures.push('Bootstrap and version.json app builds do not match');
+if (manifest?.build !== SURFACE_BUILD) failures.push(`Surface manifest should be ${SURFACE_BUILD}`);
 if (manifest?.interpolationPolicy?.noInventedGeography !== true) failures.push('Surface manifest must prohibit invented geography');
 
 const world = manifest?.worlds?.find((entry) => entry.id === '250-ma');
@@ -90,7 +93,6 @@ requireText(workflow, 'build_surface_worlds.py', 'Surface workflow does not run 
 requireText(docs, 'does not support claims about', 'Surface documentation lacks evidence boundaries');
 requireText(bootstrap, "loadStyle('surface-engine-r20.css')", 'Bootstrap does not load surface styles');
 requireText(bootstrap, "loadScript('surface-engine-r20.js')", 'Bootstrap does not load surface runtime');
-requireText(bootstrap, BUILD, 'Bootstrap is missing the r20 build marker');
 
 async function countPngs(root) {
   let total = 0;

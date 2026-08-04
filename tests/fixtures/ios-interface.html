@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Worldline iOS interface fixture</title>
+  <link rel="stylesheet" href="../../styles.css" />
+  <link rel="stylesheet" href="../../mobile-polish.css" />
+  <link rel="stylesheet" href="../../interaction-system.css" />
+  <link rel="stylesheet" href="../../apple-controls.css" />
+  <link rel="stylesheet" href="../../ios-interface-r21.css" />
+  <style>
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #050506; }
+    .map-stage { position: relative; width: 100%; height: 100%; overflow: hidden; }
+    .fixture-map { position: absolute; inset: 0; background: radial-gradient(circle at 50% 42%, #1b4260, #07131f 56%, #020507 100%); }
+    .map-identity { position: absolute; top: max(12px, env(safe-area-inset-top)); left: 12px; z-index: 5; display: flex; gap: 8px; }
+    .map-tool-stack { position: absolute; right: 12px; top: max(12px, env(safe-area-inset-top)); z-index: 5; }
+    .search-shell { position: absolute; z-index: 8; left: 50%; bottom: calc(10px + env(safe-area-inset-bottom)); width: min(680px, calc(100% - 20px)); transform: translateX(-50%); }
+    .search-shell:not(.is-open) .control-panel { display: none; }
+    .search-suggestions { position: absolute; z-index: 7; left: 10px; right: 10px; bottom: 78px; display: none; }
+    .search-suggestions[data-open="true"] { display: block; }
+    .timeline-hud { position: absolute; z-index: 7; left: 10px; right: 10px; top: 72px; display: none; }
+    .timeline-hud[data-open="true"] { display: block; }
+    button, input { font: inherit; }
+  </style>
+</head>
+<body data-ui-surface="none">
+  <main class="map-stage" aria-label="Mobile interaction test map">
+    <div class="fixture-map" aria-hidden="true"></div>
+
+    <div class="map-identity">
+      <button id="brandButton" class="brand-orb" type="button" aria-label="Open Worldline controls">W</button>
+      <button id="yearButton" class="year-chip" type="button" aria-label="Open historical timeline">117 CE</button>
+    </div>
+
+    <div class="map-tool-stack" aria-label="Map controls">
+      <button id="fixtureMapTool" class="map-tool" type="button" aria-label="Return to globe">◎</button>
+    </div>
+
+    <section id="timelineHud" class="timeline-hud" data-open="false" aria-label="Timeline">
+      <button class="timeline-hud-close" type="button" aria-label="Close timeline">×</button>
+      <input class="timeline-primary-slider" type="range" min="0" max="100" value="50" aria-label="Historical time" />
+    </section>
+
+    <section id="searchSuggestions" class="search-suggestions" data-open="false" aria-label="Search suggestions">
+      <button class="search-suggestion" type="button">Rome · 117 CE</button>
+    </section>
+
+    <button id="sheetScrim" class="sheet-scrim" type="button" aria-label="Dismiss open panel" tabindex="-1"></button>
+
+    <section id="searchShell" class="search-shell" data-detent="compact" aria-label="Search and map controls">
+      <button id="sheetHandle" class="sheet-handle" type="button" aria-expanded="false" aria-controls="controlPanel" aria-label="Expand map controls"><span></span></button>
+      <div class="search-row">
+        <input id="historySearch" type="search" placeholder="Search history" aria-label="Search Earth and human history" />
+        <button id="searchSubmit" class="search-submit" type="button" aria-label="Search">↗</button>
+      </div>
+      <div id="controlPanel" class="control-panel">
+        <button id="sheetClose" class="round-button" type="button" aria-label="Collapse controls">×</button>
+        <button class="quick-year" type="button">117 CE</button>
+        <input id="fixtureRange" type="range" min="0" max="2" value="1" aria-label="Evidence tolerance" />
+      </div>
+    </section>
+
+    <section id="placeSheet" class="place-sheet" data-detent="closed" aria-hidden="true" role="dialog" aria-modal="false" aria-labelledby="placeTitle">
+      <button id="placeSheetHandle" class="place-sheet-handle" type="button" aria-label="Resize details"><span></span></button>
+      <div class="place-sheet-scroll">
+        <header class="place-header">
+          <div>
+            <p id="placeEyebrow" class="place-eyebrow">Historical context</p>
+            <h2 id="placeTitle">Details</h2>
+            <p id="placeSubtitle" class="place-subtitle"></p>
+          </div>
+          <button id="placeClose" class="place-close" type="button" aria-label="Close details">×</button>
+        </header>
+        <figure id="placeHero" class="place-hero" hidden><img id="placeImage" alt="" /></figure>
+        <div class="place-facts">
+          <span id="placeFactRange" class="place-fact">Date range</span>
+          <span id="placeFactEvidence" class="place-fact">Evidence</span>
+          <span id="placeFactConfidence" class="place-fact">Confidence</span>
+        </div>
+        <p id="placeSummary" class="place-summary">Context</p>
+        <p id="placeContextSource" class="place-context-source"></p>
+        <div id="placeEvidence" class="place-evidence">Evidence notes</div>
+        <div class="place-actions">
+          <a id="placeSource" class="place-action primary" href="#source">Open source</a>
+          <button id="placeExpand" class="place-action" type="button">More details</button>
+        </div>
+        <div style="height: 720px" aria-hidden="true"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    window.CONFIG = { maxYear: 2026 };
+    window.selectedYear = 117;
+    window.formatYear = (year) => String(year);
+    window.mapReady = false;
+    window.map = null;
+    window.settlementLayerIds = [];
+    window.fetch = async () => ({
+      ok: true,
+      async json() {
+        return { extract: 'Fixture historical context.', pageUrl: '', thumbnail: '' };
+      }
+    });
+
+    window.dom = {
+      searchShell: document.querySelector('#searchShell'),
+      sheetHandle: document.querySelector('#sheetHandle'),
+      historySearch: document.querySelector('#historySearch')
+    };
+
+    window.setSheetOpen = function setSheetOpen(open, { focus = false } = {}) {
+      const next = Boolean(open);
+      dom.searchShell.classList.toggle('is-open', next);
+      dom.searchShell.dataset.detent = next ? 'expanded' : 'compact';
+      dom.sheetHandle.setAttribute('aria-expanded', String(next));
+      if (focus) requestAnimationFrame(() => dom.historySearch.focus());
+    };
+  </script>
+  <script src="../../ui-state.js"></script>
+  <script src="../../interaction-system.js"></script>
+  <script src="../../ui-adapters.js"></script>
+  <script src="../../ios-interface-r21.js"></script>
+  <script>
+    (() => {
+      let surfacesRegistered = false;
+
+      function registerFixtureSurfaces() {
+        if (surfacesRegistered || !window.WorldlineUI) return;
+        surfacesRegistered = true;
+
+        WorldlineUI.register('timeline', {
+          open() { document.querySelector('#timelineHud').dataset.open = 'true'; },
+          close() { document.querySelector('#timelineHud').dataset.open = 'false'; },
+          isOpen() { return document.querySelector('#timelineHud').dataset.open === 'true'; }
+        });
+
+        WorldlineUI.register('search', {
+          open(payload = {}) {
+            document.querySelector('#searchSuggestions').dataset.open = 'true';
+            if (payload.focus !== false) document.querySelector('#historySearch').focus();
+          },
+          close() {
+            document.querySelector('#searchSuggestions').dataset.open = 'false';
+            document.querySelector('#historySearch').blur();
+          },
+          isOpen() { return document.querySelector('#searchSuggestions').dataset.open === 'true'; }
+        });
+
+        document.querySelector('#yearButton').addEventListener('click', () => {
+          WorldlineUI.activate('timeline', null, { reason: 'timeline-button' });
+        });
+        document.querySelector('.timeline-hud-close').addEventListener('click', () => {
+          WorldlineUI.close('timeline', { reason: 'timeline-close-button' });
+        });
+        document.querySelector('#brandButton').addEventListener('click', () => window.setSheetOpen(true));
+        document.querySelector('#historySearch').addEventListener('focus', () => {
+          WorldlineUI.activate('search', { focus: false }, { reason: 'search-focus' });
+        });
+      }
+
+      const readyTimer = setInterval(() => {
+        registerFixtureSurfaces();
+        if (
+          surfacesRegistered &&
+          window.__WORLDLINE_INTERACTION_BUILD__ &&
+          window.__WORLDLINE_UI_ADAPTERS_BUILD__ &&
+          window.__WORLDLINE_IOS_INTERFACE_BUILD__
+        ) {
+          clearInterval(readyTimer);
+          document.body.dataset.fixtureReady = 'true';
+        }
+      }, 20);
+    })();
+  </script>
+</body>
+</html>
