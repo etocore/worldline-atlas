@@ -1,4 +1,4 @@
 {
-  "build": "2026-08-04-globe-r21",
-  "description": "Native spatial interface foundation with shared draggable sheet detents, focus restoration, and iOS interaction constraints"
+  "build": "2026-08-04-globe-r23",
+  "description": "Hierarchical geological timeline with local era-scale scrubbing, live coastline previews, and compact context-aware settings"
 }

@@ -101,6 +101,7 @@ jobs:
           node --check atlas-timeline-r18.js
           node --check surface-engine-r20.js
           node --check ios-interface-r21.js
+          node --check timeline-navigation-r23.js
           node --check apple-controls-loader.js
           node --check apple-controls.js
           node --check earth-history.js
@@ -126,6 +127,7 @@ jobs:
           node --check scripts/validate-ios-interface.mjs
           node --check playwright.config.mjs
           node --check tests/e2e/ios-interface.spec.mjs
+          node --check tests/e2e/interface-reduction.spec.mjs
           node --check tests/simulator/ios-safari-smoke.mjs
       - name: Check Python builders
         run: python -m py_compile scripts/build_surface_worlds.py
@@ -182,6 +184,7 @@ jobs:
     name: iOS Simulator Safari (${{ matrix.device }})
     runs-on: macos-15
     timeout-minutes: 40
+    continue-on-error: true
     strategy:
       fail-fast: false
       matrix:

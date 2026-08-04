@@ -4,6 +4,9 @@ const failures = [];
 const requiredFiles = [
   'ios-interface-r21.js',
   'ios-interface-r21.css',
+  'interface-reduction-r22.css',
+  'timeline-navigation-r23.js',
+  'timeline-navigation-r23.css',
   'docs/IOS_INTERFACE_STANDARD.md',
   'interaction-system.js',
   'interaction-system.css',
@@ -15,9 +18,12 @@ for (const file of requiredFiles) {
   try { await access(file); } catch { failures.push(`Missing iOS interface file: ${file}`); }
 }
 
-const [runtime, style, standard, interaction, interactionStyle, bootstrap, versionSource] = await Promise.all([
+const [runtime, style, reduction, timelineRuntime, timelineStyle, standard, interaction, interactionStyle, bootstrap, versionSource] = await Promise.all([
   readFile('ios-interface-r21.js', 'utf8'),
   readFile('ios-interface-r21.css', 'utf8'),
+  readFile('interface-reduction-r22.css', 'utf8'),
+  readFile('timeline-navigation-r23.js', 'utf8'),
+  readFile('timeline-navigation-r23.css', 'utf8'),
   readFile('docs/IOS_INTERFACE_STANDARD.md', 'utf8'),
   readFile('interaction-system.js', 'utf8'),
   readFile('interaction-system.css', 'utf8'),
@@ -36,10 +42,18 @@ function prohibitText(source, token, message) {
   if (source.includes(token)) failures.push(message);
 }
 
-if (version?.build !== '2026-08-04-globe-r21') failures.push('The iOS interface branch must publish the r21 app build');
+const appBuild = version?.build || '';
+const appRevision = Number.parseInt(appBuild.match(/-r(\d+)$/)?.[1] || '', 10);
+const bootstrapBuild = bootstrap.match(/const BUILD = '([^']+)'/)?.[1] || '';
+if (!/^2026-08-04-globe-r\d+$/.test(appBuild) || appRevision < 23) {
+  failures.push('The app build must include the r23 hierarchical timeline or a later revision');
+}
+if (bootstrapBuild !== appBuild) failures.push('Bootstrap and version.json app builds do not match');
 requireText(bootstrap, "loadStyle('ios-interface-r21.css')", 'Bootstrap does not load the r21 interface styles');
 requireText(bootstrap, "loadScript('ios-interface-r21.js')", 'Bootstrap does not load the r21 interface runtime');
-requireText(bootstrap, "const BUILD = '2026-08-04-globe-r21'", 'Bootstrap is missing the r21 app build');
+requireText(bootstrap, "loadStyle('interface-reduction-r22.css')", 'Bootstrap does not load the r22 visual reduction layer');
+requireText(bootstrap, "loadStyle('timeline-navigation-r23.css')", 'Bootstrap does not load the r23 timeline styles');
+requireText(bootstrap, "loadScript('timeline-navigation-r23.js')", 'Bootstrap does not load the r23 timeline runtime');
 
 // The established interaction system remains the only owner of sheet drag
 // capture until a dedicated consolidation refactor replaces it atomically.
@@ -72,6 +86,53 @@ prohibitText(style, '--worldline-sheet-drag-y', 'r21 must not override establish
 prohibitText(style, 'transition: none', 'Reduced Motion must preserve state feedback with near-zero duration rather than removing transitions');
 
 for (const token of [
+  '.timeline-hud',
+  '.search-suggestion-icon',
+  '.search-shell.is-open .metric-grid',
+  '.search-shell.is-open .control-grid',
+  '.place-facts',
+  '.place-evidence',
+  'border-radius: 0 !important',
+  'prefers-reduced-transparency: reduce'
+]) {
+  requireText(reduction, token, `The r22 visual reduction layer is missing: ${token}`);
+}
+prohibitText(reduction, '--sheet-drag-y', 'The r22 visual layer must not take ownership of sheet movement');
+prohibitText(reduction, 'pointermove', 'The r22 visual layer must not add gesture handling');
+
+for (const token of [
+  'const EARTH_TREE',
+  "id: 'cretaceous'",
+  'const HUMAN_CHAPTERS',
+  'function earthValue(position, interval)',
+  'function quantizedPreviewAge(ageMa)',
+  '/api/paleocoastlines?time=',
+  "preview: true, source: 'timeline-r23-preview'",
+  'worldlineSettingsBody',
+  'settingsHistorySection.hidden = context.domain !== \'human\'',
+  'window.__WORLDLINE_TIMELINE_NAVIGATION_BUILD__'
+]) {
+  requireText(timelineRuntime, token, `The r23 timeline runtime is missing: ${token}`);
+}
+
+for (const token of [
+  'bottom: calc(12px + env(safe-area-inset-bottom))',
+  '.timeline-breadcrumb',
+  '.timeline-interval-rail',
+  '.timeline-local-slider',
+  '.timeline-render-status',
+  '.worldline-r23-settings > .metric-grid',
+  '.settings-native-body',
+  '.settings-group',
+  'prefers-reduced-motion: reduce',
+  'prefers-reduced-transparency: reduce'
+]) {
+  requireText(timelineStyle, token, `The r23 timeline or settings styles are missing: ${token}`);
+}
+prohibitText(timelineStyle, '.timeline-era-card', 'The r23 active timeline must not restore the old milestone card');
+prohibitText(timelineStyle, '.timeline-play', 'The r23 active timeline must not restore the permanent play control');
+
+for (const token of [
   'Apple Human Interface Guidelines',
   'Awesome iOS is a discovery index',
   'one gesture owner',
@@ -88,4 +149,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('iOS source hierarchy, gesture ownership, detent semantics, focus behavior, touch targets, and accessibility safeguards are valid.');
+console.log('iOS architecture, hierarchical local timeline, live coastline preview, and compact settings are valid.');

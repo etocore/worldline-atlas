@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="../../interaction-system.css" />
   <link rel="stylesheet" href="../../apple-controls.css" />
   <link rel="stylesheet" href="../../ios-interface-r21.css" />
+  <link rel="stylesheet" href="../../interface-reduction-r22.css" />
   <style>
     html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #050506; }
     .map-stage { position: relative; width: 100%; height: 100%; overflow: hidden; }
@@ -19,7 +20,7 @@
     .search-shell:not(.is-open) .control-panel { display: none; }
     .search-suggestions { position: absolute; z-index: 7; left: 10px; right: 10px; bottom: 78px; display: none; }
     .search-suggestions[data-open="true"] { display: block; }
-    .timeline-hud { position: absolute; z-index: 7; left: 10px; right: 10px; top: 72px; display: none; }
+    .timeline-hud { position: absolute; z-index: 7; left: 50%; top: 72px; display: none; }
     .timeline-hud[data-open="true"] { display: block; }
     button, input { font: inherit; }
   </style>
@@ -38,12 +39,32 @@
     </div>
 
     <section id="timelineHud" class="timeline-hud" data-open="false" aria-label="Timeline">
-      <button class="timeline-hud-close" type="button" aria-label="Close timeline">×</button>
-      <input class="timeline-primary-slider" type="range" min="0" max="100" value="50" aria-label="Historical time" />
+      <header class="timeline-hud-header">
+        <div>
+          <p class="timeline-hud-kicker">Selected time</p>
+          <p class="timeline-hud-value">117 CE</p>
+        </div>
+        <button class="timeline-hud-close" type="button" aria-label="Close timeline">×</button>
+      </header>
+      <div class="timeline-slider-row">
+        <button class="timeline-play" type="button" aria-label="Play timeline">▶</button>
+        <input class="timeline-primary-slider" type="range" min="0" max="100" value="50" aria-label="Historical time" />
+      </div>
+      <div class="timeline-hud-footer">
+        <p class="timeline-hud-era">Roman Empire at its greatest extent</p>
+        <button class="timeline-more-button" type="button">More controls</button>
+      </div>
     </section>
 
     <section id="searchSuggestions" class="search-suggestions" data-open="false" aria-label="Search suggestions">
-      <button class="search-suggestion" type="button">Rome · 117 CE</button>
+      <button class="search-suggestion" type="button">
+        <span class="search-suggestion-icon year" aria-hidden="true">⌖</span>
+        <span class="search-suggestion-copy">
+          <strong class="search-suggestion-title">Rome</strong>
+          <span class="search-suggestion-subtitle">Historical city · 117 CE</span>
+        </span>
+        <span class="search-suggestion-chevron" aria-hidden="true">›</span>
+      </button>
     </section>
 
     <button id="sheetScrim" class="sheet-scrim" type="button" aria-label="Dismiss open panel" tabindex="-1"></button>
@@ -55,9 +76,67 @@
         <button id="searchSubmit" class="search-submit" type="button" aria-label="Search">↗</button>
       </div>
       <div id="controlPanel" class="control-panel">
-        <button id="sheetClose" class="round-button" type="button" aria-label="Collapse controls">×</button>
-        <button class="quick-year" type="button">117 CE</button>
-        <input id="fixtureRange" type="range" min="0" max="2" value="1" aria-label="Evidence tolerance" />
+        <header class="panel-header">
+          <div>
+            <p class="panel-kicker">Worldline Atlas</p>
+            <h1>117 CE</h1>
+          </div>
+          <div class="panel-actions">
+            <span class="status-pill ready">Sources ready</span>
+            <button id="sheetClose" class="round-button" type="button" aria-label="Collapse controls">×</button>
+          </div>
+        </header>
+
+        <p class="era-summary">The Roman Empire reached its greatest territorial extent under Trajan.</p>
+
+        <div class="metric-grid" aria-label="Map status">
+          <div><span>Visible records</span><strong>128</strong></div>
+          <div><span>Evidence mode</span><strong>Balanced</strong></div>
+          <div><span>Live catalog</span><strong>840</strong></div>
+          <div><span>Surface</span><strong>Reconstructed</strong></div>
+        </div>
+        <p class="coverage-message">Evidence coverage varies by region and period.</p>
+
+        <div class="timeline-block">
+          <div class="timeline-heading">
+            <label for="fixtureTimeline">Exact year</label>
+            <label class="year-entry"><input type="number" value="117" aria-label="Exact year" /></label>
+          </div>
+          <div class="timeline-row">
+            <button class="play-button" type="button" aria-label="Play human timeline">▶</button>
+            <input id="fixtureTimeline" type="range" min="-300000" max="2026" value="117" aria-label="Human-history year" />
+          </div>
+        </div>
+
+        <div class="quick-years" aria-label="Jump to a historical period">
+          <button class="quick-year" type="button">10,000 BCE</button>
+          <button class="quick-year active" type="button">117 CE</button>
+          <button class="quick-year" type="button">Present</button>
+        </div>
+
+        <section class="surface-control" aria-label="Earth surface">
+          <div class="surface-control-copy">
+            <div><span>Earth surface</span><strong>Reconstructed Earth</strong></div>
+            <p>Observed imagery is a reference input.</p>
+          </div>
+        </section>
+
+        <div class="control-grid">
+          <div class="control-block">
+            <label for="fixtureRange"><span>Reconstruction tolerance</span><strong>Balanced</strong></label>
+            <input id="fixtureRange" type="range" min="0" max="2" value="1" aria-label="Evidence tolerance" />
+          </div>
+          <fieldset class="layer-block">
+            <legend>Human-history layers</legend>
+            <label><input type="checkbox" checked /> Dated map records</label>
+            <label><input type="checkbox" checked /> Reviewed sites</label>
+            <label><input type="checkbox" checked /> Live catalog</label>
+            <label><input type="checkbox" /> Dated buildings</label>
+          </fieldset>
+        </div>
+
+        <div class="legend" aria-label="Map legend"><span>Reviewed evidence</span><span>Lower confidence</span></div>
+        <p class="imagery-note">Reconstruction layers remain distinct from observed imagery.</p>
       </div>
     </section>
 
@@ -78,6 +157,7 @@
           <span id="placeFactEvidence" class="place-fact">Evidence</span>
           <span id="placeFactConfidence" class="place-fact">Confidence</span>
         </div>
+        <p class="place-summary-label">Context</p>
         <p id="placeSummary" class="place-summary">Context</p>
         <p id="placeContextSource" class="place-context-source"></p>
         <div id="placeEvidence" class="place-evidence">Evidence notes</div>
