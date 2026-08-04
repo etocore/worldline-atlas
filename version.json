@@ -1,4 +1,4 @@
 {
-  "build": "2026-08-04-globe-r20",
-  "description": "Published PaleoDEM surface pipeline with a rendered 250 Ma anchor world, bathymetric relief, and reusable historical world packages"
+  "build": "2026-08-04-globe-r21",
+  "description": "Adds native-style surface focus restoration, named settings detents, consistent touch targets, reduced-transparency support, and quieter map controls"
 }
