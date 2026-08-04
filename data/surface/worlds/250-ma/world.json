@@ -1,9 +1,10 @@
 {
   "schemaVersion": 1,
+  "builderVersion": 2,
   "id": "250-ma",
   "targetAgeMa": 250.0,
   "actualAgeMa": 250.0,
-  "generatedAt": "2026-08-04T04:54:40.496828+00:00",
+  "generatedAt": "2026-08-04T05:00:02.256938+00:00",
   "source": {
     "title": "PALEOMAP Paleodigital Elevation Models for the Phanerozoic",
     "authors": "Christopher R. Scotese and Nicky M. Wright",
@@ -15,6 +16,7 @@
     "elevation": "source-derived",
     "bathymetry": "source-derived",
     "surfaceColor": "deterministic elevation-derived visual synthesis",
+    "relief": "padded source-derived hillshade with no tile-local edge discontinuity",
     "climate": "not represented",
     "vegetation": "not represented",
     "settlements": "not represented"
