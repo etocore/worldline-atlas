@@ -1,0 +1,12 @@
+/* Worldline r23 - the replacement timeline owns its final transform.
+   Legacy transform interpolation can otherwise animate the new bottom panel
+   from the old centered layout and briefly move it outside the viewport. */
+body.worldline-r23-navigation #timelineHud {
+  transition: opacity .18s ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.worldline-r23-navigation #timelineHud {
+    transition-duration: .01ms !important;
+  }
+}
