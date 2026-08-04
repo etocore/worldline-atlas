@@ -193,10 +193,8 @@ jobs:
           - slug: ipad
             device: iPad (10th generation)
     env:
-      APPIUM_HOME: ${{ github.workspace }}/.appium
       PLATFORM_VERSION: '18.5'
       TARGET_URL: http://127.0.0.1:4173/tests/fixtures/ios-interface.html
-      ARTIFACT_DIR: simulator-artifacts/${{ matrix.slug }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -204,6 +202,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
+      - name: Configure isolated simulator paths
+        run: |
+          echo "APPIUM_HOME=$GITHUB_WORKSPACE/.appium" >> "$GITHUB_ENV"
+          echo "ARTIFACT_DIR=$GITHUB_WORKSPACE/simulator-artifacts/${{ matrix.slug }}" >> "$GITHUB_ENV"
       - name: Select Xcode 16.4 and inspect simulator inventory
         run: |
           sudo xcode-select --switch /Applications/Xcode_16.4.app/Contents/Developer
