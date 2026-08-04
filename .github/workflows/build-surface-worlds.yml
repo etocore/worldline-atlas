@@ -51,9 +51,21 @@ jobs:
           manifest = json.loads(Path('data/surface/worlds.json').read_text())
           world = next(item for item in manifest['worlds'] if item['id'] == '250-ma')
           assert world['status'] == 'generated'
+          assert world['builderVersion'] == 2
           assert world['assets']['maxzoom'] == 3
           print(world['actualAgeMa'], world['assets'])
           PY
+
+      - name: Upload visual QA package
+        uses: actions/upload-artifact@v4
+        with:
+          name: surface-preview-${{ github.sha }}
+          path: |
+            data/surface/worlds/250-ma/world.json
+            data/surface/worlds/250-ma/color
+            data/surface/worlds/250-ma/dem/0/0/0.png
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Commit generated package
         run: |
