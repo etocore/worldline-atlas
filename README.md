@@ -31,7 +31,11 @@ The interface is map-first and optimized for phones and tablets:
 
 The visual language is inspired by the clarity and restraint of modern native map applications. Worldline does not use or redistribute Apple Maps imagery, tiles, branding, or private APIs.
 
-## Timeline architecture
+## Canonical interface architecture
+
+Each visible surface has one JavaScript owner and one primary stylesheet owner. CI rejects retired revision files if they are added back to the production entry points.
+
+### Timeline
 
 The canonical timeline subsystem lives in `timeline/`:
 
@@ -40,7 +44,25 @@ The canonical timeline subsystem lives in `timeline/`:
 - `view.js` owns the launcher, timeline surface, interval rail, local scrubber, contextual settings, and lightweight coastline previews.
 - `timeline.css` is the only production stylesheet owner for timeline UI.
 
-Every visible timeline surface should have one JavaScript owner and one primary stylesheet owner. CI rejects retired timeline generations if they are added back to the production bootstrap.
+### Mobile shell
+
+The canonical mobile subsystem lives in `mobile/`:
+
+- `runtime.js` owns the base mobile runtime and place-card behavior.
+- `sheets.js` is the sole gesture and detent owner for settings and place sheets.
+- `quality.js` owns touch-target normalization, semantic detents, focus restoration, and accessibility synchronization.
+- `base.css` owns the base mobile layout.
+- `sheets.css` owns sheet geometry, detents, and scrolling.
+- `quality.css` owns interaction targets and accessibility adaptations.
+- `surfaces.css` owns the visual hierarchy of settings and place content without touching timeline geometry.
+
+### Search
+
+The canonical search subsystem lives in `search/`:
+
+- `search.js` owns suggestions, keyboard navigation, result selection, and timeline-domain handoff.
+- `viewport.js` owns keyboard-safe visual viewport positioning and does not control timeline behavior.
+- `search.css` owns the transient search surface and suggestions.
 
 ## Evidence and uncertainty
 
@@ -113,8 +135,7 @@ Every merge to `main` triggers a production redeploy.
 
 ## Near-term milestones
 
-1. Consolidate the remaining overlapping mobile shell generations.
-2. Add complete-page performance budgets for timeline interaction and source settling.
-3. Generate and review additional historical surface worlds, beginning with 120 million years ago, 66 million years ago, and the Last Glacial Maximum.
-4. Expand normalized archaeological, historical, and environmental evidence adapters.
-5. Add a reviewed natural-language research queue without fabricating unsupported reconstructions.
+1. Add complete-page performance budgets for timeline interaction and source settling.
+2. Generate and review additional historical surface worlds, beginning with 120 million years ago, 66 million years ago, and the Last Glacial Maximum.
+3. Expand normalized archaeological, historical, and environmental evidence adapters.
+4. Add a reviewed natural-language research queue without fabricating unsupported reconstructions.
