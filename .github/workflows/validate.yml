@@ -10,8 +10,15 @@ permissions:
 
 jobs:
   generate-surface:
+    if: >-
+      github.actor != 'github-actions[bot]' &&
+      ((github.event_name == 'push' && github.ref == 'refs/heads/agent/surface-engine-r20') ||
+      (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'agent/surface-engine-r20'))
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    concurrency:
+      group: historical-surface-writer
+      cancel-in-progress: false
     permissions:
       contents: write
     steps:
@@ -24,8 +31,14 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install surface build dependencies
-        run: python -m pip install --upgrade numpy scipy xarray netCDF4 Pillow
+      - name: Install pinned surface build dependencies
+        run: >-
+          python -m pip install
+          numpy==2.5.1
+          scipy==1.18.0
+          xarray==2026.7.0
+          netCDF4==1.7.4
+          Pillow==12.3.0
       - name: Generate the 250 Ma surface package
         run: python scripts/build_surface_worlds.py --age 250 --max-zoom 3
       - name: Upload visual QA package
