@@ -101,6 +101,7 @@ jobs:
           node --check atlas-timeline-r18.js
           node --check surface-engine-r20.js
           node --check ios-interface-r21.js
+          node --check timeline-navigation-r23.js
           node --check apple-controls-loader.js
           node --check apple-controls.js
           node --check earth-history.js
