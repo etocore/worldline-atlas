@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '2026-08-03-globe-r9';
+  const BUILD = '2026-08-04-globe-r29';
   let attempts = 0;
 
   const timer = setInterval(() => {
@@ -22,15 +22,9 @@
     clearInterval(timer);
 
     ui.register('settings', {
-      open(payload = {}) {
-        rawSetSheet(true, payload.options || payload);
-      },
-      close() {
-        rawSetSheet(false);
-      },
-      isOpen() {
-        return document.querySelector('#searchShell')?.classList.contains('is-open') === true;
-      }
+      open(payload = {}) { rawSetSheet(true, payload.options || payload); },
+      close() { rawSetSheet(false); },
+      isOpen() { return document.querySelector('#searchShell')?.classList.contains('is-open') === true; }
     });
 
     ui.register('place', {
@@ -38,9 +32,7 @@
         const model = payload.model || payload;
         if (model?.name) rawOpenPlace(model);
       },
-      close(meta = {}) {
-        rawClosePlace({ clearSelection: meta.clearSelection !== false });
-      },
+      close(meta = {}) { rawClosePlace({ clearSelection: meta.clearSelection !== false }); },
       isOpen() {
         const detent = document.querySelector('#placeSheet')?.dataset.detent;
         return Boolean(detent && detent !== 'closed');
@@ -52,7 +44,7 @@
       const searchTriggered = Boolean(open) && (activeElementId === 'historySearch' || activeElementId === 'searchSubmit');
       if (searchTriggered) {
         rawSetSheet(false);
-        if (ui.isOpen('search') || globalThis.__WORLDLINE_APPLE_CONTROLS_BUILD__) {
+        if (ui.isOpen('search') || globalThis.__WORLDLINE_SEARCH_BUILD__) {
           return ui.activate('search', { focus: false }, { reason: 'legacy-search-guard' });
         }
         return false;
