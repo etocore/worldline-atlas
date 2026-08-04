@@ -4,6 +4,18 @@
   --worldline-secondary-fill: rgba(118, 118, 128, .14);
 }
 
+/* The map is a fixed spatial canvas, not a page-sized scroll container. */
+@supports (overflow: clip) {
+  .map-app,
+  .map-stage {
+    overflow: clip !important;
+  }
+
+  .place-sheet-scroll {
+    overflow-x: clip;
+  }
+}
+
 /* Keep the timeline legible without making it a second hero surface. */
 .timeline-hud {
   width: min(590px, calc(100% - 24px));
@@ -177,8 +189,13 @@
 
 /* Place details should prioritize identity, context, and evidence. */
 .place-sheet {
+  min-width: 0;
   border-width: .5px;
   box-shadow: 0 20px 64px rgba(0, 0, 0, .42);
+}
+
+.place-sheet-scroll {
+  min-width: 0;
 }
 
 .place-eyebrow {
@@ -224,8 +241,17 @@
   background: transparent;
 }
 
-.place-actions { gap: 8px; margin-top: 15px; }
-.place-action { border-radius: 13px; }
+.place-actions {
+  min-width: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.place-action {
+  min-width: 0;
+  border-radius: 13px;
+}
 
 @media (max-width: 720px) {
   .timeline-hud {
@@ -239,6 +265,11 @@
   .search-shell.is-open .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .search-shell.is-open .metric-grid > div:nth-child(3) { border-left: 0 !important; }
   .search-shell.is-open .metric-grid > div:nth-child(n + 3) { border-top: .5px solid var(--worldline-section-line) !important; }
+
+  .place-sheet {
+    min-width: 0;
+    max-width: calc(100% - 16px);
+  }
 }
 
 @media (max-width: 390px) {
