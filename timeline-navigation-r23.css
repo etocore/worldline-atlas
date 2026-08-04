@@ -383,12 +383,12 @@ body.timeline-scrubbing .timeline-local-slider::-webkit-slider-thumb {
   font-size: .63rem;
 }
 
-@media (max-width: 720px), (pointer: coarse) {
+@media (max-width: 720px) {
   body.timeline-active .search-shell {
     transform: translate3d(0, 22px, 0) scale(.98) !important;
   }
 
-  .worldline-r23-navigation .timeline-hud {
+  body.worldline-r23-navigation #timelineHud {
     left: 10px !important;
     right: 10px !important;
     bottom: calc(8px + env(safe-area-inset-bottom)) !important;
@@ -398,11 +398,11 @@ body.timeline-scrubbing .timeline-local-slider::-webkit-slider-thumb {
     border-radius: 26px !important;
   }
 
-  .worldline-r23-navigation .timeline-hud[data-open="false"] {
+  body.worldline-r23-navigation #timelineHud[data-open="false"] {
     transform: translate3d(0, 18px, 0) scale(.985) !important;
   }
 
-  .worldline-r23-navigation .timeline-hud[data-open="true"] {
+  body.worldline-r23-navigation #timelineHud[data-open="true"] {
     transform: translate3d(0, 0, 0) scale(1) !important;
   }
 
