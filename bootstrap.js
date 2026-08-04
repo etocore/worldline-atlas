@@ -1,5 +1,5 @@
 (() => {
-  const BUILD = '2026-08-04-globe-r19';
+  const BUILD = '2026-08-04-globe-r20';
   const nativeFetch = window.fetch.bind(window);
   window.fetch = (input, init = {}) => {
     const url = typeof input === 'string' ? input : input?.url || '';
@@ -54,6 +54,7 @@
   loadStyle('time-control-r16.css');
   loadStyle('research-foundation-r17.css');
   loadStyle('atlas-timeline-r18.css');
+  loadStyle('surface-engine-r20.css');
   loadScript('ui-adapters.js');
   loadScript('apple-controls-loader.js');
   loadScript('earth-history.js');
@@ -67,4 +68,5 @@
   loadScript('mobile-search-snap-r15.js');
   loadScript('time-control-r16.js');
   loadScript('research-foundation-r17.js');
+  loadScript('surface-engine-r20.js');
 })();
