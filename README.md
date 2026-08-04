@@ -68,16 +68,18 @@ The canonical search subsystem lives in `search/`:
 
 `performance/timeline.js` measures the canonical timeline without changing its rendering behavior. It exposes `WorldlinePerformance` for diagnostics and CI.
 
-The r30 budgets enforce:
+The deterministic r30 release budgets enforce:
 
 - 95th-percentile input-to-render latency at or below 50 ms
-- Bounded input-to-paint latency and animation-frame gaps
 - No more than four quantized preview requests during one drag
 - No more than one post-release reconstruction request
 - No source or layer removal during a timeline gesture
 - Exactly one committed timeline state per completed drag
+- Abort-aware stale preview replacement under delayed responses
 
-The deterministic WebKit contract uses delayed paleocoastline responses to verify stale-request cancellation rather than relying on immediate mock responses.
+Input-to-paint latency and animation-frame gaps remain measured against 100 ms foreground Safari targets. They are reported separately as experience diagnostics because headless WebKit can throttle animation frames independently of application work. These targets belong in native Simulator Safari and physical-device validation rather than the deterministic CI pass/fail gate.
+
+The WebKit release contract disables Playwright video and trace encoders for its measurement file, then uses delayed paleocoastline responses to verify stale-request cancellation rather than relying on immediate mock responses.
 
 ## Evidence and uncertainty
 
