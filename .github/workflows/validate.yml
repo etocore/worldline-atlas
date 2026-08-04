@@ -221,7 +221,7 @@ jobs:
         env:
           DEVICE_NAME: ${{ matrix.device }}
         run: |
-          python3 - <<'PY'
+          SIMULATOR_UDID=$(python3 - <<'PY'
           import json
           import os
           import subprocess
@@ -246,10 +246,11 @@ jobs:
                   f'Expected one available {device_name} simulator in {runtime}, found {len(matches)}'
               )
 
-          with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env_file:
-              env_file.write(f"SIMULATOR_UDID={matches[0]['udid']}\n")
-          print(f"Resolved {device_name}: {matches[0]['udid']}")
+          print(matches[0]['udid'])
           PY
+          )
+          echo "SIMULATOR_UDID=$SIMULATOR_UDID" >> "$GITHUB_ENV"
+          echo "Resolved $DEVICE_NAME: $SIMULATOR_UDID"
 
           defaults write com.apple.iphonesimulator ConnectHardwareKeyboard -bool NO
           xcrun simctl shutdown all || true
