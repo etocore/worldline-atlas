@@ -4,6 +4,27 @@
   --worldline-focus-ring: rgba(10, 132, 255, .88);
 }
 
+/* iOS Safari exposes a layout viewport that can remain taller than the
+   currently visible page while its browser chrome is expanded. Worldline is
+   a fixed spatial canvas, so the application shell must follow the dynamic
+   viewport instead of inheriting that larger layout height through 100%. */
+@supports (height: 100dvh) {
+  html,
+  body {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow: hidden;
+  }
+
+  .map-app,
+  .map-stage {
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100%;
+  }
+}
+
 .worldline-hit-square {
   min-inline-size: var(--worldline-min-hit);
   min-block-size: var(--worldline-min-hit);
