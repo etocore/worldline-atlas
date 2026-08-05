@@ -82,7 +82,8 @@ if (/MutationObserver[\s\S]*years ago|TreeWalker|rewriteTextNodes/.test(sources[
 
 requireText('README.md', 'The canonical timeline subsystem lives in `timeline/`', 'README does not describe the canonical timeline architecture');
 requireText('README.md', '`domain-controller.js` owns the compact launcher state', 'README does not describe canonical domain ownership');
-requireText('README.md', '`launcher.css` owns the title-only disclosure', 'README does not describe launcher ownership');
+requireText('README.md', '`launcher.css` owns the title-only timeline disclosure', 'README does not describe launcher ownership');
+requireText('README.md', '`chapter.css` owns the collapsed researched-history title', 'README does not describe chapter disclosure ownership');
 requireText('README.md', '`performance/timeline.js` measures the canonical timeline', 'README does not describe the performance contract');
 requireText('README.md', '1.8 billion years ago', 'README does not describe the reconstruction boundary');
 requireText('README.md', '300,000 years ago', 'README does not describe the Human History range');
