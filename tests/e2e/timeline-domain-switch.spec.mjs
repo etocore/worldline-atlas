@@ -114,16 +114,22 @@ test('survives repeated Earth and Human History switches', async ({ page }) => {
 
 test('cancels an active scrub before changing domains', async ({ page }) => {
   await page.locator('#yearButton').click();
-  const slider = page.locator('#timelinePrimarySlider');
 
-  await slider.dispatchEvent('pointerdown', {
-    pointerId: 9,
-    pointerType: 'touch',
-    isPrimary: true
-  });
-  await slider.evaluate((element) => {
-    element.value = '740';
-    element.dispatchEvent(new Event('input', { bubbles: true }));
+  await page.evaluate(() => {
+    const slider = document.querySelector('#timelinePrimarySlider');
+    slider.setPointerCapture = () => {};
+    slider.releasePointerCapture = () => {};
+    slider.dispatchEvent(new PointerEvent('pointerdown', {
+      bubbles: true,
+      composed: true,
+      pointerId: 9,
+      pointerType: 'touch',
+      isPrimary: true,
+      button: 0,
+      buttons: 1
+    }));
+    slider.value = '740';
+    slider.dispatchEvent(new Event('input', { bubbles: true }));
   });
   await expect(page.locator('body')).toHaveClass(/timeline-scrubbing/);
 
