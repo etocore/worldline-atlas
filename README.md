@@ -22,6 +22,7 @@ The interface is map-first and optimized for phones and tablets:
 
 - Full-screen MapLibre globe
 - Compact title-only Earth/Human timeline disclosure
+- Collapsed researched-history chapter title with optional details
 - Persistent scrollable geological and historical interval rail
 - Local interval-scale time scrubber
 - Bottom search surface
@@ -42,9 +43,10 @@ The canonical timeline subsystem lives in `timeline/`:
 - `model.js` owns interval definitions, hierarchy, scale conversions, and date formatting.
 - `state.js` owns Earth/Human state, preview transactions, commits, persistence, and timeline events.
 - `view.js` owns the timeline surface, interval rail, local scrubber, contextual settings, and lightweight coastline previews.
-- `domain-controller.js` owns the compact launcher state, gesture-safe Earth/Human transitions, map-layer handoff, and recovery from the retired renderer.
+- `domain-controller.js` owns the compact launcher state, gesture-safe Earth/Human transitions, map-layer handoff, residual chapter disclosure, and recovery from the retired renderer.
 - `timeline.css` owns the expanded timeline surface.
-- `launcher.css` owns the title-only disclosure, stacking, 44-point target, and accessibility adaptations.
+- `launcher.css` owns the title-only timeline disclosure, stacking, 44-point target, and accessibility adaptations.
+- `chapter.css` owns the collapsed researched-history title and its optional detail disclosure.
 
 The obsolete Earth-context and Earth-UI synchronization scripts are not loaded in production. Domain changes pass through the canonical state and domain controller rather than rebuilding retired timeline markup.
 
