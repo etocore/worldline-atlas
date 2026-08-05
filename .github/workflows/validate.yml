@@ -106,10 +106,10 @@ jobs:
           node --check timeline/model.js
           node --check timeline/state.js
           node --check timeline/view.js
+          node --check timeline/domain-controller.js
+          node --check performance/timeline.js
           node --check surface-engine-r20.js
           node --check earth-history.js
-          node --check earth-era-context.js
-          node --check earth-ui-sync.js
           node --check earth-cache.js
           node --check life-evidence.js
           node --check r12-ui.js
@@ -131,6 +131,8 @@ jobs:
           node --check tests/e2e/ios-interface.spec.mjs
           node --check tests/e2e/interface-reduction.spec.mjs
           node --check tests/e2e/timeline-canonical.spec.mjs
+          node --check tests/e2e/timeline-domain-switch.spec.mjs
+          node --check tests/e2e/timeline-performance.spec.mjs
           node --check tests/simulator/ios-safari-smoke.mjs
       - name: Check Python builders
         run: python -m py_compile scripts/build_surface_worlds.py
