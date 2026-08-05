@@ -12,12 +12,14 @@
   <link rel="stylesheet" href="../../search/search.css" />
   <link rel="stylesheet" href="../../timeline/timeline.css" />
   <link rel="stylesheet" href="../../timeline/launcher.css" />
+  <link rel="stylesheet" href="../../timeline/chapter.css" />
   <style>
     html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #000; }
     .map-stage { position: relative; width: 100%; height: 100%; overflow: hidden; }
     .fixture-globe { position: absolute; z-index: 6; left: 50%; top: 22%; width: min(72vw, 580px); aspect-ratio: 1; border-radius: 50%; transform: translateX(-50%); background: radial-gradient(circle at 68% 32%, #92bad8, #285b7d 48%, #081522 72%); }
     .map-identity { position: absolute; top: 18px; left: 18px; display: flex; }
     .brand-orb { width: 44px; height: 44px; border-radius: 50%; }
+    .timeline-era-card.timeline-chapter-disclosure { position: absolute; top: 82px; left: 18px; }
     .search-shell { position: absolute; left: 50%; bottom: 10px; width: min(520px, calc(100% - 20px)); transform: translateX(-50%); }
     .search-row { min-height: 52px; border-radius: 26px; background: rgba(24, 24, 27, .94); }
     .search-shell:not(.is-open) .control-panel { display: none; }
@@ -33,6 +35,15 @@
         <strong id="yearLabel">250 Ma</strong>
       </button>
     </div>
+
+    <article id="timelineEraCard" class="timeline-era-card" role="button" tabindex="0" aria-label="Open Earth History chapter">
+      <div class="timeline-era-card-copy">
+        <p id="timelineEraMeta" class="timeline-era-meta">4 key moments · Earth History</p>
+        <strong id="timelineEraTitle">Life moves from sea to land</strong>
+        <span id="timelineEraSummary">Marine ecosystems diversified, reefs expanded, forests appeared, and vertebrates began entering land environments.</span>
+      </div>
+      <button id="timelineEraExplore" type="button">Explore</button>
+    </article>
 
     <section id="searchShell" class="search-shell" data-detent="compact">
       <div class="search-row"><input id="historySearch" type="search" aria-label="Search" /></div>
@@ -78,14 +89,18 @@
     window.settlementLayerIds = ['historical-settlement'];
     window.buildingLayerIds = ['historical-building'];
     window.__fixtureVisibility = new Map();
-    const layerIds = [
-      'paleo-ocean-fill', 'paleo-land-shadow', 'paleo-land-fill', 'paleo-coastline-line',
-      'curated-settlement-halo', 'curated-settlement-label', 'curated-settlement-hit',
-      'wikidata-clusters', 'wikidata-cluster-count', 'wikidata-points', 'wikidata-labels', 'wikidata-hit',
-      'historical-settlement', 'historical-building'
+    const layerDefinitions = [
+      { id: 'paleo-ocean-fill' }, { id: 'paleo-land-shadow' }, { id: 'paleo-land-fill' }, { id: 'paleo-coastline-line' },
+      { id: 'curated-settlement-halo' }, { id: 'curated-settlement-label' }, { id: 'curated-settlement-hit' },
+      { id: 'wikidata-clusters' }, { id: 'wikidata-cluster-count' }, { id: 'wikidata-points' }, { id: 'wikidata-labels' }, { id: 'wikidata-hit' },
+      { id: 'historical-settlement', metadata: { worldlineKind: 'settlement' } },
+      { id: 'historical-building', metadata: { worldlineKind: 'building' } }
     ];
+    const layerIds = layerDefinitions.map((layer) => layer.id);
     window.map = {
       getLayer(id) { return layerIds.includes(id) ? { id } : null; },
+      getStyle() { return { layers: layerDefinitions }; },
+      on() {},
       setLayoutProperty(id, property, value) {
         if (property === 'visibility') window.__fixtureVisibility.set(id, value);
       },
@@ -154,6 +169,7 @@
     const ready = setInterval(() => {
       if (!window.__WORLDLINE_TIMELINE_BUILD__) return;
       if (window.__WORLDLINE_TIMELINE_DOMAIN_CONTROLLER_BUILD__ !== '2026-08-04-globe-r30-domain') return;
+      if (!document.querySelector('#timelineEraCard')?.classList.contains('timeline-chapter-disclosure')) return;
       clearInterval(ready);
       document.body.dataset.fixtureReady = 'true';
     }, 20);
