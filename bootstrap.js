@@ -53,6 +53,7 @@
   loadStyle('timeline/timeline.css');
   loadStyle('timeline/launcher.css');
   loadStyle('timeline/chapter.css');
+  loadStyle('timeline/history-sheet.css');
 
   loadScript('ui-adapters.js');
   loadScript('earth-history.js');
@@ -67,5 +68,6 @@
   loadScript('search/compat.js');
   loadScript('timeline/view.js');
   loadScript('timeline/domain-controller.js');
+  loadScript('timeline/history-sheet.js');
   loadScript('performance/timeline.js');
 })();
