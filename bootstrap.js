@@ -42,7 +42,6 @@
 
   loadStyle('r9-polish.css');
   loadStyle('earth-history.css');
-  loadStyle('earth-ui-sync.css');
   loadStyle('life-regions-r12.css');
   loadStyle('history-engine.css');
   loadStyle('history-presence-r14.css');
