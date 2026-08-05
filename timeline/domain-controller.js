@@ -5,6 +5,7 @@
   let installed = false;
   let legacyEngine = null;
   let bridgeMode = 'earth';
+  const guardedMaps = new WeakSet();
 
   const PALEO_LAYERS = Object.freeze([
     'paleo-ocean-fill',
@@ -46,13 +47,52 @@
     }
   }
 
+  function styleLayers() {
+    try {
+      return atlasMap()?.getStyle?.()?.layers || [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function discoveredHumanLayers(kind) {
+    return styleLayers()
+      .filter((layer) => {
+        const metadataKind = String(layer.metadata?.worldlineKind || '').toLowerCase();
+        if (metadataKind === kind) return true;
+        const signature = `${layer.id || ''} ${layer['source-layer'] || ''}`.toLowerCase();
+        if (/(paleo|coastline|tectonic|plate|boundary)/.test(signature)) return false;
+        if (kind === 'building') return /building/.test(signature);
+        return /(settlement|place|city|town|village|hamlet|locality|suburb|neighbourhood|borough|quarter)/.test(signature)
+          && !/(road|route|rail|station|airport|water|peak|mountain|park|amenity|building|address)/.test(signature);
+      })
+      .map((layer) => layer.id)
+      .filter(Boolean);
+  }
+
+  function settlementLayers() {
+    return [...new Set([
+      ...globalArray('settlementLayerIds'),
+      ...discoveredHumanLayers('settlement')
+    ])];
+  }
+
+  function buildingLayers() {
+    return [...new Set([
+      ...globalArray('buildingLayerIds'),
+      ...discoveredHumanLayers('building')
+    ])];
+  }
+
   function setLayerVisibility(ids, visible) {
     const mapInstance = atlasMap();
     if (!mapInstance?.getLayer || !mapInstance?.setLayoutProperty) return;
     [...new Set(ids)].forEach((id) => {
-      if (mapInstance.getLayer(id)) {
-        mapInstance.setLayoutProperty(id, 'visibility', visible ? 'visible' : 'none');
-      }
+      try {
+        if (mapInstance.getLayer(id)) {
+          mapInstance.setLayoutProperty(id, 'visibility', visible ? 'visible' : 'none');
+        }
+      } catch (_) {}
     });
   }
 
@@ -60,8 +100,8 @@
     return [
       ...CURATED_LAYERS,
       ...CATALOG_LAYERS,
-      ...globalArray('settlementLayerIds'),
-      ...globalArray('buildingLayerIds')
+      ...settlementLayers(),
+      ...buildingLayers()
     ];
   }
 
@@ -76,11 +116,11 @@
     const buildings = document.querySelector('#buildingToggle')?.checked === true;
     setLayerVisibility(CURATED_LAYERS, curated);
     setLayerVisibility(CATALOG_LAYERS, catalog);
-    setLayerVisibility(globalArray('settlementLayerIds'), historical);
-    setLayerVisibility(globalArray('buildingLayerIds'), buildings);
+    setLayerVisibility(settlementLayers(), historical);
+    setLayerVisibility(buildingLayers(), buildings);
   }
 
-  function enforceDomainLayers(domain) {
+  function enforceDomainLayers(domain = bridgeMode) {
     if (domain === 'earth') {
       hideHumanLayers();
       setLayerVisibility(PALEO_LAYERS, true);
@@ -88,6 +128,17 @@
       setLayerVisibility(PALEO_LAYERS, false);
       restoreHumanLayers();
     }
+  }
+
+  function guardMapLifecycle() {
+    const mapInstance = atlasMap();
+    if (!mapInstance || guardedMaps.has(mapInstance)) return false;
+    guardedMaps.add(mapInstance);
+    for (const eventName of ['load', 'styledata']) {
+      try { mapInstance.on?.(eventName, () => enforceDomainLayers()); } catch (_) {}
+    }
+    enforceDomainLayers();
+    return true;
   }
 
   function reportRecoveredSwitch(domain, error) {
@@ -103,10 +154,17 @@
   function applyCurrentValue(domain, source) {
     const state = timeline()?.getState?.();
     if (!state || !legacyEngine) return;
-    if (domain === 'earth') {
-      legacyEngine.setEarthAge?.(state.earthAgeMa, { source });
-    } else {
-      legacyEngine.setHumanYear?.(state.humanYear, { source });
+    try {
+      if (domain === 'earth') {
+        legacyEngine.setEarthAge?.(state.earthAgeMa, { source });
+      } else {
+        legacyEngine.setHumanYear?.(state.humanYear, { source });
+      }
+    } catch (error) {
+      reportRecoveredSwitch(domain, error);
+      if (domain === 'human') {
+        try { globalThis.setYear?.(state.humanYear); } catch (_) {}
+      }
     }
   }
 
@@ -153,14 +211,17 @@
       getMode: () => bridgeMode,
       setMode,
       setEarthAge(value, options = {}) {
-        return legacyEngine.setEarthAge?.(value, options);
+        try { return legacyEngine.setEarthAge?.(value, options); }
+        catch (error) { reportRecoveredSwitch('earth', error); return undefined; }
       },
       setHumanYear(value, options = {}) {
-        return legacyEngine.setHumanYear?.(value, options);
+        try { return legacyEngine.setHumanYear?.(value, options); }
+        catch (error) { reportRecoveredSwitch('human', error); return undefined; }
       }
     });
 
     document.body.dataset.timelineMode = bridgeMode;
+    guardMapLifecycle();
     enforceDomainLayers(bridgeMode);
     return true;
   }
@@ -230,6 +291,7 @@
   }
 
   const installer = setInterval(() => {
+    guardMapLifecycle();
     if (install()) clearInterval(installer);
   }, 30);
   setTimeout(() => clearInterval(installer), 12000);
