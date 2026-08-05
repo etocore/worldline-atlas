@@ -6,7 +6,7 @@ const required = [
   'mobile/base.css', 'mobile/sheets.css', 'mobile/quality.css', 'mobile/surfaces.css',
   'search/search.js', 'search/viewport.js', 'search/search.css',
   'timeline/model.js', 'timeline/state.js', 'timeline/view.js', 'timeline/timeline.css',
-  'docs/IOS_INTERFACE_STANDARD.md', 'bootstrap.js', 'index.html', 'version.json'
+  'performance/timeline.js', 'docs/IOS_INTERFACE_STANDARD.md', 'bootstrap.js', 'index.html', 'version.json'
 ];
 for (const file of required) {
   try { await access(file); } catch { failures.push(`Missing canonical interface file: ${file}`); }
@@ -24,7 +24,7 @@ const prohibitText = (file, token, message) => {
 };
 
 const build = version?.build || '';
-if (build !== '2026-08-04-globe-r29') failures.push('The canonical mobile architecture must use the r29 build');
+if (build !== '2026-08-04-globe-r30') failures.push('The canonical mobile architecture must use the r30 build');
 if (!sources['bootstrap.js'].includes(build)) failures.push('Bootstrap and version.json builds do not match');
 
 for (const [file, token] of [
@@ -33,7 +33,8 @@ for (const [file, token] of [
   ['bootstrap.js', "loadScript('mobile/quality.js')"], ['bootstrap.js', "loadStyle('mobile/quality.css')"],
   ['bootstrap.js', "loadStyle('mobile/surfaces.css')"], ['bootstrap.js', "loadScript('search/search.js')"],
   ['bootstrap.js', "loadScript('search/viewport.js')"], ['bootstrap.js', "loadStyle('search/search.css')"],
-  ['bootstrap.js', "loadScript('timeline/view.js')"], ['bootstrap.js', "loadStyle('timeline/timeline.css')"]
+  ['bootstrap.js', "loadScript('timeline/view.js')"], ['bootstrap.js', "loadStyle('timeline/timeline.css')"],
+  ['bootstrap.js', "loadScript('performance/timeline.js')"]
 ]) requireText(file, token, `${file} does not load ${token}`);
 
 for (const token of ['function bindPlaceDrag()', 'function bindControlHandleDrag()', '__WORLDLINE_INTERACTION_BUILD__']) {
@@ -59,6 +60,9 @@ for (const token of ['visualViewport', 'worldline-search-locked', 'WorldlineSear
 }
 for (const token of ['.search-suggestions', '.search-cancel', 'worldline-search-locked', 'prefers-reduced-motion: reduce']) {
   requireText('search/search.css', token, `The canonical search stylesheet is missing ${token}`);
+}
+for (const token of ['WorldlinePerformance', 'inputToRenderP95Ms', 'maxSourceRemovalsDuringGesture']) {
+  requireText('performance/timeline.js', token, `The canonical performance contract is missing ${token}`);
 }
 
 for (const token of ['timelinePrimarySlider', 'timeline-hud', 'milestonePosition', 'snapTimeline']) {
@@ -86,4 +90,4 @@ if (failures.length) {
   failures.forEach((failure) => console.error(`- ${failure}`));
   process.exit(1);
 }
-console.log('Canonical mobile shell, quality layer, search, and timeline ownership are valid.');
+console.log('Canonical mobile shell, quality layer, search, timeline, and r30 performance budgets are valid.');

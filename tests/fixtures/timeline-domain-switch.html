@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Worldline timeline domain switch fixture</title>
+  <link rel="stylesheet" href="../../styles.css" />
+  <link rel="stylesheet" href="../../mobile/base.css" />
+  <link rel="stylesheet" href="../../mobile/sheets.css" />
+  <link rel="stylesheet" href="../../mobile/quality.css" />
+  <link rel="stylesheet" href="../../mobile/surfaces.css" />
+  <link rel="stylesheet" href="../../search/search.css" />
+  <link rel="stylesheet" href="../../timeline/timeline.css" />
+  <link rel="stylesheet" href="../../timeline/launcher.css" />
+  <link rel="stylesheet" href="../../timeline/chapter.css" />
+  <style>
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #000; }
+    .map-stage { position: relative; width: 100%; height: 100%; overflow: hidden; }
+    .fixture-globe { position: absolute; z-index: 6; left: 50%; top: 22%; width: min(72vw, 580px); aspect-ratio: 1; border-radius: 50%; transform: translateX(-50%); background: radial-gradient(circle at 68% 32%, #92bad8, #285b7d 48%, #081522 72%); }
+    .map-identity { position: absolute; top: 18px; left: 18px; display: flex; }
+    .brand-orb { width: 44px; height: 44px; border-radius: 50%; }
+    .timeline-era-card.timeline-chapter-disclosure { position: absolute; top: 82px; left: 18px; }
+    .search-shell { position: absolute; left: 50%; bottom: 10px; width: min(520px, calc(100% - 20px)); transform: translateX(-50%); }
+    .search-row { min-height: 52px; border-radius: 26px; background: rgba(24, 24, 27, .94); }
+    .search-shell:not(.is-open) .control-panel { display: none; }
+  </style>
+</head>
+<body data-ui-surface="none">
+  <main class="map-stage">
+    <div class="fixture-globe" aria-hidden="true"></div>
+    <div class="map-identity">
+      <button id="brandButton" class="brand-orb" type="button">W</button>
+      <button id="yearButton" class="year-chip" type="button">
+        <span id="eraLabel">Earth history</span>
+        <strong id="yearLabel">250 Ma</strong>
+      </button>
+    </div>
+
+    <article id="timelineEraCard" class="timeline-era-card" role="button" tabindex="0" aria-label="Open Earth History chapter">
+      <div class="timeline-era-card-copy">
+        <p id="timelineEraMeta" class="timeline-era-meta">4 key moments · Earth History</p>
+        <strong id="timelineEraTitle">Life moves from sea to land</strong>
+        <span id="timelineEraSummary">Marine ecosystems diversified, reefs expanded, forests appeared, and vertebrates began entering land environments.</span>
+      </div>
+      <button id="timelineEraExplore" type="button">Explore</button>
+    </article>
+
+    <section id="searchShell" class="search-shell" data-detent="compact">
+      <div class="search-row"><input id="historySearch" type="search" aria-label="Search" /></div>
+      <div id="controlPanel" class="control-panel">
+        <header class="panel-header">
+          <div><p class="panel-kicker">Worldline Atlas</p><h1 id="timelineDate">250 Ma</h1></div>
+          <div class="panel-actions">
+            <span id="sourceStatus">Ready</span>
+            <button id="aboutButton" type="button">i</button>
+            <button id="sheetClose" type="button">×</button>
+          </div>
+        </header>
+        <p class="era-summary">Legacy summary.</p>
+        <div class="metric-grid"><div><span>Visible</span><strong>10</strong></div></div>
+        <p class="coverage-message">Legacy coverage.</p>
+        <div class="timeline-block"><input type="range" /></div>
+        <div class="quick-years"><button type="button">117 CE</button></div>
+        <section class="surface-control">Legacy surface selector.</section>
+        <div class="control-grid">
+          <div class="control-block">
+            <label for="evidenceSlider"><span>Reconstruction tolerance</span><strong>Balanced</strong></label>
+            <input id="evidenceSlider" type="range" min="0" max="2" value="1" />
+            <div class="range-ends"><span>Strict</span><span>Broad</span></div>
+          </div>
+          <fieldset class="layer-block">
+            <legend>Human history layers</legend>
+            <label><span>Dated map records</span><input id="ohmToggle" type="checkbox" checked /></label>
+            <label><span>Reviewed sites</span><input id="curatedToggle" type="checkbox" checked /></label>
+            <label><span>Live catalog</span><input id="wikidataToggle" type="checkbox" checked /></label>
+            <label><span>Buildings</span><input id="buildingToggle" type="checkbox" /></label>
+          </fieldset>
+        </div>
+        <div class="legend">Legend</div>
+        <p class="imagery-note">Explanation.</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    window.mapReady = true;
+    window.selectedYear = -10000;
+    window.setYear = (value) => { window.selectedYear = Number(value); };
+    window.settlementLayerIds = ['historical-settlement'];
+    window.buildingLayerIds = ['historical-building'];
+    window.__fixtureVisibility = new Map();
+    const layerDefinitions = [
+      { id: 'paleo-ocean-fill' }, { id: 'paleo-land-shadow' }, { id: 'paleo-land-fill' }, { id: 'paleo-coastline-line' },
+      { id: 'curated-settlement-halo' }, { id: 'curated-settlement-label' }, { id: 'curated-settlement-hit' },
+      { id: 'wikidata-clusters' }, { id: 'wikidata-cluster-count' }, { id: 'wikidata-points' }, { id: 'wikidata-labels' }, { id: 'wikidata-hit' },
+      { id: 'historical-settlement', metadata: { worldlineKind: 'settlement' } },
+      { id: 'historical-building', metadata: { worldlineKind: 'building' } }
+    ];
+    const layerIds = layerDefinitions.map((layer) => layer.id);
+    window.map = {
+      getLayer(id) { return layerIds.includes(id) ? { id } : null; },
+      getStyle() { return { layers: layerDefinitions }; },
+      on() {},
+      setLayoutProperty(id, property, value) {
+        if (property === 'visibility') window.__fixtureVisibility.set(id, value);
+      },
+      getSource(id) {
+        return id === 'paleo-coastlines' ? { setData() {} } : null;
+      }
+    };
+    window.fetch = () => Promise.resolve({ ok: true, async json() { return { collection: { type: 'FeatureCollection', features: [] } }; } });
+
+    let legacyMode = 'earth';
+    let earthAge = 250;
+    let humanYear = -10000;
+    window.__legacyModeFailures = 0;
+    window.WorldlineEarthHistory = Object.freeze({
+      BUILD: 'legacy-fixture',
+      getMode: () => legacyMode,
+      getEarthAgeMa: () => earthAge,
+      getHumanYear: () => humanYear,
+      setMode(value) {
+        legacyMode = value;
+        document.body.dataset.timelineMode = value;
+        window.__legacyModeFailures += 1;
+        throw new TypeError('Cannot read properties of null (reading replaceChildren)');
+      },
+      setEarthAge(value) { earthAge = Number(value); },
+      setHumanYear(value) { humanYear = Number(value); window.setYear(value); }
+    });
+
+    const adapters = new Map();
+    const listeners = new Set();
+    let active = 'none';
+    window.WorldlineUI = {
+      register(name, adapter) { adapters.set(name, adapter); },
+      activate(name, payload, meta = {}) {
+        const previous = { active };
+        adapters.forEach((adapter, key) => { if (key !== name) adapter.close?.({ replacedBy: name }); });
+        adapters.get(name)?.open?.(payload, meta);
+        active = name;
+        document.body.dataset.uiSurface = name;
+        listeners.forEach((listener) => listener({ active: name }, previous));
+      },
+      close(name, meta = {}) {
+        const previous = { active };
+        adapters.get(name)?.close?.(meta);
+        if (active === name) active = 'none';
+        document.body.dataset.uiSurface = active;
+        listeners.forEach((listener) => listener({ active }, previous));
+      },
+      isOpen(name) { return Boolean(adapters.get(name)?.isOpen?.()); },
+      subscribe(listener) { listeners.add(listener); return () => listeners.delete(listener); }
+    };
+
+    const shell = document.querySelector('#searchShell');
+    WorldlineUI.register('settings', {
+      open() { shell.classList.add('is-open'); },
+      close() { shell.classList.remove('is-open'); },
+      isOpen() { return shell.classList.contains('is-open'); }
+    });
+    window.__WORLDLINE_APPLE_CONTROLS_BUILD__ = 'fixture-controls';
+  </script>
+  <script src="../../timeline/model.js"></script>
+  <script src="../../timeline/state.js"></script>
+  <script src="../../timeline/view.js"></script>
+  <script src="../../timeline/domain-controller.js"></script>
+  <script>
+    const ready = setInterval(() => {
+      if (!window.__WORLDLINE_TIMELINE_BUILD__) return;
+      if (window.__WORLDLINE_TIMELINE_DOMAIN_CONTROLLER_BUILD__ !== '2026-08-04-globe-r30-domain') return;
+      if (!document.querySelector('#timelineEraCard')?.classList.contains('timeline-chapter-disclosure')) return;
+      clearInterval(ready);
+      document.body.dataset.fixtureReady = 'true';
+    }, 20);
+  </script>
+</body>
+</html>

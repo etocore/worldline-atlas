@@ -1,0 +1,101 @@
+/* Canonical title-only timeline disclosure. */
+.worldline-timeline .map-identity {
+  z-index: 40;
+  isolation: isolate;
+  align-items: center;
+  gap: 8px;
+}
+
+.worldline-timeline .year-chip.timeline-disclosure-launcher {
+  position: relative;
+  z-index: 1;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: min(168px, calc(100vw - 102px)) !important;
+  min-height: 44px !important;
+  height: 44px !important;
+  padding: 0 36px 0 14px !important;
+  border: .5px solid rgba(255, 255, 255, .16) !important;
+  border-radius: 22px !important;
+  color: rgba(255, 255, 255, .96) !important;
+  background: rgba(28, 28, 30, .84) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .28), inset 0 .5px rgba(255, 255, 255, .08) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  backdrop-filter: blur(24px) saturate(150%);
+  text-align: left !important;
+  transform: translateZ(0);
+  transition: background-color 150ms ease, border-color 150ms ease, transform 110ms ease;
+}
+
+.worldline-timeline .year-chip.timeline-disclosure-launcher::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid rgba(235, 235, 245, .62);
+  border-bottom: 1.5px solid rgba(235, 235, 245, .62);
+  transform: translateY(-65%) rotate(45deg);
+  transition: transform 160ms ease;
+}
+
+.worldline-timeline .year-chip.timeline-disclosure-launcher[aria-expanded="true"]::after {
+  transform: translateY(-30%) rotate(225deg);
+}
+
+.worldline-timeline .year-chip.timeline-disclosure-launcher:active {
+  transform: translateZ(0) scale(.97);
+}
+
+.worldline-timeline .year-chip.timeline-disclosure-launcher:focus-visible {
+  outline: 3px solid rgba(100, 210, 255, .72);
+  outline-offset: 3px;
+}
+
+.worldline-timeline .year-chip.timeline-disclosure-launcher .time-chip-icon,
+.worldline-timeline .year-chip.timeline-disclosure-launcher #yearLabel {
+  display: none !important;
+}
+
+.worldline-timeline .year-chip.timeline-disclosure-launcher #eraLabel {
+  display: block !important;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0 !important;
+  overflow: hidden;
+  color: rgba(255, 255, 255, .96) !important;
+  font: 650 15px/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif !important;
+  letter-spacing: -.01em !important;
+  text-overflow: ellipsis;
+  text-transform: none !important;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .worldline-timeline .year-chip.timeline-disclosure-launcher {
+    background: #1c1c1e !important;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .worldline-timeline .year-chip.timeline-disclosure-launcher {
+    border-color: rgba(255, 255, 255, .42) !important;
+  }
+
+  .worldline-timeline .year-chip.timeline-disclosure-launcher::after {
+    border-color: rgba(255, 255, 255, .92);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .worldline-timeline .year-chip.timeline-disclosure-launcher,
+  .worldline-timeline .year-chip.timeline-disclosure-launcher::after {
+    transition: none;
+  }
+}

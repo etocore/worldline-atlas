@@ -1,0 +1,147 @@
+/* Researched Earth/Human history opens as a compact, user-controlled disclosure. */
+.place-sheet[data-content-type="history"] {
+  z-index: 42;
+}
+
+.place-sheet[data-content-type="history"] .place-sheet-handle {
+  display: none;
+}
+
+.place-sheet[data-content-type="history"] .place-sheet-scroll {
+  height: 100%;
+  padding-top: 0;
+}
+
+.place-sheet[data-content-type="history"][data-history-expanded="false"] {
+  height: 78px !important;
+  border-radius: 22px;
+  background: rgba(28, 28, 30, .88);
+}
+
+.place-sheet[data-content-type="history"][data-history-expanded="false"] .place-sheet-scroll {
+  overflow: hidden;
+  padding: 0 12px 0 16px;
+}
+
+.place-sheet[data-content-type="history"] .place-header {
+  align-items: center;
+  min-height: 76px;
+}
+
+.place-sheet[data-content-type="history"] .history-sheet-toggle {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 52px;
+  align-content: center;
+  padding: 6px 34px 6px 0;
+  border-radius: 14px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.place-sheet[data-content-type="history"] .history-sheet-toggle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid rgba(235, 235, 245, .58);
+  border-bottom: 1.5px solid rgba(235, 235, 245, .58);
+  transform: translateY(-65%) rotate(45deg);
+  transition: transform 180ms cubic-bezier(.32, .72, 0, 1);
+}
+
+.place-sheet[data-content-type="history"] .history-sheet-toggle[aria-expanded="true"]::after {
+  transform: translateY(-30%) rotate(225deg);
+}
+
+.place-sheet[data-content-type="history"] .history-sheet-toggle:active {
+  background: rgba(255, 255, 255, .045);
+}
+
+.place-sheet[data-content-type="history"] .history-sheet-toggle:focus-visible {
+  outline: 3px solid rgba(100, 210, 255, .72);
+  outline-offset: 2px;
+}
+
+.place-sheet[data-content-type="history"][data-history-expanded="false"] .place-eyebrow {
+  margin-bottom: 3px;
+  font-size: .61rem;
+  letter-spacing: .07em;
+}
+
+.place-sheet[data-content-type="history"][data-history-expanded="false"] .place-header h2 {
+  overflow: hidden;
+  font-size: 1rem;
+  line-height: 1.15;
+  letter-spacing: -.015em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.place-sheet[data-content-type="history"][data-history-expanded="false"] .place-subtitle,
+.place-sheet[data-content-type="history"][data-history-expanded="false"] .place-hero,
+.place-sheet[data-content-type="history"][data-history-expanded="false"] .place-facts,
+.place-sheet[data-content-type="history"][data-history-expanded="false"] .place-summary-label,
+.place-sheet[data-content-type="history"][data-history-expanded="false"] .place-summary,
+.place-sheet[data-content-type="history"][data-history-expanded="false"] .place-context-source,
+.place-sheet[data-content-type="history"][data-history-expanded="false"] .place-evidence,
+.place-sheet[data-content-type="history"][data-history-expanded="false"] .place-actions,
+.place-sheet[data-content-type="history"][data-history-expanded="false"] .history-briefing {
+  display: none !important;
+}
+
+.place-sheet[data-content-type="history"][data-history-expanded="false"] .place-close {
+  width: 38px;
+  height: 38px;
+  padding: 10px;
+}
+
+.place-sheet[data-content-type="history"][data-history-expanded="true"] {
+  height: min(560px, 58dvh);
+  background: rgba(18, 18, 20, .95);
+}
+
+.place-sheet[data-content-type="history"][data-history-expanded="true"] .place-sheet-scroll {
+  padding-top: 10px;
+}
+
+@media (max-width: 720px) {
+  .place-sheet[data-content-type="history"][data-history-expanded="false"] {
+    height: 76px !important;
+    left: 10px;
+    right: 10px;
+    bottom: calc(8px + env(safe-area-inset-bottom));
+  }
+
+  .place-sheet[data-content-type="history"] .place-header {
+    min-height: 74px;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .place-sheet[data-content-type="history"] {
+    background: #1c1c1e !important;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .place-sheet[data-content-type="history"] {
+    border-color: rgba(255, 255, 255, .42);
+  }
+
+  .place-sheet[data-content-type="history"] .history-sheet-toggle::after {
+    border-color: rgba(255, 255, 255, .92);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .place-sheet[data-content-type="history"] .history-sheet-toggle::after,
+  .place-sheet[data-content-type="history"] {
+    transition: none;
+  }
+}
