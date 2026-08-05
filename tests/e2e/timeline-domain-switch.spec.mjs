@@ -9,8 +9,6 @@ test.beforeEach(async ({ page }) => openFixture(page));
 
 test('keeps the timeline launcher compact and above the globe', async ({ page }) => {
   const launcher = page.locator('#yearButton');
-  const identity = page.locator('.map-identity');
-  const globe = page.locator('.fixture-globe');
 
   await expect(launcher).toHaveClass(/timeline-disclosure-launcher/);
   await expect(launcher.locator('#eraLabel')).toHaveText('Earth History');
@@ -45,7 +43,7 @@ test('survives repeated Earth and Human History switches', async ({ page }) => {
     await expect(page.locator('body')).toHaveAttribute('data-timeline-mode', 'human');
     await expect(human).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('#eraLabel')).toHaveText('Human History');
-    await expect(page.locator('#timelineIntervalRail [data-interval-id]')).toHaveCount(6);
+    await expect(page.locator('#timelineIntervalRail [data-interval-id]')).toHaveCount(7);
 
     const humanState = await page.evaluate(() => ({
       state: WorldlineTimelineState.getState(),
