@@ -13,6 +13,7 @@
   let installed = false;
   let syncing = false;
   let lastHistoryTitle = '';
+  let nativeOpenPlaceCard = null;
 
   function isHistory() {
     return sheet.dataset.contentType === 'history';
@@ -91,6 +92,28 @@
     lastHistoryTitle = '';
   }
 
+  function prepareOrdinaryPlaceCard() {
+    if (sheet.dataset.contentType !== 'place') sheet.dataset.contentType = 'place';
+    clearHistoryConfiguration();
+  }
+
+  function installPlaceCardBridge() {
+    const candidate = globalThis.openPlaceCard;
+    if (typeof candidate !== 'function') return false;
+    if (candidate.__worldlineHistorySheetBridge === BUILD) return true;
+    nativeOpenPlaceCard = candidate;
+    const bridgedOpenPlaceCard = function bridgedOpenPlaceCard(model) {
+      prepareOrdinaryPlaceCard();
+      return nativeOpenPlaceCard(model);
+    };
+    Object.defineProperty(bridgedOpenPlaceCard, '__worldlineHistorySheetBridge', {
+      value: BUILD,
+      enumerable: false
+    });
+    globalThis.openPlaceCard = bridgedOpenPlaceCard;
+    return true;
+  }
+
   function toggleHistorySheet() {
     if (!isHistory() || !isOpen()) return;
     setExpanded(sheet.dataset.historyExpanded !== 'true', { focus: true });
@@ -151,6 +174,11 @@
     characterData: true
   });
 
+  const bridgeInstaller = setInterval(() => {
+    if (installPlaceCardBridge()) clearInterval(bridgeInstaller);
+  }, 40);
+  setTimeout(() => clearInterval(bridgeInstaller), 12000);
+
   configureHistorySheet();
   installed = true;
   window.__WORLDLINE_HISTORY_SHEET_BUILD__ = BUILD;
@@ -159,7 +187,8 @@
     expand: () => setExpanded(true),
     collapse: () => setExpanded(false),
     toggle: toggleHistorySheet,
-    isExpanded: () => isHistory() && sheet.dataset.historyExpanded === 'true'
+    isExpanded: () => isHistory() && sheet.dataset.historyExpanded === 'true',
+    resetPlacePresentation: prepareOrdinaryPlaceCard
   });
   window.dispatchEvent(new CustomEvent('worldline:history-sheet-ready', { detail: { build: BUILD, installed } }));
 })();
