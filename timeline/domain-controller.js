@@ -132,7 +132,8 @@
 
   function guardMapLifecycle() {
     const mapInstance = atlasMap();
-    if (!mapInstance || guardedMaps.has(mapInstance)) return false;
+    if (!mapInstance) return false;
+    if (guardedMaps.has(mapInstance)) return true;
     guardedMaps.add(mapInstance);
     for (const eventName of ['load', 'styledata']) {
       try { mapInstance.on?.(eventName, () => enforceDomainLayers()); } catch (_) {}
@@ -221,7 +222,6 @@
     });
 
     document.body.dataset.timelineMode = bridgeMode;
-    guardMapLifecycle();
     enforceDomainLayers(bridgeMode);
     return true;
   }
@@ -277,11 +277,74 @@
     return true;
   }
 
+  function configureChapterDisclosure() {
+    const card = document.querySelector('#timelineEraCard');
+    if (!card) return false;
+    if (card.dataset.disclosureOwner === BUILD) return true;
+
+    const title = card.querySelector('#timelineEraTitle');
+    const meta = card.querySelector('#timelineEraMeta');
+    const summary = card.querySelector('#timelineEraSummary');
+    const explore = card.querySelector('#timelineEraExplore');
+    const oldCopy = card.querySelector('.timeline-era-card-copy');
+    if (!title || !meta || !summary) return false;
+
+    const toggle = document.createElement('button');
+    toggle.id = 'timelineChapterDisclosure';
+    toggle.className = 'timeline-chapter-toggle';
+    toggle.type = 'button';
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-controls', 'timelineChapterDetails');
+
+    const toggleCopy = document.createElement('span');
+    toggleCopy.className = 'timeline-chapter-toggle-copy';
+    const domain = document.createElement('span');
+    domain.className = 'timeline-chapter-domain';
+    domain.textContent = timeline().getState().domain === 'human' ? 'Human History' : 'Earth History';
+    const chevron = document.createElement('span');
+    chevron.className = 'timeline-chapter-chevron';
+    chevron.setAttribute('aria-hidden', 'true');
+    toggleCopy.append(domain, title);
+    toggle.append(toggleCopy, chevron);
+
+    const details = document.createElement('div');
+    details.id = 'timelineChapterDetails';
+    details.className = 'timeline-chapter-details timeline-era-card-copy';
+    details.hidden = true;
+    details.append(meta, summary);
+    oldCopy?.querySelectorAll('.worldline-surface-badge').forEach((badge) => details.appendChild(badge));
+    if (explore) details.appendChild(explore);
+
+    card.replaceChildren(toggle, details);
+    card.classList.add('timeline-chapter-disclosure');
+    card.dataset.disclosureOwner = BUILD;
+    card.dataset.expanded = 'false';
+    card.removeAttribute('role');
+    card.removeAttribute('tabindex');
+    card.removeAttribute('aria-label');
+
+    const setExpanded = (expanded) => {
+      toggle.setAttribute('aria-expanded', String(expanded));
+      details.hidden = !expanded;
+      card.dataset.expanded = String(expanded);
+    };
+    toggle.addEventListener('click', () => setExpanded(toggle.getAttribute('aria-expanded') !== 'true'));
+
+    let lastDomain = timeline().getState().domain;
+    timeline().subscribe((state) => {
+      domain.textContent = state.domain === 'human' ? 'Human History' : 'Earth History';
+      if (state.domain !== lastDomain) setExpanded(false);
+      lastDomain = state.domain;
+    });
+    return true;
+  }
+
   function install() {
     if (installed) return true;
     if (!document.body || !timeline() || !window.__WORLDLINE_TIMELINE_BUILD__) return false;
     if (!installBridge() || !configureLauncher()) return false;
     installDomainButtons();
+    configureChapterDisclosure();
     installed = true;
     window.__WORLDLINE_TIMELINE_DOMAIN_CONTROLLER_BUILD__ = BUILD;
     window.dispatchEvent(new CustomEvent('worldline:timeline-domain-controller-ready', {
@@ -291,8 +354,17 @@
   }
 
   const installer = setInterval(() => {
-    guardMapLifecycle();
     if (install()) clearInterval(installer);
   }, 30);
-  setTimeout(() => clearInterval(installer), 12000);
+  const mapInstaller = setInterval(() => {
+    if (guardMapLifecycle()) clearInterval(mapInstaller);
+  }, 90);
+  const chapterInstaller = setInterval(() => {
+    if (configureChapterDisclosure()) clearInterval(chapterInstaller);
+  }, 90);
+  setTimeout(() => {
+    clearInterval(installer);
+    clearInterval(mapInstaller);
+    clearInterval(chapterInstaller);
+  }, 12000);
 })();
