@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Worldline researched history sheet fixture</title>
+  <link rel="stylesheet" href="../../styles.css" />
+  <link rel="stylesheet" href="../../mobile/base.css" />
+  <link rel="stylesheet" href="../../mobile/sheets.css" />
+  <link rel="stylesheet" href="../../mobile/surfaces.css" />
+  <link rel="stylesheet" href="../../history-engine.css" />
+  <link rel="stylesheet" href="../../timeline/history-sheet.css" />
+  <style>
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #000; }
+    .map-stage { position: relative; width: 100%; height: 100%; overflow: hidden; }
+    .fixture-globe { position: absolute; z-index: 6; left: 50%; top: 15%; width: min(76vw, 620px); aspect-ratio: 1; border-radius: 50%; transform: translateX(-50%); background: radial-gradient(circle at 68% 32%, #a4c9df, #2d668a 48%, #07131f 73%); }
+    #searchShell { display: none; }
+  </style>
+</head>
+<body>
+  <main class="map-stage">
+    <div class="fixture-globe" aria-hidden="true"></div>
+    <button id="sheetScrim" class="sheet-scrim" type="button" tabindex="-1" aria-label="Close details"></button>
+    <section id="searchShell"></section>
+    <section id="placeSheet" class="place-sheet" data-detent="closed" aria-hidden="true" role="dialog" aria-modal="false" aria-labelledby="placeTitle">
+      <button id="placeSheetHandle" class="place-sheet-handle" type="button" aria-label="Resize details"><span></span></button>
+      <div class="place-sheet-scroll">
+        <header class="place-header">
+          <div>
+            <p id="placeEyebrow" class="place-eyebrow">Earth History</p>
+            <h2 id="placeTitle">Details</h2>
+            <p id="placeSubtitle" class="place-subtitle">539 million years ago</p>
+          </div>
+          <button id="placeClose" class="place-close" type="button" aria-label="Close details">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+          </button>
+        </header>
+        <div class="place-facts"><span class="place-fact">539 million years ago</span></div>
+        <p class="place-summary-label">Context</p>
+        <p id="placeSummary" class="place-summary">Marine ecosystems diversified while vertebrates began entering land environments.</p>
+        <p id="placeContextSource" class="place-context-source">Reviewed chronology.</p>
+        <div id="placeEvidence" class="place-evidence">
+          <div id="historyBriefing" class="history-briefing">
+            <section class="history-overview"><p>Life moved from sea to land during this chapter.</p></section>
+          </div>
+        </div>
+        <div class="place-actions">
+          <a id="placeSource" class="place-action primary" href="#source">Open source</a>
+          <button id="placeExpand" class="place-action" type="button">More details</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const sheet = document.querySelector('#placeSheet');
+    const expand = document.querySelector('#placeExpand');
+    function setDetent(detent) {
+      sheet.dataset.detent = detent;
+      sheet.setAttribute('aria-hidden', String(detent === 'closed'));
+      document.body.classList.toggle('place-card-open', detent !== 'closed');
+      document.body.classList.toggle('place-detent-peek', detent === 'peek');
+      document.body.classList.toggle('place-detent-medium', detent === 'medium');
+      document.body.classList.toggle('place-detent-full', detent === 'full');
+    }
+    expand.addEventListener('click', () => {
+      if (sheet.dataset.detent === 'peek') setDetent('medium');
+      else if (sheet.dataset.detent === 'medium') setDetent('full');
+      else setDetent('peek');
+    });
+    window.__fixtureSetDetent = setDetent;
+    window.__fixtureOpenHistory = (title = 'Life moves from sea to land', domain = 'Earth History') => {
+      document.querySelector('#placeTitle').textContent = title;
+      document.querySelector('#placeEyebrow').textContent = domain;
+      sheet.dataset.contentType = 'history';
+      setDetent('peek');
+      setTimeout(() => expand.click(), 50);
+    };
+  </script>
+  <script src="../../timeline/history-sheet.js"></script>
+  <script>
+    window.__fixtureOpenHistory();
+    const ready = setInterval(() => {
+      if (window.__WORLDLINE_HISTORY_SHEET_BUILD__ !== '2026-08-04-globe-r30-history-sheet') return;
+      if (document.querySelector('#placeSheet').dataset.historyExpanded !== 'false') return;
+      clearInterval(ready);
+      setTimeout(() => { document.body.dataset.fixtureReady = 'true'; }, 90);
+    }, 20);
+  </script>
+</body>
+</html>
