@@ -69,7 +69,13 @@
       else setDetent('peek');
     });
     window.__fixtureSetDetent = setDetent;
+    window.openPlaceCard = (model) => {
+      document.querySelector('#placeTitle').textContent = model.name;
+      document.querySelector('#placeEyebrow').textContent = model.eyebrow || 'Historical place';
+      setDetent('peek');
+    };
     window.__fixtureOpenHistory = (title = 'Life moves from sea to land', domain = 'Earth History') => {
+      window.openPlaceCard({ name: title, eyebrow: domain });
       document.querySelector('#placeTitle').textContent = title;
       document.querySelector('#placeEyebrow').textContent = domain;
       sheet.dataset.contentType = 'history';
@@ -82,6 +88,7 @@
     window.__fixtureOpenHistory();
     const ready = setInterval(() => {
       if (window.__WORLDLINE_HISTORY_SHEET_BUILD__ !== '2026-08-04-globe-r30-history-sheet') return;
+      if (window.openPlaceCard.__worldlineHistorySheetBridge !== '2026-08-04-globe-r30-history-sheet') return;
       if (document.querySelector('#placeSheet').dataset.historyExpanded !== 'false') return;
       clearInterval(ready);
       setTimeout(() => { document.body.dataset.fixtureReady = 'true'; }, 90);
