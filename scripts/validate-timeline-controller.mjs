@@ -62,8 +62,8 @@ for (const token of [
 }
 for (const token of [
   'WorldlineHistorySheet', 'history-sheet-disclosure', 'history-sheet-ready',
-  'installPlaceCardBridge', 'prepareOrdinaryPlaceCard', 'data-content-type',
-  'event.isTrusted', 'data-history-expanded'
+  'installPlaceCardBridge', 'prepareOrdinaryPlaceCard', 'contentType',
+  'event.isTrusted', 'historyExpanded'
 ]) {
   requireText('timeline/history-sheet.js', token, `Researched-history sheet controller is missing ${token}`);
 }
