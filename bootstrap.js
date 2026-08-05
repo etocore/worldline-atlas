@@ -53,6 +53,7 @@
   loadStyle('search/search.css');
   loadStyle('timeline/timeline.css');
   loadStyle('timeline/launcher.css');
+  loadStyle('timeline/chapter.css');
 
   loadScript('ui-adapters.js');
   loadScript('earth-history.js');
