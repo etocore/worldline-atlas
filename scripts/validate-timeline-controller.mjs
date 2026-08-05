@@ -3,9 +3,11 @@ import { access, readFile } from 'node:fs/promises';
 const failures = [];
 const required = [
   'timeline/model.js', 'timeline/state.js', 'timeline/view.js', 'timeline/domain-controller.js',
-  'timeline/timeline.css', 'timeline/launcher.css', 'timeline/chapter.css',
+  'timeline/history-sheet.js', 'timeline/timeline.css', 'timeline/launcher.css',
+  'timeline/chapter.css', 'timeline/history-sheet.css',
   'performance/timeline.js', 'tests/e2e/timeline-performance.spec.mjs',
   'tests/e2e/timeline-domain-switch.spec.mjs', 'tests/fixtures/timeline-domain-switch.html',
+  'tests/e2e/history-sheet.spec.mjs', 'tests/fixtures/history-sheet.html',
   'bootstrap.js', 'earth-history.css', 'mobile/surfaces.css', 'search/search.js',
   'search/search.css', 'README.md', 'version.json'
 ];
@@ -30,7 +32,8 @@ if (!sources['bootstrap.js'].includes(version?.build || '')) failures.push('boot
 
 for (const asset of [
   'timeline/model.js', 'timeline/state.js', 'timeline/view.js', 'timeline/domain-controller.js',
-  'timeline/timeline.css', 'timeline/launcher.css', 'timeline/chapter.css', 'performance/timeline.js'
+  'timeline/history-sheet.js', 'timeline/timeline.css', 'timeline/launcher.css',
+  'timeline/chapter.css', 'timeline/history-sheet.css', 'performance/timeline.js'
 ]) {
   requireText('bootstrap.js', asset, `bootstrap.js does not load ${asset}`);
 }
@@ -57,6 +60,13 @@ for (const token of [
 ]) {
   requireText('timeline/domain-controller.js', token, `Timeline domain controller is missing ${token}`);
 }
+for (const token of [
+  'WorldlineHistorySheet', 'history-sheet-disclosure', 'history-sheet-ready',
+  'installPlaceCardBridge', 'prepareOrdinaryPlaceCard', 'data-content-type',
+  'event.isTrusted', 'data-history-expanded'
+]) {
+  requireText('timeline/history-sheet.js', token, `Researched-history sheet controller is missing ${token}`);
+}
 for (const token of ['.timeline-hud', '.timeline-header', '.timeline-domain', '.timeline-interval-rail', '.timeline-local-slider', 'direction: ltr', 'prefers-reduced-motion', 'prefers-reduced-transparency', 'prefers-contrast']) {
   requireText('timeline/timeline.css', token, `Canonical timeline stylesheet is missing ${token}`);
 }
@@ -65,6 +75,9 @@ for (const token of ['timeline-disclosure-launcher', 'min-height: 44px', '.map-i
 }
 for (const token of ['timeline-chapter-disclosure', 'timeline-chapter-toggle', 'min-height: 48px', 'timeline-chapter-details', 'aria-expanded', 'prefers-reduced-transparency', 'prefers-contrast']) {
   requireText('timeline/chapter.css', token, `Canonical history chapter stylesheet is missing ${token}`);
+}
+for (const token of ['data-content-type="history"', 'data-history-expanded="false"', 'height: 78px', 'history-sheet-toggle', 'z-index: 42', 'prefers-reduced-transparency', 'prefers-contrast']) {
+  requireText('timeline/history-sheet.css', token, `Canonical researched-history sheet stylesheet is missing ${token}`);
 }
 for (const token of ['WorldlinePerformance', 'inputToRenderP95Ms', 'maxPreviewRequestsPerGesture', 'maxPostReleaseRequests', 'maxSourceRemovalsDuringGesture', 'maxCommitsPerGesture', 'worldline:timeline-performance-sample']) {
   requireText('performance/timeline.js', token, `Timeline performance contract is missing ${token}`);
@@ -77,6 +90,12 @@ for (const token of ['timeline-disclosure-launcher', 'timeline-chapter-disclosur
 }
 for (const token of ['Cannot read properties of null', 'Life moves from sea to land', 'worldlineKind', 'timeline/chapter.css']) {
   requireText('tests/fixtures/timeline-domain-switch.html', token, `Timeline domain fixture is missing ${token}`);
+}
+for (const token of ['automatic medium sheet', 'data-history-expanded', 'window.openPlaceCard', 'Human History', 'history-sheet-toggle']) {
+  requireText('tests/e2e/history-sheet.spec.mjs', token, `Researched-history sheet regression is missing ${token}`);
+}
+for (const token of ['setTimeout(() => expand.click()', '__worldlineHistorySheetBridge', 'timeline/history-sheet.js', 'timeline/history-sheet.css']) {
+  requireText('tests/fixtures/history-sheet.html', token, `Researched-history sheet fixture is missing ${token}`);
 }
 
 if (/timeline-primary-slider|direction:\s*rtl|timeline-mode-control/.test(sources['earth-history.css'])) failures.push('earth-history.css still contains retired timeline rules');
@@ -99,4 +118,4 @@ if (failures.length) {
   failures.forEach((failure) => console.error(`- ${failure}`));
   process.exit(1);
 }
-console.log('Canonical timeline, compact disclosures, domain controller, and r30 performance budgets remain isolated from mobile and search.');
+console.log('Canonical timeline, compact disclosures, researched-history sheet, domain controller, and r30 performance budgets remain isolated from mobile and search.');
