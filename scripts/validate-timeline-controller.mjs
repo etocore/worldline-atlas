@@ -3,7 +3,7 @@ import { access, readFile } from 'node:fs/promises';
 const failures = [];
 const required = [
   'timeline/model.js', 'timeline/state.js', 'timeline/view.js', 'timeline/domain-controller.js',
-  'timeline/timeline.css', 'timeline/launcher.css',
+  'timeline/timeline.css', 'timeline/launcher.css', 'timeline/chapter.css',
   'performance/timeline.js', 'tests/e2e/timeline-performance.spec.mjs',
   'tests/e2e/timeline-domain-switch.spec.mjs', 'tests/fixtures/timeline-domain-switch.html',
   'bootstrap.js', 'earth-history.css', 'mobile/surfaces.css', 'search/search.js',
@@ -24,7 +24,7 @@ if (!sources['bootstrap.js'].includes(version?.build || '')) failures.push('boot
 
 for (const asset of [
   'timeline/model.js', 'timeline/state.js', 'timeline/view.js', 'timeline/domain-controller.js',
-  'timeline/timeline.css', 'timeline/launcher.css', 'performance/timeline.js'
+  'timeline/timeline.css', 'timeline/launcher.css', 'timeline/chapter.css', 'performance/timeline.js'
 ]) {
   requireText('bootstrap.js', asset, `bootstrap.js does not load ${asset}`);
 }
@@ -44,7 +44,11 @@ for (const token of ['WorldlineTimelineState', 'beginGesture', 'previewFromPosit
 for (const token of ["ui().register('timeline'", 'createHud', 'ownLauncher', 'buildSettings', 'buildRail', 'updateRail', 'schedulePreview', 'syncLegacy', '__WORLDLINE_TIMELINE_BUILD__']) {
   requireText('timeline/view.js', token, `Timeline view is missing ${token}`);
 }
-for (const token of ['__domainBridgeBuild', 'cancelActiveGesture', 'timeline-domain-recovered', 'timeline-domain-controller-ready', 'setLayerVisibility', 'configureLauncher']) {
+for (const token of [
+  '__domainBridgeBuild', 'cancelActiveGesture', 'timeline-domain-recovered',
+  'timeline-domain-controller-ready', 'setLayerVisibility', 'configureLauncher',
+  'configureChapterDisclosure', 'discoveredHumanLayers', 'guardMapLifecycle'
+]) {
   requireText('timeline/domain-controller.js', token, `Timeline domain controller is missing ${token}`);
 }
 for (const token of ['.timeline-hud', '.timeline-header', '.timeline-domain', '.timeline-interval-rail', '.timeline-local-slider', 'direction: ltr', 'prefers-reduced-motion', 'prefers-reduced-transparency', 'prefers-contrast']) {
@@ -53,18 +57,21 @@ for (const token of ['.timeline-hud', '.timeline-header', '.timeline-domain', '.
 for (const token of ['timeline-disclosure-launcher', 'min-height: 44px', '.map-identity', 'z-index: 40', 'aria-expanded', 'prefers-reduced-transparency', 'prefers-contrast']) {
   requireText('timeline/launcher.css', token, `Canonical timeline launcher stylesheet is missing ${token}`);
 }
+for (const token of ['timeline-chapter-disclosure', 'timeline-chapter-toggle', 'min-height: 48px', 'timeline-chapter-details', 'aria-expanded', 'prefers-reduced-transparency', 'prefers-contrast']) {
+  requireText('timeline/chapter.css', token, `Canonical history chapter stylesheet is missing ${token}`);
+}
 for (const token of ['WorldlinePerformance', 'inputToRenderP95Ms', 'maxPreviewRequestsPerGesture', 'maxPostReleaseRequests', 'maxSourceRemovalsDuringGesture', 'maxCommitsPerGesture', 'worldline:timeline-performance-sample']) {
   requireText('performance/timeline.js', token, `Timeline performance contract is missing ${token}`);
 }
 for (const token of ['inputToRenderP95Ms', 'previewRequests', 'postReleaseRequests', 'sourceRemovals', 'commits', 'abortedRequests']) {
   requireText('tests/e2e/timeline-performance.spec.mjs', token, `Timeline performance regression is missing ${token}`);
 }
-for (const token of ['three complete', 'timeline-disclosure-launcher', 'timeline-scrubbing', '__legacyModeFailures']) {
-  if (token === 'three complete') continue;
+for (const token of ['timeline-disclosure-launcher', 'timeline-chapter-disclosure', 'timeline-scrubbing', '__legacyModeFailures', 'cycle < 3', 'historical-settlement']) {
   requireText('tests/e2e/timeline-domain-switch.spec.mjs', token, `Timeline domain-switch regression is missing ${token}`);
 }
-requireText('tests/e2e/timeline-domain-switch.spec.mjs', 'cycle < 3', 'Timeline domain-switch regression does not repeat Earth and Human transitions');
-requireText('tests/fixtures/timeline-domain-switch.html', 'Cannot read properties of null', 'Timeline domain fixture does not reproduce the retired renderer failure');
+for (const token of ['Cannot read properties of null', 'Life moves from sea to land', 'worldlineKind', 'timeline/chapter.css']) {
+  requireText('tests/fixtures/timeline-domain-switch.html', token, `Timeline domain fixture is missing ${token}`);
+}
 
 if (/timeline-primary-slider|direction:\s*rtl|timeline-mode-control/.test(sources['earth-history.css'])) failures.push('earth-history.css still contains retired timeline rules');
 for (const adjacent of ['mobile/surfaces.css', 'search/search.css']) {
@@ -74,6 +81,8 @@ if (/createTimelineHud|timelineSlider|timelinePlay/.test(sources['search/search.
 if (/MutationObserver[\s\S]*years ago|TreeWalker|rewriteTextNodes/.test(sources['timeline/view.js'])) failures.push('Timeline view reintroduces post-render text rewriting');
 
 requireText('README.md', 'The canonical timeline subsystem lives in `timeline/`', 'README does not describe the canonical timeline architecture');
+requireText('README.md', '`domain-controller.js` owns the compact launcher state', 'README does not describe canonical domain ownership');
+requireText('README.md', '`launcher.css` owns the title-only disclosure', 'README does not describe launcher ownership');
 requireText('README.md', '`performance/timeline.js` measures the canonical timeline', 'README does not describe the performance contract');
 requireText('README.md', '1.8 billion years ago', 'README does not describe the reconstruction boundary');
 requireText('README.md', '300,000 years ago', 'README does not describe the Human History range');
@@ -83,4 +92,4 @@ if (failures.length) {
   failures.forEach((failure) => console.error(`- ${failure}`));
   process.exit(1);
 }
-console.log('Canonical timeline, disclosure launcher, domain controller, and r30 performance budgets remain isolated from mobile and search.');
+console.log('Canonical timeline, compact disclosures, domain controller, and r30 performance budgets remain isolated from mobile and search.');
