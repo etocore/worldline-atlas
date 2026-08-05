@@ -12,6 +12,12 @@ const required = [
 for (const file of required) {
   try { await access(file); } catch { failures.push(`Missing canonical timeline file: ${file}`); }
 }
+for (const file of ['earth-era-context.js', 'earth-ui-sync.js', 'earth-ui-sync.css']) {
+  try {
+    await access(file);
+    failures.push(`Retired timeline file remains in the repository: ${file}`);
+  } catch {}
+}
 
 const sources = Object.fromEntries(await Promise.all(required.map(async (file) => [file, await readFile(file, 'utf8')])));
 const requireText = (file, token, message) => {
@@ -31,7 +37,7 @@ for (const asset of [
 for (const asset of [
   'apple-timeline-r11', 'atlas-timeline-r18', 'atlas-timeline-state-r18', 'time-control-r16',
   'timeline-navigation-r23', 'timeline-rail-r24', 'time-language-r25', 'human-scrubber-r26',
-  'timeline-interface-r27', 'earth-era-context.js', 'earth-ui-sync.js'
+  'timeline-interface-r27', 'earth-era-context.js', 'earth-ui-sync.js', 'earth-ui-sync.css'
 ]) {
   if (sources['bootstrap.js'].includes(asset)) failures.push(`bootstrap.js still loads retired timeline generation ${asset}`);
 }
