@@ -52,11 +52,10 @@
   loadStyle('mobile/surfaces.css');
   loadStyle('search/search.css');
   loadStyle('timeline/timeline.css');
+  loadStyle('timeline/launcher.css');
 
   loadScript('ui-adapters.js');
   loadScript('earth-history.js');
-  loadScript('earth-era-context.js');
-  loadScript('earth-ui-sync.js');
   loadScript('r12-ui.js');
   loadScript('life-evidence.js');
   loadScript('history-presence-r14.js');
@@ -67,5 +66,6 @@
   loadScript('search/viewport.js');
   loadScript('search/compat.js');
   loadScript('timeline/view.js');
+  loadScript('timeline/domain-controller.js');
   loadScript('performance/timeline.js');
 })();
