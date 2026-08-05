@@ -53,13 +53,10 @@ test('resets cleanly between ordinary place details and new history chapters', a
   const sheet = page.locator('#placeSheet');
   const headerCopy = page.locator('.place-header > div:first-child');
 
-  await page.evaluate(() => {
-    const sheet = document.querySelector('#placeSheet');
-    sheet.dataset.contentType = 'place';
-    document.querySelector('#placeTitle').textContent = 'Rome';
-    window.__fixtureSetDetent('peek');
-  });
+  await page.evaluate(() => window.openPlaceCard({ name: 'Rome', eyebrow: 'Historical place' }));
 
+  await expect(page.locator('#placeTitle')).toHaveText('Rome');
+  await expect(sheet).toHaveAttribute('data-content-type', 'place');
   await expect(sheet).not.toHaveAttribute('data-history-expanded');
   await expect(headerCopy).not.toHaveAttribute('role');
   await expect(page.locator('#historyBriefing')).toBeVisible();
