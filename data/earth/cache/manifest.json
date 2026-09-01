@@ -1,7 +1,7 @@
 {
   "version": 2,
   "model": "CAO2024",
-  "generatedAt": "2026-08-03T19:11:54.783Z",
+  "generatedAt": "2026-09-01T10:16:31.311Z",
   "coastlines": [
     {
       "ageMa": 0,
@@ -239,11 +239,11 @@
       "ageMa": 250,
       "model": "CAO2024",
       "featureCount": 900,
-      "floraCount": 442,
-      "faunaCount": 458,
+      "floraCount": 441,
+      "faunaCount": 459,
       "path": "data/earth/cache/life-250.json",
-      "bytes": 485783,
-      "sha256": "679e1db2c9b02ceeea98b9cb9d925d5a708cb3b90d2035fe0968eca8d492d5df"
+      "bytes": 484107,
+      "sha256": "6e4774007b35f3c68d58bdcb313dfbac0ffdfc0e087cf6c12df6f56661836020"
     },
     {
       "ageMa": 252,
@@ -282,18 +282,18 @@
       "floraCount": 279,
       "faunaCount": 473,
       "path": "data/earth/cache/life-419.json",
-      "bytes": 398187,
-      "sha256": "0fee27a1d581617cecefb00adc3f3e60ff9576e65a123fead9bfaa893ada34a9"
+      "bytes": 398179,
+      "sha256": "ca89fedbced0d45883e69f4851bd334ef89f1fa370062dd0bc11dee8e4a9549d"
     },
     {
       "ageMa": 470,
       "model": "CAO2024",
-      "featureCount": 530,
+      "featureCount": 529,
       "floraCount": 74,
-      "faunaCount": 456,
+      "faunaCount": 455,
       "path": "data/earth/cache/life-470.json",
-      "bytes": 278871,
-      "sha256": "fe0efb3199c2ce1080daf1235e736d14148c22098d8cbe058ed8dfddb02575f0"
+      "bytes": 278350,
+      "sha256": "248151a618d0c0723a7ab9836fa0f217aa2727311f12556b5b8c4eadf70deac2"
     },
     {
       "ageMa": 538.8,
@@ -302,8 +302,8 @@
       "floraCount": 7,
       "faunaCount": 553,
       "path": "data/earth/cache/life-538p8.json",
-      "bytes": 304070,
-      "sha256": "da9a67fe8f38011c9a8da67b28d14b264c2365e4678966f99165bf6591d02f92"
+      "bytes": 304075,
+      "sha256": "6e88162c38a2ac3784d6c552f11c6e6cd9174689e7850b28b3e57ef807754d3e"
     }
   ],
   "sources": {
