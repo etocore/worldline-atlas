@@ -1,5 +1,5 @@
 (() => {
-  const BUILD = '2026-08-04-globe-r29';
+  const BUILD = '2026-08-04-globe-r30';
   const nativeFetch = window.fetch.bind(window);
   window.fetch = (input, init = {}) => {
     const url = typeof input === 'string' ? input : input?.url || '';
@@ -42,7 +42,6 @@
 
   loadStyle('r9-polish.css');
   loadStyle('earth-history.css');
-  loadStyle('earth-ui-sync.css');
   loadStyle('life-regions-r12.css');
   loadStyle('history-engine.css');
   loadStyle('history-presence-r14.css');
@@ -52,11 +51,12 @@
   loadStyle('mobile/surfaces.css');
   loadStyle('search/search.css');
   loadStyle('timeline/timeline.css');
+  loadStyle('timeline/launcher.css');
+  loadStyle('timeline/chapter.css');
+  loadStyle('timeline/history-sheet.css');
 
   loadScript('ui-adapters.js');
   loadScript('earth-history.js');
-  loadScript('earth-era-context.js');
-  loadScript('earth-ui-sync.js');
   loadScript('r12-ui.js');
   loadScript('life-evidence.js');
   loadScript('history-presence-r14.js');
@@ -67,4 +67,7 @@
   loadScript('search/viewport.js');
   loadScript('search/compat.js');
   loadScript('timeline/view.js');
+  loadScript('timeline/domain-controller.js');
+  loadScript('timeline/history-sheet.js');
+  loadScript('performance/timeline.js');
 })();
