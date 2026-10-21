@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test:mobile": "playwright test"
+    "test:mobile": "playwright test",
+    "test:performance": "playwright test tests/e2e/timeline-performance.spec.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.61.1"

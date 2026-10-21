@@ -1,0 +1,144 @@
+/* Compact researched-history context disclosure. */
+.timeline-era-card.timeline-chapter-disclosure {
+  position: relative;
+  z-index: 39;
+  display: block !important;
+  width: min(390px, calc(100vw - 24px)) !important;
+  min-height: 48px !important;
+  max-height: min(360px, calc(100dvh - 140px));
+  padding: 0 !important;
+  overflow: hidden !important;
+  border: .5px solid rgba(255, 255, 255, .15) !important;
+  border-radius: 18px !important;
+  background: rgba(28, 28, 30, .86) !important;
+  box-shadow: 0 12px 38px rgba(0, 0, 0, .34), inset 0 .5px rgba(255, 255, 255, .08) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(150%);
+  backdrop-filter: blur(28px) saturate(150%);
+}
+
+.timeline-chapter-toggle {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18px;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px 0 16px;
+  border: 0;
+  color: rgba(255, 255, 255, .96);
+  background: transparent;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.timeline-chapter-toggle-copy {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.timeline-chapter-domain {
+  overflow: hidden;
+  color: rgba(235, 235, 245, .52);
+  font: 600 10px/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  letter-spacing: .035em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.timeline-chapter-toggle #timelineEraTitle {
+  display: block;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: rgba(255, 255, 255, .96);
+  font: 650 15px/1.15 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  letter-spacing: -.012em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timeline-chapter-chevron {
+  width: 8px;
+  height: 8px;
+  justify-self: center;
+  border-right: 1.5px solid rgba(235, 235, 245, .58);
+  border-bottom: 1.5px solid rgba(235, 235, 245, .58);
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 180ms cubic-bezier(.32, .72, 0, 1);
+}
+
+.timeline-chapter-toggle[aria-expanded="true"] .timeline-chapter-chevron {
+  transform: translateY(2px) rotate(225deg);
+}
+
+.timeline-chapter-toggle:active { background: rgba(255, 255, 255, .045); }
+.timeline-chapter-toggle:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 3px solid rgba(100, 210, 255, .72);
+  outline-offset: -3px;
+  border-radius: 17px;
+}
+
+.timeline-chapter-details {
+  display: grid;
+  gap: 9px;
+  max-height: min(290px, calc(100dvh - 198px));
+  padding: 11px 16px 14px;
+  overflow-y: auto;
+  border-top: .5px solid rgba(255, 255, 255, .1);
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.timeline-chapter-details[hidden] { display: none !important; }
+.timeline-chapter-details #timelineEraMeta {
+  margin: 0;
+  color: rgba(100, 210, 255, .86);
+  font: 600 11px/1.25 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+}
+.timeline-chapter-details #timelineEraSummary {
+  display: block;
+  margin: 0;
+  color: rgba(235, 235, 245, .68);
+  font: 500 13px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+}
+.timeline-chapter-details #timelineEraExplore {
+  justify-self: start;
+  min-height: 36px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 18px;
+  color: #fff;
+  background: rgba(10, 132, 255, .92);
+  font: 620 12px/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+}
+
+@media (max-width: 720px) {
+  .timeline-era-card.timeline-chapter-disclosure {
+    width: min(340px, calc(100vw - 20px)) !important;
+    border-radius: 17px !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .timeline-era-card.timeline-chapter-disclosure {
+    background: #1c1c1e !important;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .timeline-era-card.timeline-chapter-disclosure {
+    border-color: rgba(255, 255, 255, .42) !important;
+  }
+  .timeline-chapter-domain,
+  .timeline-chapter-details #timelineEraSummary { color: rgba(255, 255, 255, .84); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timeline-chapter-chevron { transition: none; }
+}

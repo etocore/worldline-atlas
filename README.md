@@ -21,7 +21,8 @@ Worldline opens in **Earth History** and supports time from Earth’s formation 
 The interface is map-first and optimized for phones and tablets:
 
 - Full-screen MapLibre globe
-- Compact Earth/Human timeline launcher
+- Compact title-only Earth/Human timeline disclosure
+- Collapsed researched-history chapter title with optional details
 - Persistent scrollable geological and historical interval rail
 - Local interval-scale time scrubber
 - Bottom search surface
@@ -41,8 +42,13 @@ The canonical timeline subsystem lives in `timeline/`:
 
 - `model.js` owns interval definitions, hierarchy, scale conversions, and date formatting.
 - `state.js` owns Earth/Human state, preview transactions, commits, persistence, and timeline events.
-- `view.js` owns the launcher, timeline surface, interval rail, local scrubber, contextual settings, and lightweight coastline previews.
-- `timeline.css` is the only production stylesheet owner for timeline UI.
+- `view.js` owns the timeline surface, interval rail, local scrubber, contextual settings, and lightweight coastline previews.
+- `domain-controller.js` owns the compact launcher state, gesture-safe Earth/Human transitions, map-layer handoff, residual chapter disclosure, and recovery from the retired renderer.
+- `timeline.css` owns the expanded timeline surface.
+- `launcher.css` owns the title-only timeline disclosure, stacking, 44-point target, and accessibility adaptations.
+- `chapter.css` owns the collapsed researched-history title and its optional detail disclosure.
+
+The obsolete Earth-context and Earth-UI synchronization scripts are not loaded in production. Domain changes pass through the canonical state and domain controller rather than rebuilding retired timeline markup.
 
 ### Mobile shell
 
@@ -63,6 +69,23 @@ The canonical search subsystem lives in `search/`:
 - `search.js` owns suggestions, keyboard navigation, result selection, and timeline-domain handoff.
 - `viewport.js` owns keyboard-safe visual viewport positioning and does not control timeline behavior.
 - `search.css` owns the transient search surface and suggestions.
+
+### Performance contract
+
+`performance/timeline.js` measures the canonical timeline without changing its rendering behavior. It exposes `WorldlinePerformance` for diagnostics and CI.
+
+The deterministic r30 release budgets enforce:
+
+- 95th-percentile input-to-render latency at or below 50 ms
+- No more than four quantized preview requests during one drag
+- No more than one post-release reconstruction request
+- No source or layer removal during a timeline gesture
+- Exactly one committed timeline state per completed drag
+- Abort-aware stale preview replacement under delayed responses
+
+Input-to-paint latency and animation-frame gaps remain measured against 100 ms foreground Safari targets. They are reported separately as experience diagnostics because headless WebKit can throttle animation frames independently of application work. These targets belong in native Simulator Safari and physical-device validation rather than the deterministic CI pass/fail gate.
+
+The WebKit release contract disables Playwright video and trace encoders for its measurement file, then uses delayed paleocoastline responses to verify stale-request cancellation rather than relying on immediate mock responses.
 
 ## Evidence and uncertainty
 
@@ -114,11 +137,17 @@ The Wikidata and paleocoastline endpoints are Netlify Functions, so live connect
 npx netlify dev
 ```
 
-Run the validation suite with:
+Run the full mobile validation suite with:
 
 ```bash
 npm install
 npm run test:mobile
+```
+
+Run only the interaction performance contract with:
+
+```bash
+npm run test:performance
 ```
 
 ## Netlify deployment
@@ -135,7 +164,6 @@ Every merge to `main` triggers a production redeploy.
 
 ## Near-term milestones
 
-1. Add complete-page performance budgets for timeline interaction and source settling.
-2. Generate and review additional historical surface worlds, beginning with 120 million years ago, 66 million years ago, and the Last Glacial Maximum.
-3. Expand normalized archaeological, historical, and environmental evidence adapters.
-4. Add a reviewed natural-language research queue without fabricating unsupported reconstructions.
+1. Generate and review additional historical surface worlds, beginning with 120 million years ago, 66 million years ago, and the Last Glacial Maximum.
+2. Expand normalized archaeological, historical, and environmental evidence adapters.
+3. Add a reviewed natural-language research queue without fabricating unsupported reconstructions.
